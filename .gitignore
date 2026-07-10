@@ -1,0 +1,23 @@
+# Secrets / local config
+.env
+.env.local
+js/config.js
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Node
+node_modules/
+
+# Editor / tooling
+.vscode/
+.idea/
+.DS_Store
+.claude/
+
+# Logs
+*.log

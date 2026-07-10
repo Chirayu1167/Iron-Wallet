@@ -1,0 +1,24 @@
+{
+  "9111111111": {
+    "reports": [
+      {
+        "reporter": "user1",
+        "reason": "Scam",
+        "amount": 15000.0,
+        "time": 1783258239.7261977
+      },
+      {
+        "reporter": "user2",
+        "reason": "Fraud",
+        "amount": 12000.0,
+        "time": 1783258239.731197
+      }
+    ],
+    "report_count": 2,
+    "first_reported": 1783258239.7261977,
+    "tier": "flagged",
+    "last_reported": 1783258239.731197
+  }
+}
+  }
+}
