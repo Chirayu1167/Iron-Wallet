@@ -73,7 +73,7 @@ Set `ACCOUNT_SID`, `AUTH_TOKEN`, and `TWILIO_PHONE` as environment variables in 
 ## API
 
 See the docstring at the top of `otp_server.py` for the full endpoint list (`/send-otp`, `/verify-otp`, `/behavior-score`, `/fraud-intelligence`, `/analyze`).
-
+~Chirayu ;)
 ## License
 
 See [LICENSE](LICENSE).
