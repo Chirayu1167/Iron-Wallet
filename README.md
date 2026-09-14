@@ -51,14 +51,14 @@ cp .env.example .env
 
 If left unset, OTP sending is skipped gracefully — the app still runs.
 
-**2. Frontend (AI assistant via Gemini) — optional**
+**2. AI assistant via Gemini (proxied) — optional**
 
 ```bash
-cp js/config.example.js js/config.js
-# fill in your Gemini API key
+cp .env.example .env
+# fill in GEMINI_API_KEY (server-side, never exposed to browser)
 ```
 
-⚠️ **Note:** this key is called directly from the browser (`js/components/assistant.js`), so it's visible to anyone using the app via devtools/network tab. That's fine for a local demo, but for a real deployment you should proxy this call through `otp_server.py` instead of exposing the key client-side.
+The frontend `SafePayAssistant` (`index.html:6490` / `js/components/assistant.js:2`) now calls `POST /assistant` on the FastAPI backend (`otp_server.py:484`), which proxies to `generativelanguage.googleapis.com` using the server-side `GEMINI_API_KEY`. The legacy `js/config.js` client-side key is deprecated and no longer used — see `js/config.example.js`.
 
 ## Deployment
 
@@ -68,11 +68,11 @@ cp js/config.example.js js/config.js
 web: uvicorn otp_server:app --host 0.0.0.0 --port $PORT
 ```
 
-Set `ACCOUNT_SID`, `AUTH_TOKEN`, and `TWILIO_PHONE` as environment variables in your platform's dashboard.
+Set `ACCOUNT_SID`, `AUTH_TOKEN`, `TWILIO_PHONE`, `GEMINI_API_KEY`, and optionally `CORS_ORIGINS` as environment variables in your platform's dashboard.
 
 ## API
 
-See the docstring at the top of `otp_server.py` for the full endpoint list (`/send-otp`, `/verify-otp`, `/behavior-score`, `/fraud-intelligence`, `/analyze`).
+See the docstring at the top of `otp_server.py` for the full endpoint list (`/send-otp`, `/verify-otp`, `/behavior-score`, `/fraud-intelligence`, `/analyze`, `/assistant`, `/scam-db/*`). Frontend risk scoring in `index.html:2150` now calls live `POST /analyze` (IF + FIL) via `fetchLiveMLScore` with local `mlFraudScore` fallback if the backend is unreachable.
 ~Chirayu ;)
 ## License
 

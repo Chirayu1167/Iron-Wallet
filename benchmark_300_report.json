@@ -1,0 +1,244 @@
+{
+  "dataset": {
+    "total": 300,
+    "tier_cases": 289,
+    "invalid_cases": 11,
+    "labels": {
+      "SAFE": 125,
+      "HIGH_RISK": 71,
+      "INVALID": 11,
+      "CAUTION": 93
+    },
+    "categories": {
+      "NORMAL": 30,
+      "COMBINED": 30,
+      "INPUT_EDGE": 20,
+      "AMOUNT": 30,
+      "VELOCITY": 20,
+      "CONFLICTING": 30,
+      "SOCIAL": 30,
+      "TIME": 20,
+      "DEVICE": 20,
+      "RECIPIENT": 30,
+      "COLD_START": 20,
+      "THRESHOLD": 20
+    },
+    "seed": 42,
+    "legitimate": 125,
+    "suspicious": 164,
+    "method": "Synthetic deterministic generation, seed 42, independent expected per scenario rules, not derived from Iron output",
+    "environment": "TestClient in-process, rate limits disabled for measurement, model iforest-v1, RiskEngine v1",
+    "rate_limits_disabled": true
+  },
+  "overall": {
+    "accuracy": 72.66435986159169,
+    "correct": 210,
+    "total": 289,
+    "macro_f1": 69.2163641601844,
+    "weighted_f1": 70.63085237145344,
+    "confusion_matrix": {
+      "SAFE": {
+        "SAFE": 110,
+        "CAUTION": 7,
+        "HIGH_RISK": 8
+      },
+      "CAUTION": {
+        "SAFE": 24,
+        "CAUTION": 35,
+        "HIGH_RISK": 34
+      },
+      "HIGH_RISK": {
+        "SAFE": 1,
+        "CAUTION": 5,
+        "HIGH_RISK": 65
+      }
+    }
+  },
+  "per_tier": {
+    "SAFE": {
+      "precision": 81.48148148148148,
+      "recall": 88.0,
+      "f1": 84.61538461538463,
+      "tp": 110,
+      "fp": 25,
+      "fn": 15,
+      "support": 125
+    },
+    "CAUTION": {
+      "precision": 74.46808510638297,
+      "recall": 37.634408602150536,
+      "f1": 50.0,
+      "tp": 35,
+      "fp": 12,
+      "fn": 58,
+      "support": 93
+    },
+    "HIGH_RISK": {
+      "precision": 60.747663551401864,
+      "recall": 91.54929577464789,
+      "f1": 73.03370786516855,
+      "tp": 65,
+      "fp": 42,
+      "fn": 6,
+      "support": 71
+    }
+  },
+  "high_risk": {
+    "precision": 60.747663551401864,
+    "recall": 91.54929577464789,
+    "f1": 73.03370786516855,
+    "fpr": 19.26605504587156,
+    "fnr": 8.450704225352112
+  },
+  "binary_suspicious": {
+    "accuracy": 86.159169550173,
+    "precision": 90.25974025974025,
+    "recall": 84.7560975609756,
+    "f1": 87.42138364779873,
+    "fpr": 12.0,
+    "fnr": 15.24390243902439,
+    "suspicious_expected": 164,
+    "normal_expected": 125
+  },
+  "latency": {
+    "avg_ms": 40.34868669332625,
+    "median_ms": 35.007476806640625,
+    "p95_ms": 49.691200256347656,
+    "p99_ms": 72.12948799133301,
+    "n": 269
+  },
+  "edge_per_category": {
+    "NORMAL": {
+      "total": 30,
+      "correct": 25,
+      "accuracy": 83.33333333333334
+    },
+    "COMBINED": {
+      "total": 30,
+      "correct": 30,
+      "accuracy": 100.0
+    },
+    "AMOUNT": {
+      "total": 30,
+      "correct": 26,
+      "accuracy": 86.66666666666667
+    },
+    "VELOCITY": {
+      "total": 20,
+      "correct": 10,
+      "accuracy": 50.0
+    },
+    "CONFLICTING": {
+      "total": 30,
+      "correct": 2,
+      "accuracy": 6.666666666666667
+    },
+    "SOCIAL": {
+      "total": 30,
+      "correct": 20,
+      "accuracy": 66.66666666666666
+    },
+    "TIME": {
+      "total": 20,
+      "correct": 20,
+      "accuracy": 100.0
+    },
+    "DEVICE": {
+      "total": 20,
+      "correct": 14,
+      "accuracy": 70.0
+    },
+    "RECIPIENT": {
+      "total": 30,
+      "correct": 20,
+      "accuracy": 66.66666666666666
+    },
+    "COLD_START": {
+      "total": 20,
+      "correct": 14,
+      "accuracy": 70.0
+    },
+    "INPUT_EDGE": {
+      "total": 9,
+      "correct": 9,
+      "accuracy": 100.0
+    },
+    "THRESHOLD": {
+      "total": 20,
+      "correct": 20,
+      "accuracy": 100.0
+    }
+  },
+  "invalid_robustness": {
+    "total": 11,
+    "correct_rejected": 8,
+    "accuracy": 72.72727272727273
+  },
+  "quality_checks": {
+    "duplicate_cases": false,
+    "category_imbalance": 1.5,
+    "label_imbalance": 1.7605633802816902,
+    "invalid_counted_as_fraud": false,
+    "benchmark_contamination": false,
+    "near_duplicate_risk": "Low \u2014 deterministic random with varied params",
+    "unrealistic_obvious": "Some combined HIGH_RISK are obvious (multiple signals) \u2014 intentional stress",
+    "unrealistic_difficult": "Single new recipient with tiny amount expected CAUTION but engine SAFE \u2014 intentional conflicting",
+    "label_derived_from_iron": false,
+    "removed_difficult_cases": false,
+    "duplicated_to_increase_n": false
+  },
+  "top_failures": [
+    [
+      "CONFLICTING",
+      6.666666666666667
+    ],
+    [
+      "VELOCITY",
+      50.0
+    ],
+    [
+      "SOCIAL",
+      66.66666666666666
+    ],
+    [
+      "RECIPIENT",
+      66.66666666666666
+    ],
+    [
+      "DEVICE",
+      70.0
+    ]
+  ],
+  "failure_patterns": [
+    {
+      "category": "CONFLICTING",
+      "accuracy": 6.666666666666667,
+      "total": 30,
+      "correct": 2
+    },
+    {
+      "category": "VELOCITY",
+      "accuracy": 50.0,
+      "total": 20,
+      "correct": 10
+    },
+    {
+      "category": "SOCIAL",
+      "accuracy": 66.66666666666666,
+      "total": 30,
+      "correct": 20
+    },
+    {
+      "category": "RECIPIENT",
+      "accuracy": 66.66666666666666,
+      "total": 30,
+      "correct": 20
+    },
+    {
+      "category": "DEVICE",
+      "accuracy": 70.0,
+      "total": 20,
+      "correct": 14
+    }
+  ]
+}

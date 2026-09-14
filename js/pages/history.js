@@ -10,7 +10,8 @@ function HistoryPage({txs, user, tickets, createTicket}){
     if (filter === "credit") return t.type === "credit";
     if (filter === "debit") return t.type === "debit";
     if (filter === "flagged") return t.risk >= 40;
-    if (filter === "blocked") return t.status === "blocked";
+    if (filter === "high_risk") return t.status === "high_risk" || t.status === "blocked";
+    if (filter === "blocked") return t.status === "high_risk" || t.status === "blocked";
     if (filter === "otp") return t.otp_used;
     return true;
   });
@@ -36,12 +37,12 @@ function HistoryPage({txs, user, tickets, createTicket}){
       </div>
       
       <div style={{display:"flex",gap:8,marginBottom:18,flexWrap:"wrap"}}>
-        {["all","debit","credit","flagged","blocked","otp"].map(f => (
+        {["all","debit","credit","flagged","high_risk","otp"].map(f => (
           <button key={f} onClick={() => setFilter(f)}
             style={{padding:"7px 18px",borderRadius:24,cursor:"pointer",fontSize:13,fontWeight:700,
               border:"none",background:filter===f?`linear-gradient(135deg,#0078FF,#0055cc)`:"#e8f1ff",
               color:filter===f?"#fff":"#0078FF"}}>
-            {f.charAt(0).toUpperCase() + f.slice(1)}
+            {f==="high_risk"?"High Risk":f.charAt(0).toUpperCase() + f.slice(1)}
           </button>
         ))}
       </div>
@@ -97,7 +98,7 @@ function HistoryPage({txs, user, tickets, createTicket}){
                       </div>
                     </td>
                     <td style={{padding:"13px 16px",whiteSpace:"nowrap",fontSize:15,fontWeight:800,
-                      color:tx.type==="credit"?"#166534":tx.status==="blocked"?"#dc2626":"#0f172a"}}>
+                      color:tx.type==="credit"?"#166534":(tx.status==="high_risk"||tx.status==="blocked"?"#dc2626":"#0f172a")}}>
                       {tx.type==="credit"?"+":"-"}₹{tx.amt.toLocaleString("en-IN")}
                     </td>
                     <td style={{padding:"13px 16px",fontSize:13,color:"#64748b"}}>{tx.note}</td>
@@ -117,11 +118,11 @@ function HistoryPage({txs, user, tickets, createTicket}){
                     </td>
                     <td style={{padding:"13px 16px"}}>
                       <span style={{padding:"4px 12px",borderRadius:20,fontSize:12,fontWeight:700,
-                        background:tx.status==="success"?"#dcfce7":tx.status==="blocked"?"#fef2f2":"#fef3c7",
-                        color:tx.status==="success"?"#166534":tx.status==="blocked"?"#dc2626":"#92400e",
+                        background:tx.status==="success"?"#dcfce7":(tx.status==="high_risk"||tx.status==="blocked"?"#fef2f2":"#fef3c7"),
+                        color:tx.status==="success"?"#166534":(tx.status==="high_risk"||tx.status==="blocked"?"#991b1b":"#92400e"),
                         display:"inline-flex",alignItems:"center",gap:5}}>
-                        {tx.status==="success"?Ic.check("#166534"):tx.status==="blocked"?Ic.x("#dc2626"):Ic.lock("#92400e")}
-                        {tx.status==="success"?"Success":tx.status==="blocked"?"Blocked":"Verified"}
+                        {tx.status==="success"?Ic.check("#166534"):(tx.status==="high_risk"||tx.status==="blocked"?Ic.warn("#991b1b"):Ic.lock("#92400e"))}
+                        {tx.status==="success"?"Success":(tx.status==="high_risk"||tx.status==="blocked"?"High Risk":"Verified")}
                       </span>
                     </td>
                     <td style={{padding:"13px 16px"}}>

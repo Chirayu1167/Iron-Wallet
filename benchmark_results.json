@@ -1,0 +1,455 @@
+{
+  "cases": [
+    {
+      "case": {
+        "id": "N1",
+        "amount": 500,
+        "recipient": "9158763151",
+        "note": "",
+        "device": 1.0,
+        "location": 1.0,
+        "hour": 12,
+        "expected": "SAFE",
+        "desc": "Normal"
+      },
+      "pred": "SAFE",
+      "score": 26,
+      "expected": "SAFE",
+      "latency": 1095.4370498657227
+    },
+    {
+      "case": {
+        "id": "N2",
+        "amount": 800,
+        "recipient": "9158763151",
+        "note": "",
+        "device": 1.0,
+        "location": 1.0,
+        "hour": 14,
+        "expected": "SAFE",
+        "desc": "Normal"
+      },
+      "pred": "SAFE",
+      "score": 26,
+      "expected": "SAFE",
+      "latency": 30.092954635620117
+    },
+    {
+      "case": {
+        "id": "N3",
+        "amount": 600,
+        "recipient": "9158763151",
+        "note": "coffee",
+        "device": 1.0,
+        "location": 1.0,
+        "hour": 11,
+        "expected": "SAFE",
+        "desc": "Normal"
+      },
+      "pred": "SAFE",
+      "score": 27,
+      "expected": "SAFE",
+      "latency": 32.21011161804199
+    },
+    {
+      "case": {
+        "id": "N4",
+        "amount": 500,
+        "recipient": "9158763151",
+        "note": "",
+        "device": 1.0,
+        "location": 1.0,
+        "hour": 15,
+        "expected": "SAFE",
+        "desc": "Normal"
+      },
+      "pred": "SAFE",
+      "score": 23,
+      "expected": "SAFE",
+      "latency": 53.307533264160156
+    },
+    {
+      "case": {
+        "id": "N5",
+        "amount": 700,
+        "recipient": "9158763151",
+        "note": "lunch",
+        "device": 1.0,
+        "location": 1.0,
+        "hour": 10,
+        "expected": "SAFE",
+        "desc": "Normal"
+      },
+      "pred": "SAFE",
+      "score": 28,
+      "expected": "SAFE",
+      "latency": 31.66818618774414
+    },
+    {
+      "case": {
+        "id": "UA1",
+        "amount": 50000,
+        "recipient": "9158763151",
+        "note": "",
+        "device": 1.0,
+        "location": 1.0,
+        "hour": 12,
+        "expected": "HIGH_RISK",
+        "desc": "Unusual amount"
+      },
+      "pred": "HIGH_RISK",
+      "score": 89,
+      "expected": "HIGH_RISK",
+      "latency": 53.17044258117676
+    },
+    {
+      "case": {
+        "id": "UA2",
+        "amount": 30000,
+        "recipient": "9158763151",
+        "note": "",
+        "device": 1.0,
+        "location": 1.0,
+        "hour": 12,
+        "expected": "HIGH_RISK",
+        "desc": "Unusual amount"
+      },
+      "pred": "HIGH_RISK",
+      "score": 86,
+      "expected": "HIGH_RISK",
+      "latency": 31.88323974609375
+    },
+    {
+      "case": {
+        "id": "UA3",
+        "amount": 20000,
+        "recipient": "9158763151",
+        "note": "",
+        "device": 1.0,
+        "location": 1.0,
+        "hour": 12,
+        "expected": "HIGH_RISK",
+        "desc": "Unusual amount"
+      },
+      "pred": "HIGH_RISK",
+      "score": 86,
+      "expected": "HIGH_RISK",
+      "latency": 44.80886459350586
+    },
+    {
+      "case": {
+        "id": "UT1",
+        "amount": 500,
+        "recipient": "9158763151",
+        "note": "",
+        "device": 1.0,
+        "location": 1.0,
+        "hour": 3,
+        "expected": "CAUTION",
+        "desc": "Unusual time 3am"
+      },
+      "pred": "CAUTION",
+      "score": 70,
+      "expected": "CAUTION",
+      "latency": 32.70840644836426
+    },
+    {
+      "case": {
+        "id": "UT2",
+        "amount": 500,
+        "recipient": "9158763151",
+        "note": "",
+        "device": 1.0,
+        "location": 1.0,
+        "hour": 4,
+        "expected": "CAUTION",
+        "desc": "Unusual time 4am"
+      },
+      "pred": "CAUTION",
+      "score": 70,
+      "expected": "CAUTION",
+      "latency": 59.57913398742676
+    },
+    {
+      "case": {
+        "id": "NR1",
+        "amount": 500,
+        "recipient": "9999900001",
+        "note": "",
+        "device": 1.0,
+        "location": 1.0,
+        "hour": 12,
+        "expected": "SAFE",
+        "desc": "New recipient"
+      },
+      "pred": "SAFE",
+      "score": 43,
+      "expected": "SAFE",
+      "latency": 34.42955017089844
+    },
+    {
+      "case": {
+        "id": "NR2",
+        "amount": 500,
+        "recipient": "9999900002",
+        "note": "",
+        "device": 1.0,
+        "location": 1.0,
+        "hour": 12,
+        "expected": "SAFE",
+        "desc": "New recipient"
+      },
+      "pred": "SAFE",
+      "score": 43,
+      "expected": "SAFE",
+      "latency": 27.48417854309082
+    },
+    {
+      "case": {
+        "id": "NR3",
+        "amount": 1000,
+        "recipient": "9999900003",
+        "note": "",
+        "device": 1.0,
+        "location": 1.0,
+        "hour": 12,
+        "expected": "SAFE",
+        "desc": "New recipient"
+      },
+      "pred": "SAFE",
+      "score": 58,
+      "expected": "SAFE",
+      "latency": 29.151439666748047
+    },
+    {
+      "case": {
+        "id": "RB1",
+        "amount": 500,
+        "recipient": "9158763151",
+        "note": "",
+        "device": 1.0,
+        "location": 1.0,
+        "hour": 12,
+        "expected": "SAFE",
+        "desc": "Rapid burst (history based)"
+      },
+      "pred": "SAFE",
+      "score": 26,
+      "expected": "SAFE",
+      "latency": 26.673316955566406
+    },
+    {
+      "case": {
+        "id": "SR1",
+        "amount": 500,
+        "recipient": "9998887776",
+        "note": "",
+        "device": 1.0,
+        "location": 1.0,
+        "hour": 12,
+        "expected": "HIGH_RISK",
+        "desc": "Suspicious recipient 3 reports"
+      },
+      "pred": "HIGH_RISK",
+      "score": 89,
+      "expected": "HIGH_RISK",
+      "latency": 30.582189559936523
+    },
+    {
+      "case": {
+        "id": "SR2",
+        "amount": 500,
+        "recipient": "9998887776",
+        "note": "",
+        "device": 1.0,
+        "location": 1.0,
+        "hour": 12,
+        "expected": "HIGH_RISK",
+        "desc": "Suspicious recipient"
+      },
+      "pred": "HIGH_RISK",
+      "score": 89,
+      "expected": "HIGH_RISK",
+      "latency": 25.839567184448242
+    },
+    {
+      "case": {
+        "id": "SR3",
+        "amount": 500,
+        "recipient": "9998887777",
+        "note": "",
+        "device": 1.0,
+        "location": 1.0,
+        "hour": 12,
+        "expected": "SAFE",
+        "desc": "Clean recipient (not reported)"
+      },
+      "pred": "SAFE",
+      "score": 43,
+      "expected": "SAFE",
+      "latency": 26.34572982788086
+    },
+    {
+      "case": {
+        "id": "SL1",
+        "amount": 500,
+        "recipient": "9158763151",
+        "note": "urgent prize claim immediate",
+        "device": 1.0,
+        "location": 1.0,
+        "hour": 12,
+        "expected": "SAFE",
+        "desc": "Scam language urgency"
+      },
+      "pred": "SAFE",
+      "score": 44,
+      "expected": "SAFE",
+      "latency": 47.49774932861328
+    },
+    {
+      "case": {
+        "id": "SL2",
+        "amount": 500,
+        "recipient": "9158763151",
+        "note": "otp required verify account",
+        "device": 1.0,
+        "location": 1.0,
+        "hour": 12,
+        "expected": "SAFE",
+        "desc": "Scam language OTP"
+      },
+      "pred": "SAFE",
+      "score": 34,
+      "expected": "SAFE",
+      "latency": 25.307655334472656
+    },
+    {
+      "case": {
+        "id": "SL3",
+        "amount": 500,
+        "recipient": "9158763151",
+        "note": "account blocked kyc pending",
+        "device": 1.0,
+        "location": 1.0,
+        "hour": 12,
+        "expected": "SAFE",
+        "desc": "Scam language threat"
+      },
+      "pred": "SAFE",
+      "score": 32,
+      "expected": "SAFE",
+      "latency": 29.677629470825195
+    },
+    {
+      "case": {
+        "id": "DL1",
+        "amount": 500,
+        "recipient": "9158763151",
+        "note": "",
+        "device": 0.2,
+        "location": 1.0,
+        "hour": 12,
+        "expected": "SAFE",
+        "desc": "Unusual device"
+      },
+      "pred": "SAFE",
+      "score": 51,
+      "expected": "SAFE",
+      "latency": 28.53703498840332
+    },
+    {
+      "case": {
+        "id": "DL2",
+        "amount": 500,
+        "recipient": "9158763151",
+        "note": "",
+        "device": 1.0,
+        "location": 0.2,
+        "hour": 12,
+        "expected": "SAFE",
+        "desc": "Unusual location"
+      },
+      "pred": "SAFE",
+      "score": 48,
+      "expected": "SAFE",
+      "latency": 32.65023231506348
+    },
+    {
+      "case": {
+        "id": "MC1",
+        "amount": 70000,
+        "recipient": "9999900004",
+        "note": "urgent prize claim",
+        "device": 0.2,
+        "location": 0.2,
+        "hour": 3,
+        "expected": "HIGH_RISK",
+        "desc": "Multiple combined"
+      },
+      "pred": "HIGH_RISK",
+      "score": 99,
+      "expected": "HIGH_RISK",
+      "latency": 33.48207473754883
+    },
+    {
+      "case": {
+        "id": "MC2",
+        "amount": 50000,
+        "recipient": "9998887776",
+        "note": "urgent",
+        "device": 0.2,
+        "location": 1.0,
+        "hour": 3,
+        "expected": "HIGH_RISK",
+        "desc": "Multiple combined"
+      },
+      "pred": "HIGH_RISK",
+      "score": 100,
+      "expected": "HIGH_RISK",
+      "latency": 26.671886444091797
+    },
+    {
+      "case": {
+        "id": "MC3",
+        "amount": 40000,
+        "recipient": "9999900005",
+        "note": "otp verify",
+        "device": 1.0,
+        "location": 0.2,
+        "hour": 12,
+        "expected": "HIGH_RISK",
+        "desc": "Multiple combined"
+      },
+      "pred": "HIGH_RISK",
+      "score": 98,
+      "expected": "HIGH_RISK",
+      "latency": 32.58085250854492
+    },
+    {
+      "case": {
+        "id": "MC4",
+        "amount": 30000,
+        "recipient": "9998887776",
+        "note": "prize",
+        "device": 0.2,
+        "location": 0.2,
+        "hour": 12,
+        "expected": "HIGH_RISK",
+        "desc": "Multiple combined"
+      },
+      "pred": "HIGH_RISK",
+      "score": 100,
+      "expected": "HIGH_RISK",
+      "latency": 39.82090950012207
+    }
+  ],
+  "metrics": {
+    "accuracy": 100.0,
+    "precision": 100.0,
+    "recall": 100.0,
+    "f1": 100.0,
+    "fpr": 0.0,
+    "correct": 26,
+    "total": 26
+  }
+}

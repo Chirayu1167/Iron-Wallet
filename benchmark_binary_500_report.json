@@ -1,0 +1,1042 @@
+{
+  "dev": {
+    "tier_acc": 69.33333333333334,
+    "bin_acc": 78.0,
+    "prec": 70.28301886792453,
+    "rec": 98.02631578947368,
+    "f1": 81.86813186813187,
+    "fpr": 42.567567567567565
+  },
+  "val": {
+    "tier_acc": 67.0,
+    "bin_acc": 78.0,
+    "prec": 73.68421052631578,
+    "rec": 96.55172413793103,
+    "f1": 83.58208955223878,
+    "fpr": 47.61904761904761
+  },
+  "final": {
+    "tier_acc": 77.0,
+    "bin_acc": 70.0,
+    "prec": 57.14285714285714,
+    "rec": 100.0,
+    "f1": 72.72727272727272,
+    "fpr": 50.0,
+    "fnr": 0.0,
+    "lat_avg": 33.303080772867006,
+    "lat_p95": 46.19479179382324
+  },
+  "final_detailed": {
+    "results": [
+      {
+        "case_id": "B0011",
+        "category": "NORMAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 27,
+        "latency_ms": 37.832021713256836
+      },
+      {
+        "case_id": "B0426",
+        "category": "COMBINED",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "HIGH_RISK",
+        "pred_tier": "HIGH_RISK",
+        "score": 100,
+        "latency_ms": 29.589176177978516
+      },
+      {
+        "case_id": "B0287",
+        "category": "FRAUD_RECIPIENT",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "HIGH_RISK",
+        "pred_tier": "CAUTION",
+        "score": 82,
+        "latency_ms": 44.942617416381836
+      },
+      {
+        "case_id": "B0113",
+        "category": "AMOUNT_ANOMALY",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 28,
+        "latency_ms": 29.212474822998047
+      },
+      {
+        "case_id": "B0320",
+        "category": "VELOCITY",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "CAUTION",
+        "pred_tier": "SAFE",
+        "score": 55,
+        "latency_ms": 25.391578674316406
+      },
+      {
+        "case_id": "B0102",
+        "category": "NEW_RECIPIENT",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 51,
+        "latency_ms": 28.116941452026367
+      },
+      {
+        "case_id": "B0016",
+        "category": "NORMAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 25,
+        "latency_ms": 26.39174461364746
+      },
+      {
+        "case_id": "B0252",
+        "category": "NEW_RECIPIENT",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "HIGH_RISK",
+        "pred_tier": "CAUTION",
+        "score": 78,
+        "latency_ms": 47.36828804016113
+      },
+      {
+        "case_id": "B0267",
+        "category": "FRAUD_RECIPIENT",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "CAUTION",
+        "pred_tier": "CAUTION",
+        "score": 81,
+        "latency_ms": 40.6184196472168
+      },
+      {
+        "case_id": "B0068",
+        "category": "LEGITIMATE_UNUSUAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 48,
+        "latency_ms": 45.37200927734375
+      },
+      {
+        "case_id": "B0149",
+        "category": "VELOCITY",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 25,
+        "latency_ms": 44.62456703186035
+      },
+      {
+        "case_id": "B0165",
+        "category": "DEVICE",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 25,
+        "latency_ms": 28.654813766479492
+      },
+      {
+        "case_id": "B0114",
+        "category": "AMOUNT_ANOMALY",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 29,
+        "latency_ms": 30.380725860595703
+      },
+      {
+        "case_id": "B0382",
+        "category": "DEVICE",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "CAUTION",
+        "pred_tier": "SAFE",
+        "score": 46,
+        "latency_ms": 46.0662841796875
+      },
+      {
+        "case_id": "B0109",
+        "category": "NEW_RECIPIENT",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 61,
+        "latency_ms": 27.991056442260742
+      },
+      {
+        "case_id": "B0213",
+        "category": "AMOUNT_ANOMALY",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "CAUTION",
+        "pred_tier": "CAUTION",
+        "score": 75,
+        "latency_ms": 37.82248497009277
+      },
+      {
+        "case_id": "B0396",
+        "category": "COMBINED",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "HIGH_RISK",
+        "pred_tier": "HIGH_RISK",
+        "score": 92,
+        "latency_ms": 27.164220809936523
+      },
+      {
+        "case_id": "B0489",
+        "category": "NORMAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 27,
+        "latency_ms": 34.15489196777344
+      },
+      {
+        "case_id": "B0368",
+        "category": "SOCIAL",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "HIGH_RISK",
+        "pred_tier": "SAFE",
+        "score": 51,
+        "latency_ms": 38.29073905944824
+      },
+      {
+        "case_id": "B0201",
+        "category": "CONFLICTING",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "CAUTION",
+        "pred_tier": "CAUTION",
+        "score": 80,
+        "latency_ms": 38.266897201538086
+      },
+      {
+        "case_id": "B0410",
+        "category": "COMBINED",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "HIGH_RISK",
+        "pred_tier": "HIGH_RISK",
+        "score": 100,
+        "latency_ms": 37.77337074279785
+      },
+      {
+        "case_id": "B0291",
+        "category": "TIME_ANOMALY",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "CAUTION",
+        "pred_tier": "CAUTION",
+        "score": 70,
+        "latency_ms": 36.18216514587402
+      },
+      {
+        "case_id": "B0173",
+        "category": "LOCATION",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 27,
+        "latency_ms": 26.51500701904297
+      },
+      {
+        "case_id": "B0015",
+        "category": "NORMAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 28,
+        "latency_ms": 43.25747489929199
+      },
+      {
+        "case_id": "B0137",
+        "category": "TIME_ANOMALY",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 25,
+        "latency_ms": 52.1550178527832
+      },
+      {
+        "case_id": "B0069",
+        "category": "LEGITIMATE_UNUSUAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 41,
+        "latency_ms": 37.95289993286133
+      },
+      {
+        "case_id": "B0454",
+        "category": "INPUT_EDGE",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 41,
+        "latency_ms": 28.51128578186035
+      },
+      {
+        "case_id": "B0130",
+        "category": "AMOUNT_ANOMALY",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 32,
+        "latency_ms": 46.19479179382324
+      },
+      {
+        "case_id": "B0458",
+        "category": "INPUT_EDGE",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 34,
+        "latency_ms": 27.900218963623047
+      },
+      {
+        "case_id": "B0487",
+        "category": "NORMAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 28,
+        "latency_ms": 28.352022171020508
+      },
+      {
+        "case_id": "B0080",
+        "category": "LEGITIMATE_UNUSUAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 51,
+        "latency_ms": 28.67603302001953
+      },
+      {
+        "case_id": "B0253",
+        "category": "NEW_RECIPIENT",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "HIGH_RISK",
+        "pred_tier": "CAUTION",
+        "score": 77,
+        "latency_ms": 40.41934013366699
+      },
+      {
+        "case_id": "B0493",
+        "category": "NORMAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 26,
+        "latency_ms": 36.87763214111328
+      },
+      {
+        "case_id": "B0072",
+        "category": "LEGITIMATE_UNUSUAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 51,
+        "latency_ms": 28.723716735839844
+      },
+      {
+        "case_id": "B0256",
+        "category": "NEW_RECIPIENT",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "HIGH_RISK",
+        "pred_tier": "CAUTION",
+        "score": 83,
+        "latency_ms": 28.073787689208984
+      },
+      {
+        "case_id": "B0037",
+        "category": "NORMAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 29,
+        "latency_ms": 31.339168548583984
+      },
+      {
+        "case_id": "B0159",
+        "category": "SOCIAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 26,
+        "latency_ms": 31.426429748535156
+      },
+      {
+        "case_id": "B0112",
+        "category": "AMOUNT_ANOMALY",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 41,
+        "latency_ms": 43.07103157043457
+      },
+      {
+        "case_id": "B0515",
+        "category": "NORMAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 26,
+        "latency_ms": 35.6142520904541
+      },
+      {
+        "case_id": "B0412",
+        "category": "COMBINED",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "HIGH_RISK",
+        "pred_tier": "HIGH_RISK",
+        "score": 92,
+        "latency_ms": 27.836322784423828
+      },
+      {
+        "case_id": "B0038",
+        "category": "NORMAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 29,
+        "latency_ms": 37.737131118774414
+      },
+      {
+        "case_id": "B0398",
+        "category": "COMBINED",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "HIGH_RISK",
+        "pred_tier": "HIGH_RISK",
+        "score": 92,
+        "latency_ms": 48.51865768432617
+      },
+      {
+        "case_id": "B0334",
+        "category": "SOCIAL",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "CAUTION",
+        "pred_tier": "SAFE",
+        "score": 38,
+        "latency_ms": 32.38248825073242
+      },
+      {
+        "case_id": "B0001",
+        "category": "NORMAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 27,
+        "latency_ms": 26.63421630859375
+      },
+      {
+        "case_id": "B0385",
+        "category": "DEVICE",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "CAUTION",
+        "pred_tier": "SAFE",
+        "score": 45,
+        "latency_ms": 27.254819869995117
+      },
+      {
+        "case_id": "B0176",
+        "category": "LOCATION",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 25,
+        "latency_ms": 29.016733169555664
+      },
+      {
+        "case_id": "B0277",
+        "category": "FRAUD_RECIPIENT",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "HIGH_RISK",
+        "pred_tier": "CAUTION",
+        "score": 82,
+        "latency_ms": 30.261516571044922
+      },
+      {
+        "case_id": "B0503",
+        "category": "NORMAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 25,
+        "latency_ms": 41.03493690490723
+      },
+      {
+        "case_id": "B0359",
+        "category": "SOCIAL",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "HIGH_RISK",
+        "pred_tier": "SAFE",
+        "score": 62,
+        "latency_ms": 29.431581497192383
+      },
+      {
+        "case_id": "B0118",
+        "category": "AMOUNT_ANOMALY",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 35,
+        "latency_ms": 26.210546493530273
+      },
+      {
+        "case_id": "B0523",
+        "category": "NORMAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 26,
+        "latency_ms": 54.96382713317871
+      },
+      {
+        "case_id": "B0285",
+        "category": "FRAUD_RECIPIENT",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "HIGH_RISK",
+        "pred_tier": "CAUTION",
+        "score": 81,
+        "latency_ms": 29.941797256469727
+      },
+      {
+        "case_id": "B0266",
+        "category": "FRAUD_RECIPIENT",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "CAUTION",
+        "pred_tier": "CAUTION",
+        "score": 82,
+        "latency_ms": 30.031442642211914
+      },
+      {
+        "case_id": "B0431",
+        "category": "COMBINED",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "HIGH_RISK",
+        "pred_tier": "HIGH_RISK",
+        "score": 100,
+        "latency_ms": 30.590057373046875
+      },
+      {
+        "case_id": "B0441",
+        "category": "COLD_START",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "CAUTION",
+        "pred_tier": "CAUTION",
+        "score": 75,
+        "latency_ms": 35.552978515625
+      },
+      {
+        "case_id": "B0298",
+        "category": "TIME_ANOMALY",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "CAUTION",
+        "pred_tier": "CAUTION",
+        "score": 70,
+        "latency_ms": 29.772281646728516
+      },
+      {
+        "case_id": "B0191",
+        "category": "CONFLICTING",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 48,
+        "latency_ms": 24.431228637695312
+      },
+      {
+        "case_id": "B0199",
+        "category": "CONFLICTING",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 62,
+        "latency_ms": 39.9167537689209
+      },
+      {
+        "case_id": "B0203",
+        "category": "CONFLICTING",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "CAUTION",
+        "pred_tier": "CAUTION",
+        "score": 80,
+        "latency_ms": 28.362035751342773
+      },
+      {
+        "case_id": "B0179",
+        "category": "LOCATION",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 24,
+        "latency_ms": 25.262117385864258
+      },
+      {
+        "case_id": "B0094",
+        "category": "NEW_RECIPIENT",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 42,
+        "latency_ms": 28.04279327392578
+      },
+      {
+        "case_id": "B0300",
+        "category": "TIME_ANOMALY",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "CAUTION",
+        "pred_tier": "SAFE",
+        "score": 52,
+        "latency_ms": 42.81973838806152
+      },
+      {
+        "case_id": "B0452",
+        "category": "INPUT_EDGE",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 35,
+        "latency_ms": 30.173063278198242
+      },
+      {
+        "case_id": "B0388",
+        "category": "DEVICE",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "CAUTION",
+        "pred_tier": "SAFE",
+        "score": 44,
+        "latency_ms": 29.30164337158203
+      },
+      {
+        "case_id": "B0299",
+        "category": "TIME_ANOMALY",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "CAUTION",
+        "pred_tier": "CAUTION",
+        "score": 70,
+        "latency_ms": 32.889604568481445
+      },
+      {
+        "case_id": "B0328",
+        "category": "VELOCITY",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "HIGH_RISK",
+        "pred_tier": "CAUTION",
+        "score": 70,
+        "latency_ms": 29.60348129272461
+      },
+      {
+        "case_id": "B0144",
+        "category": "VELOCITY",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 26,
+        "latency_ms": 30.089855194091797
+      },
+      {
+        "case_id": "B0290",
+        "category": "FRAUD_RECIPIENT",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "HIGH_RISK",
+        "pred_tier": "CAUTION",
+        "score": 81,
+        "latency_ms": 29.402971267700195
+      },
+      {
+        "case_id": "B0082",
+        "category": "LEGITIMATE_UNUSUAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 51,
+        "latency_ms": 47.686100006103516
+      },
+      {
+        "case_id": "B0499",
+        "category": "NORMAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 23,
+        "latency_ms": 25.194883346557617
+      },
+      {
+        "case_id": "B0469",
+        "category": "THRESHOLD",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "CAUTION",
+        "pred_tier": "CAUTION",
+        "score": 83,
+        "latency_ms": 0
+      },
+      {
+        "case_id": "B0108",
+        "category": "NEW_RECIPIENT",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 43,
+        "latency_ms": 27.33635902404785
+      },
+      {
+        "case_id": "B0116",
+        "category": "AMOUNT_ANOMALY",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 41,
+        "latency_ms": 27.283191680908203
+      },
+      {
+        "case_id": "B0319",
+        "category": "VELOCITY",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "CAUTION",
+        "pred_tier": "SAFE",
+        "score": 55,
+        "latency_ms": 22.711992263793945
+      },
+      {
+        "case_id": "B0478",
+        "category": "THRESHOLD",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "CAUTION",
+        "pred_tier": "CAUTION",
+        "score": 71,
+        "latency_ms": 0
+      },
+      {
+        "case_id": "B0183",
+        "category": "COLD_START",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 31,
+        "latency_ms": 26.150226593017578
+      },
+      {
+        "case_id": "B0509",
+        "category": "NORMAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 26,
+        "latency_ms": 29.45113182067871
+      },
+      {
+        "case_id": "B0428",
+        "category": "COMBINED",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "HIGH_RISK",
+        "pred_tier": "HIGH_RISK",
+        "score": 92,
+        "latency_ms": 39.910316467285156
+      },
+      {
+        "case_id": "B0232",
+        "category": "AMOUNT_ANOMALY",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "HIGH_RISK",
+        "pred_tier": "CAUTION",
+        "score": 75,
+        "latency_ms": 31.49104118347168
+      },
+      {
+        "case_id": "B0003",
+        "category": "NORMAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 24,
+        "latency_ms": 31.79025650024414
+      },
+      {
+        "case_id": "B0035",
+        "category": "NORMAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 25,
+        "latency_ms": 32.141685485839844
+      },
+      {
+        "case_id": "B0115",
+        "category": "AMOUNT_ANOMALY",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 41,
+        "latency_ms": 30.22933006286621
+      },
+      {
+        "case_id": "B0303",
+        "category": "TIME_ANOMALY",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "HIGH_RISK",
+        "pred_tier": "CAUTION",
+        "score": 80,
+        "latency_ms": 28.282642364501953
+      },
+      {
+        "case_id": "B0254",
+        "category": "NEW_RECIPIENT",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "HIGH_RISK",
+        "pred_tier": "CAUTION",
+        "score": 78,
+        "latency_ms": 32.17339515686035
+      },
+      {
+        "case_id": "B0517",
+        "category": "NORMAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 26,
+        "latency_ms": 39.60752487182617
+      },
+      {
+        "case_id": "B0156",
+        "category": "SOCIAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 26,
+        "latency_ms": 39.67094421386719
+      },
+      {
+        "case_id": "B0178",
+        "category": "LOCATION",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 25,
+        "latency_ms": 31.102657318115234
+      },
+      {
+        "case_id": "B0163",
+        "category": "DEVICE",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 26,
+        "latency_ms": 34.972190856933594
+      },
+      {
+        "case_id": "B0437",
+        "category": "COMBINED",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "HIGH_RISK",
+        "pred_tier": "HIGH_RISK",
+        "score": 100,
+        "latency_ms": 26.93319320678711
+      },
+      {
+        "case_id": "B0278",
+        "category": "FRAUD_RECIPIENT",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "HIGH_RISK",
+        "pred_tier": "CAUTION",
+        "score": 80,
+        "latency_ms": 30.62605857849121
+      },
+      {
+        "case_id": "B0129",
+        "category": "AMOUNT_ANOMALY",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 28,
+        "latency_ms": 30.83324432373047
+      },
+      {
+        "case_id": "B0181",
+        "category": "COLD_START",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 31,
+        "latency_ms": 27.823448181152344
+      },
+      {
+        "case_id": "B0243",
+        "category": "NEW_RECIPIENT",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "HIGH_RISK",
+        "pred_tier": "CAUTION",
+        "score": 77,
+        "latency_ms": 30.50684928894043
+      },
+      {
+        "case_id": "B0091",
+        "category": "NEW_RECIPIENT",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 50,
+        "latency_ms": 26.77130699157715
+      },
+      {
+        "case_id": "B0141",
+        "category": "VELOCITY",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 25,
+        "latency_ms": 35.985708236694336
+      },
+      {
+        "case_id": "B0088",
+        "category": "LEGITIMATE_UNUSUAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "CAUTION",
+        "score": 70,
+        "latency_ms": 27.727603912353516
+      },
+      {
+        "case_id": "B0027",
+        "category": "NORMAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "LEGITIMATE",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 26,
+        "latency_ms": 43.47038269042969
+      },
+      {
+        "case_id": "B0067",
+        "category": "LEGITIMATE_UNUSUAL",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 51,
+        "latency_ms": 33.38503837585449
+      },
+      {
+        "case_id": "B0121",
+        "category": "AMOUNT_ANOMALY",
+        "expected_bin": "LEGITIMATE",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "SAFE",
+        "pred_tier": "SAFE",
+        "score": 27,
+        "latency_ms": 27.744531631469727
+      },
+      {
+        "case_id": "B0215",
+        "category": "AMOUNT_ANOMALY",
+        "expected_bin": "FRAUDULENT",
+        "pred_bin": "FRAUDULENT",
+        "expected_tier": "CAUTION",
+        "pred_tier": "CAUTION",
+        "score": 75,
+        "latency_ms": 29.97446060180664
+      }
+    ],
+    "bin_acc": 70.0,
+    "prec": 57.14285714285714,
+    "rec": 100.0,
+    "f1": 72.72727272727272,
+    "fpr": 50.0,
+    "fnr": 0.0,
+    "tier_acc": 77.0,
+    "lat_avg": 33.303080772867006,
+    "lat_p95": 46.19479179382324
+  }
+}

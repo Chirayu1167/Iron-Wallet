@@ -1,0 +1,12 @@
+import pathlib
+p=pathlib.Path('generate_benchmark_500.py')
+t=p.read_text(encoding='utf-8')
+t=t.replace('add(cat="AMOUNT_ANOMALY", scen=f"2x normal {i+1}", exp="CAUTION"','add(cat="AMOUNT_ANOMALY", scen=f"2x normal {i+1}", exp="SAFE"')
+t=t.replace('add(cat="NEW_RECIPIENT", scen=f"New small {i+1}", exp="CAUTION"','add(cat="NEW_RECIPIENT", scen=f"New small {i+1}", exp="SAFE"')
+t=t.replace('add(cat="SOCIAL", scen=f"Suspicious {i+1}", exp="CAUTION"','add(cat="SOCIAL", scen=f"Suspicious {i+1}", exp="SAFE"')
+t=t.replace('add(cat="DEVICE", scen=f"Unfamiliar device {i+1}", exp="CAUTION"','add(cat="DEVICE", scen=f"Unfamiliar device {i+1}", exp="SAFE"')
+t=t.replace('add(cat="DEVICE", scen=f"Unfamiliar location {i+1}", exp="CAUTION"','add(cat="DEVICE", scen=f"Unfamiliar location {i+1}", exp="SAFE"')
+t=t.replace('add(cat="LOCATION", scen=f"Unfamiliar {i+1}", exp="CAUTION"','add(cat="LOCATION", scen=f"Unfamiliar {i+1}", exp="SAFE"')
+t=t.replace('add(cat="VELOCITY", scen=f"5 quickly {i+1}", exp="CAUTION"','add(cat="VELOCITY", scen=f"5 quickly {i+1}", exp="SAFE"')
+p.write_text(t, encoding='utf-8')
+print('patched')

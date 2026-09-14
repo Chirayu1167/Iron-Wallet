@@ -28,6 +28,12 @@
 <script src="js/fraud-intelligence.js?v=1"></script>
 <script src="js/pages/scam-database.js?v=1"></script>
 <script src="js/keyword-engine.js?v=1"></script>
+<script type="text/babel" src="js/ai-investigator.js?v=1"></script>
+<script type="text/babel" src="js/simulator.js?v=1"></script>
+<script src="js/live-protection.js?v=1"></script>
+<script type="text/babel" src="js/protection-center.js?v=1"></script>
+<script type="text/babel" src="js/security-center.js?v=1"></script>
+<script type="text/babel" src="js/risk-components.js?v=1"></script>
 
 <script type="text/babel">
 // ═══ js/components/ui.js ═══
@@ -58,6 +64,7 @@ function Modal({children}){
 }
 
 const API=""; // FastAPI serves index.html — use relative paths
+function getAuthHeader(){ try{ const t=localStorage.getItem("iron_token"); return t? {"Authorization":"Bearer "+t} : {}; }catch{ return {}; } }
 const B="#1B263B",B2="#0F1E2E",B3="#081525";
 const BL="rgba(197,160,89,0.15)",BLL="rgba(197,160,89,0.08)";
 const GOLD="#C5A059",GOLD_BORDER="rgba(197,160,89,0.25)";
@@ -270,10 +277,21 @@ function LoginPage({onLogin}){
 
       setLoading(true);
       try{
-        await fetch(`${API}/send-otp`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({mobile})});
-        setOtpMode(true);setTimer(30);setResend(false);
-        setMsg({text:"OTP sent to your registered mobile 📲",ok:true});
-        setPinAttempts(0);
+        const res=await fetch(`${API}/send-otp`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({mobile})});
+        const data=await res.json().catch(()=>({}));
+        if(res.status===429 || data.status==="RATE_LIMITED"){
+          const msg=data.message||"Too many requests. Please wait.";
+          const secs=parseInt((msg.match(/(\d+)s/)?.[1]||"30"),10);
+          setMsg({text:msg,ok:false}); setTimer(secs); setResend(false);
+        } else if(res.status===502){
+          setMsg({text:data.message||"SMS service unavailable. Try again.",ok:false});
+        } else if(res.ok || data.status==="OTP_SENT"){
+          setOtpMode(true);setTimer(30);setResend(false);
+          setMsg({text:"OTP sent to your registered mobile 📲",ok:true});
+          setPinAttempts(0);
+        } else {
+          setMsg({text:data.message||"Failed to send OTP. Try again.",ok:false});
+        }
       }catch(e){setMsg({text:"Backend unreachable. Is server running?",ok:false});}
       finally{setLoading(false);}
     }else{
@@ -287,23 +305,43 @@ function LoginPage({onLogin}){
       setLoading(true);
       try{
         const res=await fetch(`${API}/verify-otp`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({mobile,otp})});
-        const data=await res.json();
+        const data=await res.json().catch(()=>({}));
         if(data.status==="SUCCESS"){
+          // Phase 2B: store token for authenticated requests
+          if(data.token){ try{ localStorage.setItem("iron_token", data.token); localStorage.setItem("iron_user", mobile); }catch{} }
           setMsg({text:"Login Successful ✔",ok:true});
           const u=Object.entries(USERS).find(([,v])=>v.number===mobile);
+          // Also ensure backend user exists (seeded) — fetch authoritative profile
+          try{ const tok=data.token||localStorage.getItem("iron_token"); if(tok){ fetch(`${API}/auth/me`,{headers:{...getAuthHeader(), "Authorization":"Bearer "+tok}}).then(r=>r.json()).then(j=>{ if(j.balance!=null) u[1].balance=j.balance; }).catch(()=>{}); } }catch{}
           setTimeout(()=>onLogin({...u[1]}),500);
+        }else if(data.status==="RATE_LIMITED"){
+          setMsg({text:data.message||"Too many attempts. Try again later.",ok:false});
+          const secs=parseInt((data.message||"").match(/(\d+)s/)?.[1]||"30",10);
+          setTimer(secs); setResend(false);
         }else if(data.status==="OTP_EXPIRED"){setMsg({text:"OTP expired. Resend.",ok:false});}
-        else{setMsg({text:"Invalid OTP. Try again.",ok:false});}
+        else if(data.status==="INVALID"){
+          setMsg({text:data.message||"Invalid OTP. Try again.",ok:false});
+        }
+        else{setMsg({text:data.message||"Invalid OTP. Try again.",ok:false});}
       }catch(e){setMsg({text:"Backend unreachable. Is server running?",ok:false});}
       finally{setLoading(false);}
     }
   }
 
   async function handleResend(){
-    setTimer(30);setResend(false);
-    try{await fetch(`${API}/send-otp`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({mobile})});
-      setMsg({text:"OTP resent 📲",ok:true});}
-    catch(e){setMsg({text:"Server unreachable.",ok:false});}
+    try{
+      const res=await fetch(`${API}/send-otp`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({mobile})});
+      const data=await res.json().catch(()=>({}));
+      if(res.status===429 || data.status==="RATE_LIMITED"){
+        const msg=data.message||"Please wait before resending";
+        setMsg({text:msg,ok:false});
+        const secs=parseInt((msg.match(/(\d+)s/)?.[1]||"30"),10);
+        setTimer(secs); setResend(false);
+        return;
+      }
+      if(res.ok || data.status==="OTP_SENT"){ setTimer(30); setResend(false); setMsg({text:"OTP resent 📲",ok:true});}
+      else { setMsg({text:data.message||"Failed to resend. Try again.",ok:false}); }
+    }catch(e){setMsg({text:"Server unreachable.",ok:false});}
   }
 
   const ready=!loading&&((!otpMode&&mobile.length===10&&pin.length===4)||(otpMode&&otp.length===6));
@@ -575,22 +613,43 @@ function OTPModal({mobile,onSuccess,onCancel}){
     setLoad(true);
     try{
       const res=await fetch(`${API}/verify-otp`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({mobile,otp:code})});
-      const data=await res.json();
-      if(data.status==="SUCCESS"){onSuccess();}
-      else{
-        setErrMsg(data.status==="OTP_EXPIRED"?"OTP expired. Resend.":"Invalid OTP.");
+      const data=await res.json().catch(()=>({}));
+      if(data.status==="SUCCESS"){onSuccess(code);}
+      else if(data.status==="RATE_LIMITED"){
+        setErrMsg(data.message||"Too many attempts. Try again later.");
         setError(true);
-        setTimeout(()=>{setError(false);setDigits(["","","","","",""]);refs[0].current&&refs[0].current.focus();},750);
+        const secs = parseInt((data.message||"").match(/(\d+)s/)?.[1]||"30",10);
+        setTimer(secs); setResend(false);
+        setTimeout(()=>{setError(false);},2500);
+      }
+      else{
+        const msg = data.message || (data.status==="OTP_EXPIRED"?"OTP expired. Resend.": data.status==="INVALID"?"Invalid OTP. Try again.": "Invalid OTP.");
+        setErrMsg(msg);
+        setError(true);
+        setTimeout(()=>{setError(false);setDigits(["","","","","",""]);refs[0].current&&refs[0].current.focus();},900);
       }
     }catch(e){
-      setErrMsg("Server unreachable.");setError(true);
-      setTimeout(()=>{setError(false);setDigits(["","","","","",""]);},750);
+      if(e.message && e.message.includes("RATE_LIMITED")){setErrMsg(e.message);} else {setErrMsg("Server unreachable.");}
+      setError(true);
+      setTimeout(()=>{setError(false);setDigits(["","","","","",""]);},900);
     }finally{setLoad(false);}
   }
   async function resendOTP(){
     if (mobile === "1234567890") return;
-    setTimer(999); setResend(true);
-    try{await fetch(`${API}/send-otp`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({mobile})});}catch(e){}
+    try{
+      const res=await fetch(`${API}/send-otp`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({mobile})});
+      const data=await res.json().catch(()=>({}));
+      if(res.status===429 || data.status==="RATE_LIMITED"){
+        const msg=data.message||"Please wait before resending";
+        setErrMsg(msg); setError(true);
+        const secs = parseInt((msg.match(/(\d+)s/)?.[1]||"30"),10);
+        setTimer(secs); setResend(false);
+        setTimeout(()=>setError(false),2500);
+        return;
+      }
+      if(data.status==="OTP_SENT" || res.ok){ setTimer(30); setResend(false); setError(false); }
+      else if(data.message){ setErrMsg(data.message); setError(true); setTimeout(()=>setError(false),2000); }
+    }catch(e){ setErrMsg("Server unreachable."); setError(true); setTimeout(()=>setError(false),2000); }
   }
 
   useEffect(()=>{
@@ -694,23 +753,26 @@ function PINModal({userPin, onSuccess, onCancel, user}){
     setLoad(true);
     setTimeout(()=>{
       if(code===String(userPin)){
+        // Reset attempts on success
+        setAttempts(0);
         onSuccess();
       } else {
         const newAttempts=attempts+1;
         setAttempts(newAttempts);
         setError(true);
         if(newAttempts>=MAX_ATTEMPTS){
-          if(user) freezeAccount(user,"3 incorrect PIN attempts — account paused for 5 minutes.",5);
-          setPinFrozen(true);
-          setFreezeSecs(FREEZE_SECS);
-          setErrMsg("3 wrong PINs — account frozen for 5 minutes");
+          // IRON never blocks — flag HIGH_RISK instead of freezing
+          if(user) freezeAccount(user,"3 incorrect PIN attempts — HIGH_RISK flag (non-blocking)",5);
+          setErrMsg("3 wrong PINs — flagged HIGH_RISK. You may try again or proceed with OTP.");
+          setAttempts(0); // reset so user can continue — never blocks
+          // Do not set pinFrozen true (no 5-min block screen)
         } else {
           setErrMsg(`Incorrect PIN. ${MAX_ATTEMPTS-newAttempts} attempt${MAX_ATTEMPTS-newAttempts===1?"":"s"} left.`);
         }
         setTimeout(()=>{
           setError(false);
           setDigits(["","","",""]);
-          if(!pinFrozen) refs[0].current&&refs[0].current.focus();
+          refs[0].current&&refs[0].current.focus();
         },700);
       }
       setLoad(false);
@@ -741,12 +803,12 @@ function PINModal({userPin, onSuccess, onCancel, user}){
                     display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 10px",fontSize:26}}>
                     ❄️
                   </div>
-                  <h3 style={{fontWeight:800,fontSize:17,color:"#fff",marginBottom:3}}>Account Frozen</h3>
+                  <h3 style={{fontWeight:800,fontSize:17,color:"#fff",marginBottom:3}}>High-Risk Flag</h3>
                   <p style={{fontSize:12,color:"rgba(255,255,255,.8)"}}>3 incorrect PIN attempts detected</p>
                 </div>
                 <div style={{padding:"24px 22px",textAlign:"center"}}>
                   <p style={{fontSize:13,color:"#45474D",marginBottom:16,lineHeight:1.5}}>
-                    Your account is paused for <strong>5 minutes</strong> to protect against unauthorised access.
+                    This payment is flagged HIGH_RISK — please verify via OTP. You can still proceed.
                   </p>
                   <div style={{fontSize:44,fontWeight:800,color:"#ba1a1a",fontFamily:"monospace",marginBottom:14}}>
                     {mins}:{secs.toString().padStart(2,"0")}
@@ -1067,12 +1129,13 @@ function FraudRiskCard({score, recipient, recipientNum, amount, signals, onVerif
   // Below 90 → "Pay with PIN →"  (OTP is still triggered internally for otp/high_risk tier)
   const useOTPButton = score >= 90;
 
-  // Determine the correct title based on tier
+  // Determine the correct title based on tier (Phase 14: SAFE/CAUTION/HIGH_RISK consistent)
   let title = '';
-  if (tier === 'normal') title = '🟢 Safe Transaction';
-  else if (tier === 'info') title = '🟡 Caution — Low Risk';
+  if (tier === 'SAFE' || tier === 'safe' || tier === 'normal') title = '🟢 Looks normal — SAFE';
+  else if (tier === 'CAUTION' || tier === 'caution' || tier === 'info') title = '🟡 Review this payment — CAUTION';
+  else if (tier === 'HIGH_RISK' || tier === 'high_risk' || tier === 'otp') title = '🔴 High-risk payment — HIGH_RISK';
   else if (tier === 'otp') title = '🟠 Suspicious Payment Detected';
-  else if (tier === 'high_risk') title = '🔴 High Risk Transaction';
+  else title = `Risk: ${tier}`;
 
   return(
     <Card style={{padding:0,overflow:"hidden",border:`1.5px solid ${m.border}`}}>
@@ -1110,8 +1173,8 @@ function FraudRiskCard({score, recipient, recipientNum, amount, signals, onVerif
             <div style={{height:"100%",width:`${score}%`,background:`linear-gradient(90deg,#22c55e,${m.dot})`,
               borderRadius:3,transition:"width .7s cubic-bezier(.4,0,.2,1)"}}/>
           </div>
-          <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:"#cbd5e1",marginTop:3}}>
-            <span>🟢 Safe (0–60)</span><span>🟡 (61–80)</span><span>🟠 (81–94)</span><span>🔴 (95+)</span>
+          <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:"#64748b",marginTop:3}}>
+            <span>🟢 SAFE (0–69)</span><span>🟡 CAUTION (70–84)</span><span>🔴 HIGH_RISK (85–100)</span>
           </div>
         </div>
         {/* ===== Network Fraud Intelligence — recipient report count ===== */}
@@ -1642,6 +1705,8 @@ function Dock({page,setPage,onLogout,pendingCount}){
     {id:"send",          label:"Pay",           icon:Ic.send,  isNav:true},
     {id:"request-money", label:"Request Money", icon:Ic.rupee, isNav:true},
     {id:"dashboard",     label:"Home",          icon:Ic.home,  isNav:true},
+    {id:"protection",    label:"Protect",       icon:Ic.shield, isNav:true},
+    {id:"security",      label:"Security",      icon:Ic.lock, isNav:true},
     {id:"profile",       label:"Profile",       icon:Ic.user,  isNav:true},
     {id:"history",       label:"History",       icon:Ic.clock, isNav:true},
   ];
@@ -1657,6 +1722,8 @@ function Dock({page,setPage,onLogout,pendingCount}){
     "Home":          "Home",
     "Pay":           "Pay",
     "Request Money": "Request",
+    "Protect":       "Protect",
+    "Security":      "Security",
     "History":       "History",
     "Profile":       "Profile",
   }[n.label] || n.label);
@@ -1768,8 +1835,8 @@ function Dashboard({user,balance,txs,setPage,updateUser}){
   const[showPinModal,setShowPinModal]=useState(false);
   const[showFreeze,setShowFreeze]=useState(false);
   const[freezeData,setFreezeData]=useState(null);
-  const blocked=txs.filter(t=>t.status==="blocked").length;
-  const debits=txs.filter(t=>t.type==="debit"&&t.status!=="blocked").reduce((s,t)=>s+t.amt,0);
+  const blocked=txs.filter(t=>t.status==="high_risk" || t.status==="blocked").length;
+  const debits=txs.filter(t=>t.type==="debit"&&t.status!=="high_risk"&&t.status!=="blocked").reduce((s,t)=>s+t.amt,0);
   const credits=txs.filter(t=>t.type==="credit").reduce((s,t)=>s+t.amt,0);
   const frozen = checkFrozen(user);
   const cooldown = checkCooldown(user);
@@ -1814,7 +1881,7 @@ function Dashboard({user,balance,txs,setPage,updateUser}){
           border:"1px solid #fed7aa",borderRadius:4,display:"flex",alignItems:"center",gap:10}}>
           {Ic.warn("#ea580c")}
           <span style={{color:"#9a3412",fontSize:14,lineHeight:1.5}}>
-            Cooldown active. Please wait {Math.floor(cooldown.remaining/60)}m {cooldown.remaining%60}s.
+            Review recommended. You can still proceed — verification helps protect you. Wait {Math.floor(cooldown.remaining/60)}m {cooldown.remaining%60}s.
           </span>
         </div>
       )}
@@ -1851,12 +1918,14 @@ function Dashboard({user,balance,txs,setPage,updateUser}){
       </div>
 
       {/* ── Quick Actions ── */}
-      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:16}}>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(90px,1fr))",gap:8,marginBottom:16}}>
         {[
           {label:"Send",    ico:Ic.up("#1B263B"),    fn:()=>setPage("send")},
           {label:"Request", ico:Ic.rupee("#C5A059"), fn:()=>setPage("request-money")},
           {label:"Pay Req", ico:Ic.down("#2a6636"),  fn:()=>setPage("requests")},
           {label:"History", ico:Ic.clock("#45474D"), fn:()=>setPage("history")},
+          {label:"Protect", ico:Ic.shield("#1A56DB"), fn:()=>setPage("protection")},
+          {label:"Security",ico:Ic.lock("#1A56DB"), fn:()=>setPage("security")},
         ].map(b=>(
           <button key={b.label} onClick={b.fn}
             style={{padding:"14px 8px",background:"#fff",border:"1px solid #E0E1DD",borderRadius:6,
@@ -1877,24 +1946,38 @@ function Dashboard({user,balance,txs,setPage,updateUser}){
         {/* Services */}
         <ServicesGrid setPage={setPage}/>
 
-        {/* Stats */}
-        <div style={{background:"#fff",border:"1px solid #E0E1DD",borderRadius:6,padding:20}}>
-          <div style={{fontWeight:700,color:"#1A1C1A",fontSize:12,marginBottom:16,textTransform:"uppercase",letterSpacing:"0.1em"}}>Account Stats</div>
-          <div style={{display:"flex",flexDirection:"column",gap:14}}>
-            <div>
-              <div style={{fontSize:13,color:"#45474D",marginBottom:4}}>Total Spent</div>
-              <div style={{fontWeight:700,fontSize:20,color:"#1B263B",fontFamily:"'Playfair Display',serif"}}>₹27,300</div>
+        {/* Stats — LIVE computed from actual txs */}
+        {(()=>{
+          const liveDebits = txs.filter(t=>t.type==="debit"&&t.status!=="high_risk"&&t.status!=="blocked").reduce((s,t)=>s+t.amt,0);
+          const liveHighRisk = txs.filter(t=>t.status==="high_risk" || t.status==="blocked").length;
+          const liveCount = txs.length;
+          const protectedCount = txs.filter(t=>t.risk>=70).length;
+          return (
+            <div style={{background:"#fff",border:"1px solid #E0E1DD",borderRadius:6,padding:20}}>
+              <div style={{fontWeight:700,color:"#1A1C1A",fontSize:12,marginBottom:16,textTransform:"uppercase",letterSpacing:"0.1em"}}>Account Stats</div>
+              <div style={{display:"flex",flexDirection:"column",gap:14}}>
+                <div>
+                  <div style={{fontSize:13,color:"#45474D",marginBottom:4}}>Total Spent</div>
+                  <div style={{fontWeight:700,fontSize:20,color:"#1B263B",fontFamily:"'Playfair Display',serif"}}>₹{liveDebits.toLocaleString("en-IN")}</div>
+                </div>
+                <div style={{borderTop:"1px solid #E0E1DD",paddingTop:14}}>
+                  <div style={{fontSize:13,color:"#45474D",marginBottom:4}}>Protected Transactions</div>
+                  <div style={{fontWeight:700,fontSize:20,color:"#ba1a1a",fontFamily:"'Playfair Display',serif"}}>{protectedCount}</div>
+                </div>
+                <div style={{borderTop:"1px solid #E0E1DD",paddingTop:14}}>
+                  <div style={{fontSize:13,color:"#45474D",marginBottom:4}}>Transactions</div>
+                  <div style={{fontWeight:700,fontSize:20,color:"#1B263B",fontFamily:"'Playfair Display',serif"}}>{liveCount}</div>
+                </div>
+                {liveHighRisk>0 && (
+                  <div style={{borderTop:"1px solid #E0E1DD",paddingTop:14}}>
+                    <div style={{fontSize:13,color:"#45474D",marginBottom:4}}>High Risk</div>
+                    <div style={{fontWeight:700,fontSize:20,color:"#ba1a1a",fontFamily:"'Playfair Display',serif"}}>{liveHighRisk}</div>
+                  </div>
+                )}
+              </div>
             </div>
-            <div style={{borderTop:"1px solid #E0E1DD",paddingTop:14}}>
-              <div style={{fontSize:13,color:"#45474D",marginBottom:4}}>Protected Transactions</div>
-              <div style={{fontWeight:700,fontSize:20,color:"#ba1a1a",fontFamily:"'Playfair Display',serif"}}>1</div>
-            </div>
-            <div style={{borderTop:"1px solid #E0E1DD",paddingTop:14}}>
-              <div style={{fontSize:13,color:"#45474D",marginBottom:4}}>Transactions</div>
-              <div style={{fontWeight:700,fontSize:20,color:"#1B263B",fontFamily:"'Playfair Display',serif"}}>17</div>
-            </div>
-          </div>
-        </div>
+          );
+        })()}
 
       </div>
     </div>
@@ -1994,6 +2077,88 @@ function RecipientRiskWarning({recipient, recipientType, userContacts, amount, u
   );
 }
 
+/* ═══ LIVE ML HELPER — calls backend Isolation Forest + Fraud Intelligence Layer === */
+async function fetchLiveMLScore(user, amount, targetNum, resolvedUPI, note, balanceVal){
+  const base = typeof API !== "undefined" ? API : "";
+  const now = new Date();
+  const hour = now.getHours();
+  const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const dayName = days[now.getDay()];
+  const isWeekend = (now.getDay()===0||now.getDay()===6)?1:0;
+  const recent5 = typeof getRecentTransactions!=="undefined"?getRecentTransactions(user,5):[];
+  const recent60 = typeof getRecentTransactions!=="undefined"?getRecentTransactions(user,60):[];
+  const recent1440 = typeof getRecentTransactions!=="undefined"?getRecentTransactions(user,1440):[];
+  const uniq30 = typeof getRecentTransactions!=="undefined"?new Set(getRecentTransactions(user,30).map(t=>t.toNum||t.fromNum)).size:1;
+  const recentAmounts = (user.transactions||[]).slice(0,5).map(t=>t.amt);
+  let urgencyScore=0;
+  try{ const u=detectUrgency(note, resolvedUPI||""); urgencyScore=u.urgencyScore||0; }catch{}
+  const txn = {
+    user_id: user.number,
+    amount: amount,
+    hour_of_day: hour,
+    day_of_week: dayName,
+    is_weekend: isWeekend,
+    is_salary_period: (now.getDate()<=5?1:0),
+    merchant_name: resolvedUPI||targetNum||"unknown",
+    merchant_category: "Transfer",
+    recipient_type: "individual",
+    payment_method: "UPI",
+    device_familiarity: (typeof GeoDeviceBaseline!=="undefined" && GeoDeviceBaseline.isNewDevice)?0.2:1.0,
+    location_familiarity: (typeof GeoDeviceBaseline!=="undefined" && GeoDeviceBaseline.location_enabled)?1.0:0.3,
+    balance_before: balanceVal!=null?balanceVal:user.balance,
+    account_age_days: 365,
+    recipient_frequency_score: (user.known_recipients?.has(targetNum)||(user.contacts||{})[targetNum])?1.0:0.0,
+    days_since_recipient_seen: (user.known_recipients?.has(targetNum)?0:999),
+    merchant_frequency_score: 0.5,
+    recipient_report_count: (typeof getRecipientRisk!=="undefined"?getRecipientRisk(targetNum):0),
+    is_off_network: !(targetNum in USERS),
+    urgency_score: urgencyScore,
+    note: note||"",
+    txn_velocity_1h: recent60.length+1,
+    txn_velocity_5m: recent5.length+1,
+    txn_velocity_24h: recent1440.length+1,
+    unique_recipients_30m: uniq30||1,
+    amount_velocity_24h: recent1440.reduce((s,t)=>s+t.amt,0)+amount,
+    recent_amounts: recentAmounts,
+    daily_spend_today: (typeof getDailySpent!=="undefined"?getDailySpent(user):0)
+  };
+  const profile = {
+    user_id: user.number,
+    avg_amount: (typeof calculateAvgTransaction!=="undefined"?calculateAvgTransaction(user):1000),
+    daily_avg_spend: Math.max((typeof getDailySpent!=="undefined"?getDailySpent(user)*2:3000), 3000)
+  };
+  const ctrl = new AbortController();
+  const timer = setTimeout(()=>ctrl.abort(), 4500);
+  try{
+    // Phase 1D: authoritative risk via POST /risk/assess (SAFE/CAUTION/HIGH_RISK)
+    const res = await fetch(`${base}/risk/assess`, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({transaction:txn, user_profile:profile}), signal: ctrl.signal});
+    clearTimeout(timer);
+    if(!res.ok) throw new Error("risk backend "+res.status);
+    const data = await res.json();
+    // Prefer new iron tier fields, fallback to analyze shape
+    const score = data.score ?? data.final?.score ?? 50;
+    const tier = data.tier ?? data.final?.iron_tier ?? (score>=85?"HIGH_RISK":score>=70?"CAUTION":"SAFE");
+    return {
+      fallback:false,
+      behavior_score: data.stage1?.behavior_score ?? 50,
+      fraud_score: data.stage2?.fraud_score ?? 50,
+      final_score: score,
+      risk_level: tier,
+      iron_tier: tier,
+      patterns: data.stage2?.matched_patterns || data.signals || [],
+      pattern_details: data.stage2?.pattern_details || [],
+      requires_otp: data.requires_otp ?? data.final?.requires_otp ?? false,
+      confidence: data.confidence ?? data.stage2?.confidence ?? 0,
+      signals: data.signals || [],
+      explanation: data.explanation || ""
+    };
+  }catch(e){
+    clearTimeout(timer);
+    console.warn("[IronWallet ML] live backend unavailable, using local fallback:", e.message||e);
+    return {fallback:true};
+  }
+}
+
 /* ═══ SEND MONEY PAGE with PIN+OTP for suspicious ═══ */
 function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
   const[recipient, setRecipient] = useState("");
@@ -2001,6 +2166,8 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
   const[amt, setAmt] = useState("");
   const[note, setNote] = useState("");
   const[stage, setStage] = useState("form");
+  const[showAIInvestigator, setShowAIInvestigator] = useState(false);
+  const[showSimulator, setShowSimulator] = useState(false);
   const[riskData, setRiskData] = useState({score:0,signals:[], action:'allow', tier:'normal', risk:0});
   const[prog, setProg] = useState(0);
   const[lastTx, setLastTx] = useState(null);
@@ -2015,7 +2182,10 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
   // === Out-of-Band Verification Feature: modal state ===
   const[showOOBModal, setShowOOBModal] = useState(false);
   // ===== FEATURE: Duplicate Payment Warning — tracks recent same-amount/to recipient txs =====
-  const[recentTxTimestamps, setRecentTxTimestamps] = useState([]); // [{toNum, amt, ts}]
+  const[recentTxTimestamps, setRecentTxTimestamps] = useState(()=>{
+    try{ const v=localStorage.getItem("iron_recentTx"); return v? JSON.parse(v) : []; }catch{ return []; }
+  }); // [{toNum, amt, ts}]
+  useEffect(()=>{ try{ localStorage.setItem("iron_recentTx", JSON.stringify(recentTxTimestamps.slice(-50))); }catch{} }, [recentTxTimestamps]);
   const[showDupWarning, setShowDupWarning] = useState(false);
 
   // ===== NEW: Record biometric interactions on mount and interactions =====
@@ -2054,42 +2224,64 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
 
   const isFormReady = recipient && amt && parsedAmt>0 && !isInsufficient && (recipientType==="upi" || recipient.replace(/\D/,"").length===10);
 
+  // Phase 1I: live scam reputation — fetch network risk on recipient change (debounced)
+  useEffect(()=>{
+    const { targetNum } = getRecipientInfo();
+    if(!targetNum) return;
+    const h = setTimeout(()=>{ try{ if(typeof checkRecipientNetworkRisk==="function") checkRecipientNetworkRisk(targetNum); }catch{} }, 400);
+    return ()=>clearTimeout(h);
+  }, [recipient, recipientType]);
+
   function handleAmtChange(v){
     recordInteraction(user.number, 'amount_input'); // biometrics
     setAmt(v);
     setBalErr("");
   }
 
-  // ===== FEATURE: Duplicate Payment Warning handlers =====
-  function handleDupWarningProceed() {
+  // ===== FEATURE: Duplicate Payment Warning handlers — now live ML wired ====
+  async function handleDupWarningProceed() {
     setShowDupWarning(false);
-    // Record this attempt in recent timestamps so subsequent checks within 4 mins will trigger again
     const { targetNum } = getRecipientInfo();
     setRecentTxTimestamps(prev => [...prev, { toNum: targetNum || recipient, amt: parsedAmt, ts: Date.now() }]);
-    // Resume risk analysis
     const { targetNum: tn } = getRecipientInfo();
     setStage("analyzing");
     setProg(0);
     const t = setInterval(() => setProg(p => { if(p>=92){ clearInterval(t); return 92; } return p + 7; }), 80);
-    setTimeout(() => {
+    setTimeout(async () => {
       clearInterval(t); setProg(100);
       const ruleResult = calculateRisk(user, parsedAmt, tn || recipient);
       if (ruleResult.action === 'cooldown') {
         const cd = applyCooldown(user, ruleResult.signals[0]);
         setCooldownData(cd); setShowCooldown(true); setStage("form"); return;
       }
-      const mlProb = mlFraudScore(user, parsedAmt, tn || recipient);
-      const mlSignals = []; let mlAdj = 0;
-      if (mlProb !== null) {
-        if (mlProb > 0.80) { mlSignals.push("\uD83E\uDD16 ML model: " + Math.round(mlProb*100) + "% fraud probability."); mlAdj = Math.round(mlProb * 25); }
-        else if (mlProb > 0.50) { mlSignals.push("\uD83E\uDD16 ML model flagged: " + Math.round(mlProb*100) + "% fraud probability."); mlAdj = Math.round(mlProb * 18); }
-        else if (mlProb < 0.15) { mlAdj = -8; }
+      // Live ML (IF+FIL) with fallback to local JS scorer
+      let mlSignals=[], mlAdj=0;
+      const resolvedUPI = tn && USERS[tn] ? USERS[tn].upi : null;
+      try{
+        const live = await fetchLiveMLScore(user, parsedAmt, tn||recipient, resolvedUPI, note, balance);
+        if(live && !live.fallback){
+          if(live.fraud_score>80){ mlSignals.push(`🧠 Live ML (IF:${live.behavior_score} FIL:${live.fraud_score}) — ${live.patterns.slice(0,2).join(", ")||"anomaly detected"}`); mlAdj=Math.round(live.fraud_score*0.28); }
+          else if(live.fraud_score>50){ mlSignals.push(`🧠 Live ML flagged: FIL ${live.fraud_score}/100 (IF ${live.behavior_score})`); mlAdj=Math.round(live.fraud_score*0.20); }
+          else if(live.fraud_score<15 && live.behavior_score<15){ mlAdj=-8; }
+          if(live.behavior_score>85) mlSignals.push(`Live IF anomaly: ${live.behavior_score}/100 behavioral deviation`);
+          console.log("[IronWallet ML] live dup-check:", live);
+        } else throw new Error("fallback");
+      }catch(e){
+        const mlProb = mlFraudScore(user, parsedAmt, tn || recipient);
+        if (mlProb !== null) {
+          if (mlProb > 0.80) { mlSignals.push("🧠 ML model: " + Math.round(mlProb*100) + "% fraud probability."); mlAdj = Math.round(mlProb * 25); }
+          else if (mlProb > 0.50) { mlSignals.push("🧠 ML model flagged: " + Math.round(mlProb*100) + "% fraud probability."); mlAdj = Math.round(mlProb * 18); }
+          else if (mlProb < 0.15) { mlAdj = -8; }
+        }
       }
-      const score = ruleResult.score + mlAdj;
-      // OTP threshold: 70+ (was 85 via RISK_OTP)
-      const tier = score >= 70 ? 'otp' : score >= RISK_INFO ? 'info' : 'normal';
-      const action = ruleResult.action === 'block' ? 'block' : tier === 'otp' ? 'otp' : tier === 'info' ? 'info' : 'allow';
-      setRiskData({ score, signals: [...ruleResult.signals, ...mlSignals], action, tier, risk: ruleResult.risk });
+      const baseRisk = ruleResult.risk!=null?ruleResult.risk:(ruleResult.score||0);
+      const score = Math.min(100, Math.max(0, (user.risk_score||0) + baseRisk + mlAdj));
+      // Phase 1E centralized tiers
+      const tierRaw = (typeof ironTier!=='undefined'? ironTier(score) : (score>=85?'HIGH_RISK':score>=70?'CAUTION':'SAFE'));
+      // Map to legacy UI tier strings done above
+      const tier = tierRaw==='HIGH_RISK' ? 'high_risk' : tierRaw==='CAUTION' ? 'caution' : 'normal';
+      const action = tier === 'high_risk' ? 'high_risk' : tier === 'caution' ? 'caution' : 'allow'; // Phase 1A no block
+      setRiskData({ score, signals: [...ruleResult.signals, ...mlSignals], action, tier, risk: baseRisk });
       setStage("risk");
     }, 600);
   }
@@ -2098,7 +2290,9 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
     setShowDupWarning(false);
   }
 
-  function analyzeRisk(){
+  async function analyzeRisk(){
+    // Phase 2D: use backend prepare for authoritative risk
+    // Keep local fallback if backend unreachable
     console.log("[IronWallet] analyzeRisk invoked, stage=", stage, "isFormReady=", isFormReady);
     try {
     if(!isFormReady) {
@@ -2140,7 +2334,7 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
       if(p>=92){ clearInterval(t); return 92; }
       return p + 7;
     }), 80);
-    setTimeout(() => {
+    setTimeout(async () => {
       clearInterval(t); setProg(100);
       const ruleResult = calculateRisk(user, parsedAmt, targetNum || recipient);
       console.log("[IronWallet] analysis done, ruleResult=", ruleResult);
@@ -2148,18 +2342,30 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
         const cd = applyCooldown(user, ruleResult.signals[0]);
         setCooldownData(cd); setShowCooldown(true); setStage("form"); return;
       }
-      // GBM inference: pure JS tree traversal, synchronous
-      const mlProb = mlFraudScore(user, parsedAmt, targetNum || recipient);
-      const mlSignals = []; let mlAdj = 0;
-      if (mlProb !== null) {
-        if (mlProb > 0.80) {
-          mlSignals.push("\uD83E\uDD16 ML model: " + Math.round(mlProb*100) + "% fraud probability.");
-          mlAdj = Math.round(mlProb * 25); // calibrated: was 40, reduced to prevent over-penalising
-        } else if (mlProb > 0.50) {
-          mlSignals.push("\uD83E\uDD16 ML model flagged: " + Math.round(mlProb*100) + "% fraud probability.");
-          mlAdj = Math.round(mlProb * 18); // calibrated: was 25, reduced to prevent over-penalising
-        } else if (mlProb < 0.15) {
-          mlAdj = -8; // ML says legit — silently reduce risk, no message shown
+      // Live ML (Isolation Forest + FIL via POST /analyze) — falls back to local JS scorer if backend unreachable
+      let mlSignals=[], mlAdj=0;
+      const resolvedUPI2 = targetNum && USERS[targetNum] ? USERS[targetNum].upi : null;
+      try{
+        const live = await fetchLiveMLScore(user, parsedAmt, targetNum||recipient, resolvedUPI2, note, balance);
+        if(live && !live.fallback){
+          if(live.fraud_score>80){ mlSignals.push(`🧠 Live ML (IF:${live.behavior_score} FIL:${live.fraud_score}) — ${live.patterns.slice(0,2).join(", ")||"anomaly detected"}`); mlAdj=Math.round(live.fraud_score*0.28); }
+          else if(live.fraud_score>50){ mlSignals.push(`🧠 Live ML flagged: FIL ${live.fraud_score}/100 (IF ${live.behavior_score})`); mlAdj=Math.round(live.fraud_score*0.20); }
+          else if(live.fraud_score<15 && live.behavior_score<15){ mlAdj=-8; }
+          if(live.behavior_score>85) mlSignals.push(`Live IF anomaly: ${live.behavior_score}/100 behavioral deviation`);
+          console.log("[IronWallet ML] live:", live);
+        } else throw new Error("fallback");
+      }catch(e){
+        const mlProb = mlFraudScore(user, parsedAmt, targetNum || recipient);
+        if (mlProb !== null) {
+          if (mlProb > 0.80) {
+            mlSignals.push("🧠 ML model: " + Math.round(mlProb*100) + "% fraud probability.");
+            mlAdj = Math.round(mlProb * 25);
+          } else if (mlProb > 0.50) {
+            mlSignals.push("🧠 ML model flagged: " + Math.round(mlProb*100) + "% fraud probability.");
+            mlAdj = Math.round(mlProb * 18);
+          } else if (mlProb < 0.15) {
+            mlAdj = -8;
+          }
         }
       }
       // Keyword Risk Analysis Engine — runs on UPI input
@@ -2188,11 +2394,33 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
       const urgencyAdj = Math.round(urgencyResult.urgencyScore * 8); // max +8 pts
       // === End Urgency Detection Feature ===
 
-      const totalRisk = Math.min(100, Math.max(0, user.risk_score + ruleResult.risk + mlAdj + kwScore + urgencyAdj));
-      console.log("[IronWallet] totalRisk=", totalRisk, "tier will be=", totalRisk >= 70 ? 'otp' : totalRisk >= RISK_INFO ? 'info' : 'normal', "user.risk_score=", user.risk_score, "ruleResult.risk=", ruleResult.risk, "mlAdj=", mlAdj, "kwScore=", kwScore, "urgencyAdj=", urgencyAdj);
-      let tier = 'normal';
-      if (totalRisk >= 70)  tier = 'otp';
-      else if (totalRisk >= RISK_INFO) tier = 'info';
+      // === Geo/Device Risk Integration ===
+      // Wire dead code checkGeoDeviceRisk into live scoring
+      const geoDeviceRisk = checkGeoDeviceRisk();
+      const geoAdj = Math.min(geoDeviceRisk.risk, 15); // cap 15 to avoid dominating
+      const geoSignals = geoDeviceRisk.signals || [];
+      // === End Geo/Device Integration ===
+
+      // Phase 1D: backend authoritative — if live risk available, use it directly; else fallback to local calc
+      let totalRisk, tier, allSignals, backendTier;
+      let authoritative = false;
+      // live variable is mlSignals/mlAdj scope — check if live was successful (mlSignals from live)
+      const hasLive = typeof live !== "undefined" && live && !live.fallback && live.final_score != null;
+      if (hasLive) {
+        totalRisk = Math.min(100, Math.max(0, live.final_score));
+        backendTier = live.iron_tier || (totalRisk>=85?"HIGH_RISK":totalRisk>=70?"CAUTION":"SAFE");
+        // Map backend iron tier to frontend tier strings used by UI
+        tier = backendTier==="HIGH_RISK" ? "high_risk" : backendTier==="CAUTION" ? "caution" : "normal";
+        authoritative = true;
+        console.log("[IRON] authoritative risk from backend:", live, "tier:", tier);
+      } else {
+        totalRisk = Math.min(100, Math.max(0, user.risk_score + ruleResult.risk + mlAdj + kwScore + urgencyAdj + geoAdj));
+        console.log("[IronWallet] totalRisk (fallback)=", totalRisk, "tier will be=", totalRisk >= 85 ? 'high_risk' : totalRisk >= 70 ? 'caution' : 'normal', "user.risk_score=", user.risk_score, "ruleResult.risk=", ruleResult.risk, "mlAdj=", mlAdj, "kwScore=", kwScore, "urgencyAdj=", urgencyAdj, "geoAdj=", geoAdj);
+        backendTier = totalRisk>=85 ? "HIGH_RISK" : totalRisk>=70 ? "CAUTION" : "SAFE";
+        tier = backendTier==="HIGH_RISK" ? "high_risk" : backendTier==="CAUTION" ? "caution" : "normal";
+      }
+      console.log("[IronWallet] totalRisk=", totalRisk, "tier will be=", totalRisk >= 70 ? 'otp' : totalRisk >= RISK_INFO ? 'info' : 'normal', "user.risk_score=", user.risk_score, "ruleResult.risk=", ruleResult.risk, "mlAdj=", mlAdj, "kwScore=", kwScore, "urgencyAdj=", urgencyAdj, "geoAdj=", geoAdj);
+      // tier already set via authoritative backend above
 
       // ── Signal deduplication: keep ONLY the single most severe amount-based signal ──
       // Patterns cover: calculateRisk balance-drain, behaviouralDeviation z-score,
@@ -2204,7 +2432,7 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
         : [];
       // === End Urgency Detection Feature ===
 
-      let allSignals = [...ruleResult.signals, ...mlSignals, ...kwSignals, ...urgencySignals];
+      let allSignals = [...ruleResult.signals, ...mlSignals, ...kwSignals, ...urgencySignals, ...geoSignals];
       const amountSignalPriority = [
         /This transaction drains \d+% of your balance/i,
         /Large transfer:.*of your current balance/i,
@@ -2227,14 +2455,40 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
       }
       allSignals = kept;
 
+      // Try authoritative prepare (Phase 2D) — if backend reachable, use its transaction_id and risk
+      let preparedId = null;
+      let authoritativeRisk = null;
+      try{
+        const hdr = getAuthHeader();
+        if(hdr.Authorization){
+          const prepRes = await fetch(`${API}/transactions/prepare`, {method:"POST", headers:{...hdr, "Content-Type":"application/json"}, body: JSON.stringify({recipient: targetNum||recipient, amount: parsedAmt, note: note||""})});
+          const prepData = await prepRes.json().catch(()=>({}));
+          if(prepRes.ok && prepData.transaction_id){
+            preparedId = prepData.transaction_id;
+            authoritativeRisk = prepData.risk;
+            // Override totalRisk/tier with authoritative if available
+            totalRisk = prepData.risk.score;
+            tier = prepData.risk.tier==="HIGH_RISK"?"high_risk": prepData.risk.tier==="CAUTION"?"caution":"normal";
+            allSignals = prepData.risk.signals || allSignals;
+            console.log("[IRON] prepare authoritative", prepData);
+          }
+        }
+      }catch(e){ console.warn("prepare failed, fallback to local", e); }
       setRiskData({
         score: totalRisk,
         signals: allSignals,
         action: ruleResult.action, tier, risk: ruleResult.risk,
         kwMatched, kwScore,
-        // === Urgency Detection Feature: persist urgency hits for UI rendering ===
         urgencyHits: urgencyResult.urgencyHits,
-        urgencyScore: urgencyResult.urgencyScore
+        urgencyScore: urgencyResult.urgencyScore,
+        transaction_id: preparedId,
+        preparedId: preparedId,
+        authoritative: !!authoritativeRisk,
+        requires_otp: authoritativeRisk?.requires_otp ?? (tier==="high_risk"),
+        backendRisk: authoritativeRisk,
+        explanation: authoritativeRisk?.explanation || "",
+        explanation_detail: authoritativeRisk?.explanation_detail || null,
+        components: authoritativeRisk?.components || null
       });
 
       if (totalRisk < 40) {
@@ -2277,16 +2531,14 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
       return;
     }
 
-    // === VPN Detection Check ===
-    // Run this check before any payment or request
+    // VPN & travel are now risk signals only — never block (Phase 1A)
     const vpnCheck = await checkVPNDetection(user.number);
-    if (vpnCheck.vpnDetected && vpnCheck.blocked) {
-      alert("VPN detected. Please turn off VPN to proceed with payment.");
-      return;
+    if (vpnCheck.vpnDetected) {
+      console.warn("[IRON] VPN signal — HIGH_RISK warning, not block:", vpnCheck.reason);
+      // Surface as risk signal via riskData if present, but do not return
     }
 
-    // === Location jump: show popup only, does NOT affect risk score ===
-    // Only run if location permission was granted at login
+    // Location jump: also non-blocking — log as CAUTION signal
     if (GeoDeviceBaseline.location_enabled) {
       const freshLoc = await getFreshLocation();
       const travelCheck = checkImpossibleTravel(
@@ -2295,19 +2547,9 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
         freshLoc.lng,
         Date.now()
       );
-      if (travelCheck.triggered && travelCheck.risk_level === "popup") {
-        const confirmed = confirm(
-          travelCheck.reason
-            ? travelCheck.reason
-            : "Unusual location change detected.\nPlease confirm this activity."
-        );
-        if (!confirmed) {
-          setStage("form");
-          setRecipient("");
-          setAmt("");
-          setNote("");
-          return;
-        }
+      if (travelCheck.triggered) {
+        console.warn("[IRON] Travel signal — CAUTION:", travelCheck.reason);
+        // No confirm/return — user may proceed; signal will be shown in risk card if needed
       }
     }
 
@@ -2364,7 +2606,7 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
     // OTP only required when risk score is 70+ (or the tier is already otp/high_risk).
     // Removed the broad smartOTP path (high value / new recipient / biometric / flagged recipient)
     // so low-risk payments don't get an extra OTP step.
-    const requiresOTP = riskData.tier === 'otp' || riskData.tier === 'high_risk' || riskData.score >= 70;
+    const requiresOTP = riskData.tier === 'high_risk' || riskData.tier === 'caution' && riskData.score>=85 || riskData.score >= 85; // Phase 1E: HIGH_RISK requires OTP
     if (requiresOTP) {
       setStage("otp");
     } else {
@@ -2372,8 +2614,12 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
     }
   }
 
-  function handleOTPSuccess() {
-    completePayment();
+  function handleOTPSuccess(otp) {
+    // Store OTP for confirm step (Phase 2E)
+    const val = otp || (typeof otp==="string"?otp:null);
+    if(val) setRiskData(prev=>({...prev, otpValue: val}));
+    // Slight delay to ensure state updated before confirm
+    setTimeout(()=>completePayment(), 50);
   }
 
   const [reportModal, setReportModal] = useState(null); // null | target number
@@ -2401,108 +2647,67 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
     setReportModal(null);
   }
 
-  function completePayment(){
+  async function completePayment(){
     const a = parsedAmt;
-    const { date, time } = nowStamp();
     const { targetNum, name } = getRecipientInfo();
-    
-    const otpUsed = riskData.tier === 'otp' || riskData.tier === 'high_risk';
-    const status = riskData.tier === 'high_risk' ? 'verified' : 'success';
-    
-    const _gdMeta = getTxGeoDeviceMeta();
-    const _locationDisplay = MockLocation.active
-      ? MockLocation.label
-      : (_gdMeta.location || null);
-    const tx = {
-      id: Date.now(),
-      to: name || recipient,
-      toNum: targetNum || recipient,
-      upi: recipientType === 'upi' ? recipient : (USERS[targetNum]?.upi || ''),
-      amt: a,
-      date, time,
-      risk: riskData.score,
-      status,
-      type: "debit",
-      note: note || "Payment",
-      isNew: true,
-      risk_tag: riskData.tier,
-      otp_used: otpUsed,
-      location: _locationDisplay,
-      device: _gdMeta.device,
-      new_device: _gdMeta.isNewDevice,
-    };
-    
-    addTx(tx);
-    updateBalance(b => b - a);
-
-    // ===== FEATURE: Record this payment for duplicate warning detection (4-min window) =====
-    setRecentTxTimestamps(prev => {
-      const cutoff = Date.now() - 4 * 60 * 1000;
-      const pruned = prev.filter(tx => tx.ts > cutoff);
-      return [...pruned, { toNum: targetNum || recipient, amt: a, ts: Date.now() }];
-    });
-
-    // ── WebSocket: real-time push to recipient ────────────────────────
-    if (window._ptSocket?.connected && targetNum && targetNum in USERS) {
-      window._ptSocket.emit(
-        "send_payment",
-        {
-          fromNumber: user.number,
-          toNumber:   targetNum,
-          amount:     a,
-          txId:       tx.id,
-          timestamp:  new Date().toISOString(),
-          note:       note || "Payment",
-        },
-        (ack) => {
-          if (ack?.delivered) {
-            console.log("[IronWallet WS] ✅ Delivered to", targetNum);
-          } else {
-            console.log("[IronWallet WS] ℹ️ Recipient offline — local tx recorded");
-          }
-        }
-      );
-      console.log("[IronWallet WS] 📤 send_payment →", targetNum, "₹" + a);
+    // Phase 2G: authoritative backend — prepare was already done in analyzeRisk, now confirm
+    // If we have a prepared transaction_id from prepare step, use it; else fallback to legacy
+    const preparedId = riskData.transaction_id || riskData.preparedId;
+    if (!preparedId) {
+      // Fallback legacy path (should not happen after Phase 2) — keep for offline demo
+      const { date, time } = nowStamp();
+      const _gdMeta = getTxGeoDeviceMeta();
+      const _locationDisplay = MockLocation.active ? MockLocation.label : (_gdMeta.location || null);
+      const otpUsed = riskData.tier === 'high_risk' || riskData.tier === 'HIGH_RISK';
+      const status = riskData.tier === 'high_risk' ? 'high_risk' : 'success';
+      const tx = { id: Date.now(), to: name || recipient, toNum: targetNum || recipient, upi: recipientType === 'upi' ? recipient : (USERS[targetNum]?.upi || ''), amt: a, date, time, risk: riskData.score, status, type: "debit", note: note || "Payment", isNew: true, risk_tag: riskData.tier, otp_used: otpUsed, location: _locationDisplay, device: _gdMeta.device, new_device: _gdMeta.isNewDevice };
+      addTx(tx); updateBalance(b => b - a);
+      setLastTx(tx); setStage("success");
+      return;
     }
-    // ─────────────────────────────────────────────────────────────────
-
-    if (targetNum && targetNum in USERS) {
-      USERS[targetNum].balance += a;
+    // Authenticated confirm
+    try{
+      const otpVal = riskData.otpValue || null; // set when OTP verified
+      const hdr = getAuthHeader();
+      const res = await fetch(`${API}/transactions/confirm`, {method:"POST", headers:{...hdr, "Content-Type":"application/json"}, body: JSON.stringify({transaction_id: preparedId, otp: otpVal})});
+      const data = await res.json().catch(()=>({}));
+      if(!res.ok){
+        alert(data.error || "Transaction failed");
+        // For idempotency, if duplicate, treat as success
+        if(data.duplicate || res.status===409){ /* ignore */ }
+        else return;
+      }
+      // Update authoritative balance & tx
+      if(data.balance != null) setBalance(data.balance);
+      // Map backend tx to frontend format
+      const txAuth = { id: data.transaction_id || preparedId, to: name || recipient, toNum: targetNum || recipient, upi: recipientType === 'upi' ? recipient : (USERS[targetNum]?.upi || ''), amt: a, date: new Date().toISOString().slice(0,10), time: new Date().toISOString().slice(11,16), risk: data.risk_score ?? riskData.score, status: (data.status==="HIGH_RISK"||data.status==="high_risk")?"high_risk": (data.status==="SUCCESS"?"success":data.status?.toLowerCase()||"success"), type: "debit", note: note || "Payment", isNew: true, risk_tag: (data.risk_tier||riskData.tier||"normal").toLowerCase(), otp_used: !!otpVal, location: (typeof MockLocation!=="undefined"&&MockLocation.active?MockLocation.label:null), device: (typeof getTxGeoDeviceMeta==="function"?getTxGeoDeviceMeta().device:null) };
+      addTx(txAuth);
+      // Do not locally deduct — backend already did; ensure UI reflects backend balance
+      setLastTx(txAuth); setStage("success");
+      // Record for duplicate warning (authoritative path)
+      setRecentTxTimestamps(prev => {
+        const cutoff = Date.now() - 4 * 60 * 1000;
+        const pruned = prev.filter(x => x.ts > cutoff);
+        return [...pruned, { toNum: targetNum || recipient, amt: a, ts: Date.now() }];
+      });
+      // Push via WS
+      if (window._ptSocket?.connected && targetNum && targetNum in USERS) {
+        window._ptSocket.emit("send_payment", { fromNumber: user.number, toNumber: targetNum, amount: a, txId: txAuth.id, timestamp: new Date().toISOString(), note: note || "Payment" }, (ack) => { console.log("[IronWallet WS] ✅ Delivered", ack); });
+      }
+      if (targetNum) { if (!user.known_recipients) user.known_recipients = new Set(); user.known_recipients.add(targetNum); }
+      return;
+    }catch(e){
+      console.error("confirm failed", e);
+      alert("Transaction failed: "+(e.message||"unknown"));
+      return;
     }
-    
-    if (targetNum) {
-      if (!user.known_recipients) user.known_recipients = new Set();
-      user.known_recipients.add(targetNum);
-    }
-    
-    user.risk_score = Math.max(0, user.risk_score + riskData.risk - (otpUsed ? OTP_DISCOUNT : 0));
-    if (!user.risk_score_history) user.risk_score_history = [];
-    user.risk_score_history.push({
-      time: new Date(),
-      score: user.risk_score,
-      amount: a,
-      receiver: targetNum,
-      action: riskData.action
-    });
-    
-    setLastTx(tx);
-    setStage("success");
 
-    // Record location for impossible travel detection on the NEXT transaction.
-    const _freshLoc = getFreshLocation().then(loc => {
-      recordTxLocation(user.number, loc.lat, loc.lng, Date.now());
-    });
-
-    // Record network info for VPN detection on the NEXT transaction.
-    getNetworkInfo().then(netInfo => {
-      recordTxNetwork(user.number, netInfo);
-    });
-
-    if (recordBlock(user)) {
-      const freeze = freezeAccount(user, "3 blocked transactions in 5 minutes.");
-      setFreezeData(freeze);
-      setShowFreeze(true);
-    }
+    // Note: legacy duplicate handling removed — authoritative path handles all post-payment actions (Phase 12-14).
+    // IRON never blocks — record as risk event only if needed (non-blocking)
+    try { recordBlock(user); } catch {}
+    // Record location/network for next transaction (non-blocking signals)
+    try { getFreshLocation().then(loc => recordTxLocation(user.number, loc.lat, loc.lng, Date.now())); } catch {}
+    try { getNetworkInfo().then(netInfo => recordTxNetwork(user.number, netInfo)); } catch {}
   }
 
   if (showCooldown && cooldownData) {
@@ -2868,6 +3073,62 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
             urgencyHits={riskData.urgencyHits || []}
             urgencyScore={riskData.urgencyScore || 0}
           />
+          {/* Phase 14: Backend-authoritative explanation & breakdown (renders backend state, no frontend calculation) */}
+          {riskData.backendRisk && (
+            <div style={{marginTop:12, display:"flex", flexDirection:"column", gap:10}}>
+              <div style={{padding:"12px 14px", background: riskData.backendRisk.tier==="HIGH_RISK"?"#fef2f2": riskData.backendRisk.tier==="CAUTION"?"#fffbeb":"#f0fdf4", border:`1px solid ${riskData.backendRisk.tier==="HIGH_RISK"?"#fca5a5":riskData.backendRisk.tier==="CAUTION"?"#fcd34d":"#86efac"}`, borderRadius:8}}>
+                <div style={{fontSize:11, fontWeight:800, color:"#1B263B", textTransform:"uppercase", letterSpacing:.5, marginBottom:6}}>Backend Risk Explanation</div>
+                <div style={{fontSize:13, color:"#334155", lineHeight:1.5}}>{riskData.backendRisk.explanation || riskData.backendRisk.explanation_detail?.summary || "No significant fraud signals detected."}</div>
+                {riskData.backendRisk.explanation_detail?.reasons && riskData.backendRisk.explanation_detail.reasons.length>0 && (
+                  <ul style={{marginTop:8, paddingLeft:18}}>
+                    {riskData.backendRisk.explanation_detail.reasons.slice(0,3).map((r,i)=>(
+                      <li key={i} style={{fontSize:12, color:"#475569", marginBottom:4}}><b>{r.title}</b>: {r.description}</li>
+                    ))}
+                  </ul>
+                )}
+                <div style={{fontSize:11, color:"#64748b", marginTop:6}}>Score {riskData.backendRisk.score}/100 • {riskData.backendRisk.tier} • Confidence {(riskData.backendRisk.confidence*100).toFixed(0)}% • Requires OTP: {riskData.backendRisk.requires_otp?"Yes":"No"} • You can still proceed</div>
+              </div>
+              {riskData.backendRisk.components && (
+                <RiskBreakdown components={riskData.backendRisk.components} />
+              )}
+              <div style={{fontSize:11, color:"#94a3b8", fontStyle:"italic", textAlign:"center"}}>IRON protects you by detecting suspicious activity and helping you verify it.</div>
+            </div>
+          )}
+          {/* Phase 9: Investigate with AI */}
+          <div style={{display:"flex", gap:8, marginTop:12, marginBottom:8}}>
+            <button
+              onClick={() => setShowAIInvestigator(v => !v)}
+              style={{flex:1, padding:"10px", background: showAIInvestigator ? "#1B263B" : "#fff", color: showAIInvestigator ? "#fff" : "#1B263B", border:"1px solid #1B263B", borderRadius:6, fontWeight:700, fontSize:12, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:6}}
+            >
+              🤖 {showAIInvestigator ? "Hide Investigation" : "Investigate with AI"}
+            </button>
+            <button
+              onClick={() => setShowSimulator(v => !v)}
+              style={{flex:1, padding:"10px", background: showSimulator ? "#1B263B" : "#fff", color: showSimulator ? "#fff" : "#1B263B", border:"1px solid #1B263B", borderRadius:6, fontWeight:700, fontSize:12, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:6}}
+            >
+              🧪 {showSimulator ? "Hide Simulator" : "What-If Simulator"}
+            </button>
+          </div>
+          {showAIInvestigator && riskData.transaction_id && (
+            <AIInvestigatorPanel transactionId={riskData.transaction_id} onClose={() => setShowAIInvestigator(false)} />
+          )}
+          {showAIInvestigator && !riskData.transaction_id && (
+            <div style={{padding:"10px 12px", background:"#fffbeb", border:"1px solid #fde68a", borderRadius:6, color:"#92400e", fontSize:12, marginBottom:8}}>
+              Transaction not yet prepared — AI investigation available after risk assessment.
+            </div>
+          )}
+          {showSimulator && (
+            <WhatIfSimulator onClose={() => setShowSimulator(false)} />
+          )}
+          {/* Phase 11: Live Protection alerts */}
+          {typeof window !== "undefined" && window._ironLive && window._ironLive.liveAlerts && window._ironLive.liveAlerts.length > 0 && (
+            <div style={{marginTop:12, padding:"10px 12px", background:"#fef2f2", border:"1px solid #fca5a5", borderRadius:6}}>
+              <div style={{fontSize:12, fontWeight:700, color:"#991b1b", marginBottom:6}}>🔔 Live Protection Alerts</div>
+              {window._ironLive.liveAlerts.slice(-3).map((a,i) => (
+                <div key={i} style={{fontSize:12, color:"#7f1d1d", marginBottom:4}}>• {a.message} <span style={{opacity:0.6}}>({a.event})</span></div>
+              ))}
+            </div>
+          )}
         </>
       )}
       {stage==="popup" && (
@@ -3070,12 +3331,10 @@ function RequestsPage({user,requests,resolveRequest,addTx,updateBalance,updateUs
   }
 
   async function acceptReq(req) {
-    // === VPN Detection Check ===
-    // Run this check before accepting any payment request
+    // VPN signal — HIGH_RISK warning, never blocks (Phase 1A)
     const vpnCheck = await checkVPNDetection(user.number);
-    if (vpnCheck.vpnDetected && vpnCheck.blocked) {
-      alert("VPN detected. Please turn off VPN to proceed with payment.");
-      return;
+    if (vpnCheck.vpnDetected) {
+      console.warn("[IRON] VPN signal — HIGH_RISK warning:", vpnCheck.reason);
     }
 
     const { result, totalRisk, tier } = reqRiskInfo(req);
@@ -3092,12 +3351,10 @@ function RequestsPage({user,requests,resolveRequest,addTx,updateBalance,updateUs
       setVerifying(null); return;
     }
 
-    // === VPN Detection Check ===
-    // Run this check before completing any transaction
+    // VPN signal — HIGH_RISK warning, never blocks (Phase 1A)
     const vpnCheck = await checkVPNDetection(user.number);
-    if (vpnCheck.vpnDetected && vpnCheck.blocked) {
-      alert("VPN detected. Please turn off VPN to proceed with payment.");
-      setVerifying(null); return;
+    if (vpnCheck.vpnDetected) {
+      console.warn("[IRON] VPN signal — HIGH_RISK warning:", vpnCheck.reason);
     }
 
     const otpUsed = tier === 'otp' || tier === 'high_risk';
@@ -3436,6 +3693,7 @@ function HistoryPage({txs, user, tickets, createTicket, setPage}){
   const [filter, setFilter] = useState("all");
   const [reportIssueTx, setReportIssueTx] = useState(null); // tx to report
   const [toast, setToast] = useState("");
+  const [selectedTx, setSelectedTx] = useState(null); // Phase 14: detail view
 
   function showToastMsg(msg){ setToast(msg); setTimeout(()=>setToast(""),4000); }
 
@@ -3443,7 +3701,7 @@ function HistoryPage({txs, user, tickets, createTicket, setPage}){
     if (filter === "credit") return t.type === "credit";
     if (filter === "debit") return t.type === "debit";
     if (filter === "flagged") return t.risk >= 40;
-    if (filter === "blocked") return t.status === "blocked";
+    if (filter === "high_risk") return t.status === "high_risk" || t.status === "blocked";
     if (filter === "otp") return t.otp_used;
     return true;
   });
@@ -3451,6 +3709,16 @@ function HistoryPage({txs, user, tickets, createTicket, setPage}){
   return(
     <div className="page-pad page-enter" style={{padding:"24px 24px",maxWidth:"1400px",margin:"0 auto"}}>
       {toast && <div className="pt-toast">{toast}</div>}
+      {selectedTx && (
+        <Modal>
+          <div style={{background:"#fff", borderRadius:8, maxWidth:480, width:"90%", maxHeight:"90vh", overflowY:"auto", padding:0}}>
+            <TransactionDetailCard tx={selectedTx} risk={{score:selectedTx.risk, tier: (selectedTx.risk>=85?"HIGH_RISK":selectedTx.risk>=70?"CAUTION":"SAFE"), requires_otp: selectedTx.otp_used, explanation_detail:{reasons:[]}}} onClose={()=>setSelectedTx(null)} />
+            <div style={{padding:"12px 16px", textAlign:"center"}}>
+              <Btn onClick={()=>setSelectedTx(null)} variant="ghost">Close</Btn>
+            </div>
+          </div>
+        </Modal>
+      )}
       {reportIssueTx && (
         <ReportIssueModal
           tx={reportIssueTx}
@@ -3470,12 +3738,12 @@ function HistoryPage({txs, user, tickets, createTicket, setPage}){
       />
       
       <div style={{display:"flex",gap:8,marginBottom:18,flexWrap:"wrap"}}>
-        {["all","debit","credit","flagged","blocked","otp"].map(f => (
+        {["all","debit","credit","flagged","high_risk","otp"].map(f => (
           <button key={f} onClick={() => setFilter(f)}
             style={{padding:"7px 18px",borderRadius:8,cursor:"pointer",fontSize:13,fontWeight:700,
               border:"none",background:filter===f?"#1B263B":"rgba(197,160,89,0.08)",
               color:filter===f?"#C5A059":"#1B263B"}}>
-            {f.charAt(0).toUpperCase() + f.slice(1)}
+            {f==="high_risk"?"High Risk": f.charAt(0).toUpperCase() + f.slice(1)}
           </button>
         ))}
       </div>
@@ -3530,8 +3798,8 @@ function HistoryPage({txs, user, tickets, createTicket, setPage}){
                         </div>
                       </div>
                     </td>
-                    <td style={{padding:"13px 16px",whiteSpace:"nowrap",fontSize:15,fontWeight:800,
-                      color:tx.type==="credit"?"#166534":tx.status==="blocked"?"#dc2626":"#0f172a"}}>
+                    <td onClick={()=>setSelectedTx(tx)} style={{padding:"13px 16px",whiteSpace:"nowrap",fontSize:15,fontWeight:800, cursor:"pointer",
+                      color:tx.type==="credit"?"#166534":(tx.status==="high_risk"||tx.status==="blocked"?"#991b1b":"#0f172a")}}>
                       {tx.type==="credit"?"+":"-"}₹{tx.amt.toLocaleString("en-IN")}
                     </td>
                     <td style={{padding:"13px 16px",fontSize:13,color:"#45474D"}}>{tx.note}</td>
@@ -3550,12 +3818,12 @@ function HistoryPage({txs, user, tickets, createTicket, setPage}){
                       )}
                     </td>
                     <td style={{padding:"13px 16px"}}>
-                      <span style={{padding:"4px 12px",borderRadius:6,fontSize:12,fontWeight:700,
-                        background:tx.status==="success"?"#dcfce7":tx.status==="blocked"?"#fef2f2":"#fef3c7",
-                        color:tx.status==="success"?"#166534":tx.status==="blocked"?"#dc2626":"#92400e",
+                      <span onClick={()=>setSelectedTx(tx)} style={{padding:"4px 12px",borderRadius:6,fontSize:12,fontWeight:700, cursor:"pointer",
+                        background:tx.status==="success"?"#dcfce7":(tx.status==="high_risk"||tx.status==="blocked"?"#fef2f2":"#fef3c7"),
+                        color:tx.status==="success"?"#166534":(tx.status==="high_risk"||tx.status==="blocked"?"#991b1b":"#92400e"),
                         display:"inline-flex",alignItems:"center",gap:5}}>
-                        {tx.status==="success"?Ic.check("#166534"):tx.status==="blocked"?Ic.x("#dc2626"):Ic.lock("#92400e")}
-                        {tx.status==="success"?"Success":tx.status==="blocked"?"Blocked":"Verified"}
+                        {tx.status==="success"?Ic.check("#166534"):(tx.status==="high_risk"||tx.status==="blocked")?Ic.warn("#991b1b"):Ic.lock("#92400e")}
+                        {tx.status==="success"?"Success":(tx.status==="high_risk"||tx.status==="blocked")?"High Risk":"Verified"}
                       </span>
                     </td>
                     <td style={{padding:"13px 16px"}}>
@@ -3728,8 +3996,8 @@ function XAIExplainCard({user, txs}){
 }
 
 function EDAPatterns({txs}){
-  const fraudTxs  = txs.filter(t=>t.status==="blocked");
-  const legitTxs  = txs.filter(t=>t.status!=="blocked");
+  const fraudTxs  = txs.filter(t=>t.status==="high_risk" || t.status==="blocked");
+  const legitTxs  = txs.filter(t=>t.status!=="high_risk" && t.status!=="blocked");
   const avgFraud  = fraudTxs.length ? Math.round(fraudTxs.reduce((s,t)=>s+t.amt,0)/fraudTxs.length) : 0;
   const avgLegit  = legitTxs.length ? Math.round(legitTxs.reduce((s,t)=>s+t.amt,0)/legitTxs.length) : 0;
 
@@ -3748,7 +4016,7 @@ function EDAPatterns({txs}){
   const otpTxs      = txs.filter(t=>t.otp_used).length;
 
   const patterns = [
-    {icon:"💰", label:"Avg Blocked Amount", val:`₹${avgFraud.toLocaleString()}`, note:"vs ₹"+avgLegit.toLocaleString()+" legitimate", color:"#ba1a1a", bg:"#fef2f2"},
+    {icon:"💰", label:"Avg High-Risk Amount", val:`₹${avgFraud.toLocaleString()}`, note:"vs ₹"+avgLegit.toLocaleString()+" legitimate", color:"#ba1a1a", bg:"#fef2f2"},
     {icon:"🌙", label:"Night-Time Suspicious", val:hourBuckets.night, note:"Txns 1AM–5AM (high-risk window)", color:"#7c3aed", bg:"#f5f3ff"},
     {icon:"👤", label:"High-Risk Flagged", val:newRecFraud, note:"Scored ≥95 risk or high_risk tier", color:"#f59e0b", bg:"#fef3c7"},
     {icon:"🔐", label:"OTP Interventions", val:otpTxs, note:"Extra verification required", color:"#C5A059", bg:"rgba(197,160,89,0.08)"},
@@ -3794,9 +4062,9 @@ function EDAPatterns({txs}){
 function InsightsPage({txs, user}){
   const [tab, setTab] = React.useState("overview");
   const safe    = txs.filter(t => t.risk <= 60).length;
-  const info    = txs.filter(t => t.risk >= 61 && t.risk <= 80).length;
-  const otp     = txs.filter(t => t.risk >= 81 && t.risk <= 94).length;
-  const blocked = txs.filter(t => t.status === "blocked" || t.risk >= 95).length;
+  const info    = txs.filter(t => t.risk >= 70 && t.risk <= 84).length;
+  const otp     = txs.filter(t => t.risk >= 85 && t.risk <= 100).length; // HIGH_RISK
+  const blocked = txs.filter(t => t.status === "high_risk" || t.status === "blocked" || t.risk >= 95).length;
   const verified = txs.filter(t => t.status === "verified").length;
   const success = txs.filter(t => t.status === "success").length;
   const total   = txs.length;
@@ -3888,7 +4156,7 @@ function InsightsPage({txs, user}){
         <div className="stats-4" style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:16}}>
           {[
             {label:"Total Txns",   val:total,   color:"#C5A059", bg:"rgba(197,160,89,0.08)", ico:Ic.clock("#C5A059")},
-            {label:"Blocked",      val:blocked, color:"#ba1a1a", bg:"#fef2f2", ico:Ic.x("#dc2626")},
+            {label:"High Risk",      val:blocked, color:"#ba1a1a", bg:"#fef2f2", ico:Ic.x("#dc2626")},
             {label:"OTP Verified", val:verified,color:"#f59e0b", bg:"#fef3c7", ico:Ic.lock("#f59e0b")},
             {label:"Auto Approved",val:success, color:"#22c55e", bg:"#dcfce7", ico:Ic.check("#22c55e")},
           ].map(s=>(
@@ -3935,7 +4203,7 @@ function InsightsPage({txs, user}){
               </div>
             </div>
             <div style={{marginBottom:14}}>
-              <div style={{fontSize:13,color:"#45474D",marginBottom:6}}>Blocked Attempts</div>
+              <div style={{fontSize:13,color:"#45474D",marginBottom:6}}>High-Risk Flags</div>
               <div style={{fontSize:24,fontWeight:800,color:"#C5A059"}}>{user?.blocked_attempts||0}</div>
             </div>
             <div>
@@ -4055,7 +4323,7 @@ function InsightsPage({txs, user}){
           {[
             {step:"1", icon:"📥", title:"Feature Extraction", desc:"9 behavioral signals are computed in real-time: amount ratio, time, recipient familiarity, spending velocity, z-score deviation, and network status."},
             {step:"2", icon:"⚖️", title:"Weighted Feature Scoring", desc:"Each feature is multiplied by its calibrated importance weight (derived from the original GBM). Large Balance Drain carries 87.6% of the total weight — the dominant fraud signal. The weighted sum is passed through a sigmoid to produce a 0–1 probability."},
-            {step:"3", icon:"⚖️", title:"Threshold Classification", desc:"Prob < 0.40 → Safe. 0.40–0.70 → Info warning. 0.70–0.90 → OTP required. > 0.90 → Blocked. Thresholds are tuned to maximize recall (catch more fraud)."},
+            {step:"3", icon:"⚖️", title:"Threshold Classification", desc:"Prob < 0.40 → Safe. 0.40–0.70 → Info warning. 0.70–0.90 → OTP required. > 0.90 → High Risk. Thresholds are tuned to maximize recall (catch more fraud)."},
             {step:"4", icon:"🔎", title:"Risk Reason Generation", desc:"After scoring, the top contributing features are surfaced as plain-English reasons: 'Unusual Amount', 'New Recipient', 'Odd Transaction Time'."},
           ].map(s=>(
             <div key={s.step} style={{display:"flex",gap:14,marginBottom:16,
@@ -4083,8 +4351,8 @@ function InsightsPage({txs, user}){
             {reason:"Odd Transaction Time", signal:"Transfer initiated between 1AM and 5AM",              action:"+8 risk points"},
             {reason:"Off-Network",          signal:"Receiver phone not registered on UPI",                action:"+16 risk points"},
             {reason:"Rapid Transfers",      signal:"4+ large payments within 3 minutes",                  action:"Cooldown triggered"},
-            {reason:"Micro-Payment Attack", signal:"10+ small (₹1–50) payments in 1 minute",             action:"Auto block"},
-            {reason:"Balance Drain",        signal:"Transaction would use >80% of your balance",          action:"Block or OTP"},
+            {reason:"Micro-Payment Attack", signal:"10+ small (₹1–50) payments in 1 minute",             action:"HIGH_RISK — OTP required"},
+            {reason:"Balance Drain",        signal:"Transaction would use >80% of your balance",          action:"HIGH_RISK — OTP required"},
           ].map(r=>(
             <div key={r.reason} style={{display:"flex",gap:12,padding:"10px 0",
               borderBottom:"1px solid #f8faff",alignItems:"flex-start"}}>
@@ -4116,7 +4384,7 @@ function InsightsPage({txs, user}){
             {label:"Safe Transactions",   count:safe,    total:total||1, color:"#22c55e", bg:"#dcfce7"},
             {label:"Flagged (Low Risk)",  count:info,    total:total||1, color:"#f59e0b", bg:"#fef3c7"},
             {label:"Verified (OTP used)", count:verified,total:total||1, color:"#f97316", bg:"#fff7ed"},
-            {label:"Blocked (Fraud)",     count:blocked, total:total||1, color:"#ba1a1a", bg:"#fef2f2"},
+            {label:"High Risk (Fraud)",     count:blocked, total:total||1, color:"#ba1a1a", bg:"#fef2f2"},
           ].map(d=>(
             <div key={d.label} style={{display:"flex",alignItems:"center",gap:14,
               padding:"12px 14px",background:d.bg,borderRadius:4,marginBottom:8,
@@ -4677,7 +4945,7 @@ function RequestMoneyPage({user, setPage}){
     // === VPN Detection Check ===
     // Run this check before creating any payment request
     const vpnCheck = await checkVPNDetection(user.number);
-    if (vpnCheck.vpnDetected && vpnCheck.blocked) {
+    if (vpnCheck.vpnDetected) // Phase 1A non-blocking {
       alert("VPN detected. Please turn off VPN to proceed with payment.");
       return;
     }
@@ -5276,7 +5544,7 @@ function RiskExplainer({tx, user}){
   const h=tx.time?parseInt(tx.time.split(":")[0]):12;
   if(h>=1&&h<5) tags.push({label:"Late-night (1–5AM)",color:"#7c3aed",bg:"#f5f3ff",border:"#c4b5fd"});
   if(tx.otp_used) tags.push({label:"OTP verified",color:"#22c55e",bg:"#dcfce7",border:"#86efac"});
-  if(tx.status==="blocked") tags.push({label:"Blocked — high risk",color:"#ba1a1a",bg:"#fef2f2",border:"#fca5a5"});
+  if(tx.status==="high_risk" || t.status==="blocked") tags.push({label:"High Risk — high risk",color:"#ba1a1a",bg:"#fef2f2",border:"#fca5a5"});
   const recRisk=getRecipientRisk(tx.toNum||"");
   const recReason=getRecipientReportReason(tx.toNum||"");
   if(recRisk>=1&&recReason) tags.push({label:`Reported for ${recReason}`,color:"#ba1a1a",bg:"#fef2f2",border:"#fca5a5"});
@@ -6467,7 +6735,7 @@ function TicketDetailModal({ticket, onClose, tx}){
 
 
 function SafePayAssistant({onClose, user, txs}){
-  const GEMINI_API_KEY = window.APP_CONFIG?.GEMINI_API_KEY || "";
+  // Gemini key no longer used client-side — calls go through POST /assistant proxy (otp_server.py:484)
 
   const savedHistory = (() => {
     try {
@@ -6477,7 +6745,7 @@ function SafePayAssistant({onClose, user, txs}){
   })();
 
   const [messages, setMessages] = useState(savedHistory || [
-    { role: 'bot', text: "👋 Hello! I'm Nexus, your AI security assistant. I'm here to help with payment safety and fraud concerns.\n\nYou can ask me about:\n• Why was my account frozen?\n• Why was my payment flagged?\n• What is an OTP scam?\n• Is paying through a link safe?\n• How do I report fraud?\n• How do I freeze my account?" }
+    { role: 'bot', text: "👋 Hello! I'm Nexus, your AI security assistant. I'm here to help with payment safety and fraud concerns.\n\nYou can ask me about:\n• Why was my payment flagged high-risk?\n• Why was my payment flagged?\n• What is an OTP scam?\n• Is paying through a link safe?\n• How do I report fraud?\n• How does IRON protect my payment?" }
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -6489,8 +6757,8 @@ function SafePayAssistant({onClose, user, txs}){
   const quickReplies = [
     "Is this payment safe?",
     "Explain my risk score",
-    "Why was my payment blocked?",
-    "Why was my account frozen?",
+    "Why was my payment flagged as high risk?",
+    "How does IRON protect my payment?",
     "What is an OTP scam?",
     "Is this UPI ID safe?",
     "How do I report fraud?",
@@ -6539,7 +6807,7 @@ Balance: ₹${user?.balance?.toLocaleString('en-IN')??'0'}
 UPI: ${user?.upi??'N/A'}, Verified: ${user?.verified?'Yes':'No'}
 Risk Score: ${user?.risk_score??0}/100
 Freeze Level: ${freezeLevel} — ${freezeLabel}
-Bypass Attempts: ${user?.bypass_attempts??0}, Blocked Attempts: ${user?.blocked_attempts??0}
+Bypass Attempts: ${user?.bypass_attempts??0}, High-Risk Flags: ${user?.blocked_attempts??0}
 Frozen: ${user?.permanent_frozen?'YES Permanent':user?.frozen_until?'YES Temporary':'No'}
 Avg Transaction: ₹${avgAmt.toLocaleString('en-IN')}
 High Value Threshold: ₹${hvThreshold.toLocaleString('en-IN')}
@@ -6549,10 +6817,10 @@ Spent Today: ₹${spentToday.toLocaleString('en-IN')}
 ${txLines}
 
 === RISK SYSTEM ===
-0-60: Safe | 61-80: Low Risk (warning shown) | 81-94: OTP required | 95+: Blocked
+0-69: SAFE | 70-84: CAUTION | 85-100: HIGH_RISK
 
 === FREEZE LEVELS ===
-0=Safe | 1=Warning(risk>=60) | 2=Delay(3+blocks) | 3=OTP enforced | 4=Temp frozen | 5=Permanent(visit branch)
+0=SAFE | 1=CAUTION | 2=CAUTION | 3=HIGH_RISK | 4=HIGH_RISK | 5=HIGH_RISK
 
 === FRAUD PATTERNS DETECTED BY APP ===
 KYC fraud, OTP phishing, fake refunds, govt impersonation (RBI/CBI/UIDAI),
@@ -6583,26 +6851,45 @@ Use user's actual data above for personalized answers.`;
     }));
 
     try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            systemInstruction: { parts: [{ text: buildSystemPrompt() }] },
-            contents: [...history, { role:"user", parts:[{ text }] }],
-            generationConfig: { temperature: 0.7, maxOutputTokens: 800 }
-          })
-        }
-      );
+      // Proxy through backend — API key never leaves server (otp_server.py:484 POST /assistant)
+      const response = await fetch(`${API}/assistant`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: text,
+          user_profile: {
+            name: user?.name,
+            age: user?.age,
+            balance: user?.balance,
+            upi: user?.upi,
+            verified: user?.verified,
+            risk_score: user?.risk_score,
+            freeze_level: getFreezeLevel(user),
+            freeze_label: getFreezeLevelLabel(getFreezeLevel(user)),
+            avg_amount: Math.round(calculateAvgTransaction(user)),
+            high_value_threshold: Math.round(getHighValueThreshold(user)),
+            spent_today: Math.round(getDailySpent(user))
+          },
+          recent_transactions: (txs || []).slice(0, 5).map(t => ({
+            type: t.type, amt: t.amt, to: t.to, from: t.from,
+            date: t.date, time: t.time, risk: t.risk, status: t.status, otp_used: t.otp_used
+          })),
+          history: history.map(h => ({ role: h.role, text: h.parts?.[0]?.text || "" }))
+        })
+      });
 
       if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err?.error?.message || `HTTP ${response.status}`);
+        const err = await response.json().catch(()=>({}));
+        // Surface backend 429/503/504 with proper message instead of generic HTTP error
+        const msg = err?.error || err?.message || `HTTP ${response.status}`;
+        if (response.status === 503) throw new Error(msg + " (demo mode — set GEMINI_API_KEY on server)");
+        if (response.status === 429) throw new Error("429 " + msg);
+        if (response.status === 504) throw new Error(msg);
+        throw new Error(msg);
       }
 
       const data = await response.json();
-      const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      const reply = data?.reply || data?.error || "Sorry, I couldn't get a response. Please try again.";
       const cleaned = (reply || "Sorry, I couldn't get a response. Please try again.")
         .replace(/\*\*(.*?)\*\*/g,'$1')
         .replace(/\*(.*?)\*/g,'$1')
@@ -6767,8 +7054,13 @@ Use user's actual data above for personalized answers.`;
 function App(){
   const [user, setUser] = useState(null);
   const [page, setPage] = useState("dashboard");
-  const [txs, setTxs] = useState(SEED_TXS);
-  const [balance, setBalance] = useState(0);
+  // Phase 1G: persist txs/balance to localStorage — existing architecture, no new DB
+  const [txs, setTxs] = useState(()=>{
+    try{ const v=localStorage.getItem("iron_txs"); return v? JSON.parse(v) : SEED_TXS; }catch{ return SEED_TXS; }
+  });
+  const [balance, setBalance] = useState(()=>{
+    try{ const v=localStorage.getItem("iron_balance"); return v? JSON.parse(v) : 0; }catch{ return 0; }
+  });
   const [requests, setRequests] = useState(SEED_REQS);
   const [showAssistant, setShowAssistant] = useState(false);
   const [tickets, setTickets] = useState([]);
@@ -6811,9 +7103,10 @@ function App(){
                   "| transport:", socket.io.engine.transport.name);
       setWsStatus("connected");
 
-      // Re-register on every (re)connect — covers page reload + reconnection
+      // Re-register on every (re)connect — Phase 2K: send token for auth
       if (userRef.current) {
-        socket.emit("user_register", userRef.current.number, (ack) => {
+        const tok = (()=>{ try{ return localStorage.getItem("iron_token"); }catch{ return null; } })();
+        socket.emit("user_register", {number: userRef.current.number, token: tok}, (ack) => {
           console.log("[IronWallet WS] Re-registered:", userRef.current?.number, ack);
         });
       }
@@ -6888,13 +7181,34 @@ function App(){
 
   function handleLogin(u){
     setUser(u);
-    setBalance(u.balance);
-    setTxs(SEED_TXS);
-    setRequests(SEED_REQS);
     userRef.current = u;
-    // Register with WS server as soon as the user is known
+    // Phase 2/3: fetch authoritative balance & transactions from backend
+    try{
+      const hdr=getAuthHeader();
+      if(hdr.Authorization){
+        fetch(`${API}/balance`,{headers: hdr}).then(r=>r.json()).then(j=>{ if(j.balance!=null) setBalance(j.balance); }).catch(()=>setBalance(u.balance));
+        fetch(`${API}/transactions?limit=50`,{headers: hdr}).then(r=>r.json()).then(j=>{ if(j.transactions) setTxs(j.transactions.map(x=>({id:x.transaction_id, to:x.recipient_name||x.recipient, toNum:x.recipient, amt:x.amount, date:x.timestamp.slice(0,10), time:x.timestamp.slice(11,16), risk:x.risk_score, status:x.status==="SUCCESS"?"success":x.status==="HIGH_RISK"?"high_risk":x.status.toLowerCase(), type:"debit", note:x.note, isNew:false, risk_tag:x.risk_tier?.toLowerCase()||"normal", otp_used:x.verification_method==="OTP"}))); }).catch(()=>setTxs(SEED_TXS));
+      } else {
+        // Fallback to local if no token (should not happen)
+        try{
+          const pb=localStorage.getItem("iron_balance");
+          if(pb!==null) setBalance(JSON.parse(pb));
+          else setBalance(u.balance);
+          const pt=localStorage.getItem("iron_txs");
+          if(pt) setTxs(JSON.parse(pt));
+          else setTxs(SEED_TXS);
+        }catch{ setBalance(u.balance); setTxs(SEED_TXS); }
+      }
+    }catch{ setBalance(u.balance); setTxs(SEED_TXS); }
+    setRequests(SEED_REQS);
+    // Phase 1I: initialize geo/device baseline on login if available
+    try{ if(typeof captureBaseline==="function") captureBaseline(()=>console.log("[IRON] captureBaseline done")); }catch(e){ console.warn("captureBaseline failed",e); }
+    // Persist baseline to backend if location available
+    try{ const dev = (typeof getDeviceInfo==="function"? getDeviceInfo():null); const loc = (typeof GeoDeviceBaseline!=="undefined"? GeoDeviceBaseline.location:null); const hdr=getAuthHeader(); if(hdr.Authorization) fetch(`${API}/device/baseline`,{method:"POST", headers:{...hdr, "Content-Type":"application/json"}, body: JSON.stringify({device:dev, location:loc})}).catch(()=>{}); }catch{}
+    // Register with WS server as soon as the user is known — Phase 2K token
     if (socketRef.current?.connected) {
-      socketRef.current.emit("user_register", u.number, (ack) => {
+      const tok = (()=>{ try{ return localStorage.getItem("iron_token"); }catch{ return null; } })();
+      socketRef.current.emit("user_register", {number: u.number, token: tok}, (ack) => {
         if (ack?.success) console.log("[IronWallet WS] Registered:", u.number, `(${ack.connections} conn)`);
       });
     }
@@ -6905,6 +7219,9 @@ function App(){
       socketRef.current.emit("user_leave", userRef.current.number);
       console.log("[IronWallet WS] user_leave:", userRef.current.number);
     }
+    try{ localStorage.removeItem("iron_token"); localStorage.removeItem("iron_user"); }catch{}
+    // Optionally call backend to delete session
+    try{ const hdr=getAuthHeader(); if(hdr.Authorization) fetch(`${API}/auth/logout`,{method:"POST", headers: hdr}).catch(()=>{}); }catch{}
     userRef.current = null;
     setUser(null);
     setPage("dashboard");
@@ -6914,6 +7231,9 @@ function App(){
     setTxs(prev => [tx, ...prev]);
   }
   addTxRef.current = addTx; // keep ref current
+  // Phase 1G persistence: save txs/balance on change
+  useEffect(()=>{ try{ localStorage.setItem("iron_txs", JSON.stringify(txs.slice(0,100))); }catch{} }, [txs]);
+  useEffect(()=>{ try{ localStorage.setItem("iron_balance", JSON.stringify(balance)); }catch{} }, [balance]);
 
   function updateBalance(fn){
     setBalance(prev => Math.max(0, fn(prev)));
@@ -6981,6 +7301,8 @@ function App(){
             {page === "finance"       && <FinanceAnalyticsPage txs={txs} user={user}/>}
             {page === "insights"      && <InsightsPage {...pp}/>}
             {page === "profile"       && <ProfilePage {...pp}/>}
+            {page === "protection"    && <ProtectionCenter user={user} txs={txs} setPage={setPage}/>}
+            {page === "security"      && <SecurityCenter user={user} setPage={setPage}/>}
             {page === "smartguard"   && <SmartGuardPage {...pp}/>}
             {page === "redeem"        && <RedeemPage {...pp}/>}
             {page === "rbi"           && <RBIGuidelinesPage {...pp}/>}

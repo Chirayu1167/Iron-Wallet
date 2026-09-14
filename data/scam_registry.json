@@ -18,7 +18,627 @@
     "first_reported": 1783258239.7261977,
     "tier": "flagged",
     "last_reported": 1783258239.731197
-  }
-}
+  },
+  "9999999999": {
+    "reports": [
+      {
+        "reporter": "test",
+        "reason": "test",
+        "amount": 100.0,
+        "time": 1789108494.8666086
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789108494.8666039,
+    "tier": "flagged",
+    "last_reported": 1789108494.8740551
+  },
+  "9999999991": {
+    "reports": [
+      {
+        "reporter": "1234567890",
+        "reason": "test",
+        "amount": 100.0,
+        "time": 1789108558.332184
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789108558.3321774,
+    "tier": "flagged",
+    "last_reported": 1789108558.3321877
+  },
+  "9999999992": {
+    "reports": [
+      {
+        "reporter": "1234567890",
+        "reason": "test",
+        "amount": 100.0,
+        "time": 1789108599.9347506
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789108599.9347434,
+    "tier": "flagged",
+    "last_reported": 1789108599.9347546
+  },
+  "9999999993": {
+    "reports": [
+      {
+        "reporter": "1234567890",
+        "reason": "test",
+        "amount": 100.0,
+        "time": 1789108629.2465184
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789108629.2465134,
+    "tier": "flagged",
+    "last_reported": 1789150810.7775958
+  },
+  "999999990": {
+    "reports": [
+      {
+        "reporter": "1234567890",
+        "reason": "test",
+        "amount": 0.0,
+        "time": 1789108629.277131
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789108629.2771251,
+    "tier": "flagged",
+    "last_reported": 1789150810.796864
+  },
+  "999999991": {
+    "reports": [
+      {
+        "reporter": "1234567890",
+        "reason": "test",
+        "amount": 0.0,
+        "time": 1789108629.2955735
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789108629.2955687,
+    "tier": "flagged",
+    "last_reported": 1789150810.807966
+  },
+  "999999992": {
+    "reports": [
+      {
+        "reporter": "1234567890",
+        "reason": "test",
+        "amount": 0.0,
+        "time": 1789108629.3436332
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789108629.3436244,
+    "tier": "flagged",
+    "last_reported": 1789150810.81894
+  },
+  "999999993": {
+    "reports": [
+      {
+        "reporter": "1234567890",
+        "reason": "test",
+        "amount": 0.0,
+        "time": 1789108629.3719795
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789108629.371973,
+    "tier": "flagged",
+    "last_reported": 1789147201.8048382
+  },
+  "9998887776": {
+    "reports": [
+      {
+        "reporter": "tester0",
+        "reason": "scam test",
+        "amount": 500,
+        "time": 1789114565.7415233
+      },
+      {
+        "reporter": "tester1",
+        "reason": "scam test",
+        "amount": 500,
+        "time": 1789114565.751849
+      },
+      {
+        "reporter": "tester2",
+        "reason": "scam test",
+        "amount": 500,
+        "time": 1789114565.7538025
+      },
+      {
+        "reporter": "tester3",
+        "reason": "scam",
+        "amount": 1000,
+        "time": 1789148236.1739802
+      },
+      {
+        "reporter": "seed1",
+        "reason": "scam",
+        "amount": 1000,
+        "time": 1789148829.9690182
+      },
+      {
+        "reporter": "seed2",
+        "reason": "scam",
+        "amount": 1000,
+        "time": 1789148829.9721298
+      },
+      {
+        "reporter": "seed3",
+        "reason": "scam",
+        "amount": 1000,
+        "time": 1789148829.974445
+      },
+      {
+        "reporter": "seed0",
+        "reason": "scam",
+        "amount": 1000,
+        "time": 1789149291.2975035
+      }
+    ],
+    "report_count": 8,
+    "first_reported": 1789114565.74152,
+    "tier": "high_risk",
+    "last_reported": 1789150880.3632452
+  },
+  "8887776665": {
+    "reports": [
+      {
+        "reporter": "tester",
+        "reason": "scam",
+        "amount": 500,
+        "time": 1789114616.1385894
+      },
+      {
+        "reporter": "tester2",
+        "reason": "scam",
+        "amount": 500,
+        "time": 1789114616.144209
+      }
+    ],
+    "report_count": 2,
+    "first_reported": 1789114616.1385732,
+    "tier": "flagged",
+    "last_reported": 1789114616.1442153
+  },
+  "7776665554": {
+    "reports": [
+      {
+        "reporter": "tester_report1",
+        "reason": "scam",
+        "amount": 500,
+        "time": 1789114669.322683
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789114669.3226805,
+    "tier": "flagged",
+    "last_reported": 1789147238.4491196
+  },
+  "7776665555": {
+    "reports": [
+      {
+        "reporter": "tester_once",
+        "reason": "test reason",
+        "amount": 100,
+        "time": 1789114669.324735
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789114669.3247313,
+    "tier": "flagged",
+    "last_reported": 1789147238.4515946
+  },
+  "7776665556": {
+    "reports": [
+      {
+        "reporter": "tester0_high",
+        "reason": "scam high",
+        "amount": 500,
+        "time": 1789114669.3273609
+      },
+      {
+        "reporter": "tester1_high",
+        "reason": "scam high",
+        "amount": 500,
+        "time": 1789114669.3287203
+      },
+      {
+        "reporter": "tester2_high",
+        "reason": "scam high",
+        "amount": 500,
+        "time": 1789114669.3299353
+      },
+      {
+        "reporter": "tester3_high",
+        "reason": "scam high",
+        "amount": 500,
+        "time": 1789114669.3311572
+      },
+      {
+        "reporter": "tester4_high",
+        "reason": "scam high",
+        "amount": 500,
+        "time": 1789114669.3324018
+      }
+    ],
+    "report_count": 5,
+    "first_reported": 1789114669.3273585,
+    "tier": "high_risk",
+    "last_reported": 1789147238.460553
+  },
+  "6665554443": {
+    "reports": [
+      {
+        "reporter": "reporter_case3_0",
+        "reason": "scam case3",
+        "amount": 1000,
+        "time": 1789114701.8033862
+      },
+      {
+        "reporter": "reporter_case3_1",
+        "reason": "scam case3",
+        "amount": 1000,
+        "time": 1789114701.8056996
+      },
+      {
+        "reporter": "reporter_case3_2",
+        "reason": "scam case3",
+        "amount": 1000,
+        "time": 1789114701.8070173
+      },
+      {
+        "reporter": "reporter_case3_3",
+        "reason": "scam case3",
+        "amount": 1000,
+        "time": 1789114701.8082216
+      },
+      {
+        "reporter": "reporter_case3_4",
+        "reason": "scam case3",
+        "amount": 1000,
+        "time": 1789114701.8096442
+      }
+    ],
+    "report_count": 5,
+    "first_reported": 1789114701.8033829,
+    "tier": "high_risk",
+    "last_reported": 1789147239.2510674
+  },
+  "9990004444": {
+    "reports": [
+      {
+        "reporter": "tester1",
+        "reason": "scam report",
+        "amount": 500,
+        "time": 1789115704.6459
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789115704.6458895,
+    "tier": "flagged",
+    "last_reported": 1789147245.8530235
+  },
+  "9990005555": {
+    "reports": [
+      {
+        "reporter": "tester_recent",
+        "reason": "scam",
+        "amount": 100,
+        "time": 1789115704.6497958
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789115704.6497927,
+    "tier": "flagged",
+    "last_reported": 1789147245.857484
+  },
+  "9990006666": {
+    "reports": [
+      {
+        "reporter": "tester_many_0",
+        "reason": "scam many",
+        "amount": 500,
+        "time": 1789115704.6530602
+      },
+      {
+        "reporter": "tester_many_1",
+        "reason": "scam many",
+        "amount": 500,
+        "time": 1789115704.6545148
+      },
+      {
+        "reporter": "tester_many_2",
+        "reason": "scam many",
+        "amount": 500,
+        "time": 1789115704.6558833
+      },
+      {
+        "reporter": "tester_many_3",
+        "reason": "scam many",
+        "amount": 500,
+        "time": 1789115704.6574056
+      },
+      {
+        "reporter": "tester_many_4",
+        "reason": "scam many",
+        "amount": 500,
+        "time": 1789115704.6588125
+      }
+    ],
+    "report_count": 5,
+    "first_reported": 1789115704.653058,
+    "tier": "high_risk",
+    "last_reported": 1789147245.8676977
+  },
+  "9990007777": {
+    "reports": [
+      {
+        "reporter": "old",
+        "reason": "old scam",
+        "amount": 500,
+        "time": 1771867245.870673
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1771867245.870674,
+    "last_reported": 1771867245.8706741,
+    "tier": "flagged"
+  },
+  "9990003333": {
+    "reports": [
+      {
+        "reporter": "global_reporter",
+        "reason": "global scam",
+        "amount": 100,
+        "time": 1789115704.6678913
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789115704.6678889,
+    "tier": "flagged",
+    "last_reported": 1789147245.8759184
+  },
+  "9876543210": {
+    "reports": [
+      {
+        "reporter": "9340228345",
+        "reason": "suspected_scam",
+        "amount": 0.0,
+        "time": 1789147403.8259764
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789147403.825973,
+    "tier": "flagged",
+    "last_reported": 1789150802.339457
+  },
+  "9999999900": {
+    "reports": [
+      {
+        "reporter": "9340228345",
+        "reason": "suspected_scam",
+        "amount": 0.0,
+        "time": 1789147403.8762672
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789147403.8762622,
+    "tier": "flagged",
+    "last_reported": 1789150802.3506153
+  },
+  "9999999910": {
+    "reports": [
+      {
+        "reporter": "9340228345",
+        "reason": "suspected_scam",
+        "amount": 0.0,
+        "time": 1789147403.9017036
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789147403.9016984,
+    "tier": "flagged",
+    "last_reported": 1789150802.3727176
+  },
+  "9999999920": {
+    "reports": [
+      {
+        "reporter": "9340228345",
+        "reason": "suspected_scam",
+        "amount": 0.0,
+        "time": 1789147403.9406555
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789147403.9406495,
+    "tier": "flagged",
+    "last_reported": 1789150802.4070923
+  },
+  "9999911000": {
+    "reports": [
+      {
+        "reporter": "9000000020",
+        "reason": "other",
+        "amount": 0.0,
+        "time": 1789148234.1308293
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789148234.1308253,
+    "tier": "flagged",
+    "last_reported": 1789150870.4990292
+  },
+  "9999911010": {
+    "reports": [
+      {
+        "reporter": "9000000020",
+        "reason": "other",
+        "amount": 0.0,
+        "time": 1789148234.1510468
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789148234.1510422,
+    "tier": "flagged",
+    "last_reported": 1789150870.5104902
+  },
+  "9999911020": {
+    "reports": [
+      {
+        "reporter": "9000000020",
+        "reason": "other",
+        "amount": 0.0,
+        "time": 1789148234.1730897
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789148234.1730866,
+    "tier": "flagged",
+    "last_reported": 1789150870.5234516
+  },
+  "9999911030": {
+    "reports": [
+      {
+        "reporter": "9000000020",
+        "reason": "other",
+        "amount": 0.0,
+        "time": 1789148234.1913671
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789148234.1913636,
+    "tier": "flagged",
+    "last_reported": 1789150870.5356228
+  },
+  "9999911040": {
+    "reports": [
+      {
+        "reporter": "9000000020",
+        "reason": "other",
+        "amount": 0.0,
+        "time": 1789148234.2134154
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789148234.2134116,
+    "tier": "flagged",
+    "last_reported": 1789150870.5467637
+  },
+  "9999921000": {
+    "reports": [
+      {
+        "reporter": "9000000021",
+        "reason": "other",
+        "amount": 0.0,
+        "time": 1789148348.3312776
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789148348.3312714,
+    "tier": "flagged",
+    "last_reported": 1789148421.9852154
+  },
+  "9999921010": {
+    "reports": [
+      {
+        "reporter": "9000000021",
+        "reason": "other",
+        "amount": 0.0,
+        "time": 1789148348.354326
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789148348.354321,
+    "tier": "flagged",
+    "last_reported": 1789148422.0040576
+  },
+  "9999921020": {
+    "reports": [
+      {
+        "reporter": "9000000021",
+        "reason": "other",
+        "amount": 0.0,
+        "time": 1789148348.3793726
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789148348.3793676,
+    "tier": "flagged",
+    "last_reported": 1789148422.0227818
+  },
+  "9999921030": {
+    "reports": [
+      {
+        "reporter": "9000000021",
+        "reason": "other",
+        "amount": 0.0,
+        "time": 1789148348.3989608
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789148348.398957,
+    "tier": "flagged",
+    "last_reported": 1789148422.0440545
+  },
+  "9999921040": {
+    "reports": [
+      {
+        "reporter": "9000000021",
+        "reason": "other",
+        "amount": 0.0,
+        "time": 1789148348.4191735
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789148348.4191694,
+    "tier": "flagged",
+    "last_reported": 1789148422.0645251
+  },
+  "9999921999": {
+    "reports": [
+      {
+        "reporter": "9000000021",
+        "reason": "other",
+        "amount": 0.0,
+        "time": 1789148384.2405589
+      }
+    ],
+    "report_count": 1,
+    "first_reported": 1789148384.2405512,
+    "tier": "flagged",
+    "last_reported": 1789148384.2405622
+  },
+  "9998887777": {
+    "reports": [
+      {
+        "reporter": "seed0",
+        "reason": "scam",
+        "amount": 1000,
+        "time": 1789149291.3086674
+      },
+      {
+        "reporter": "seed1",
+        "reason": "scam",
+        "amount": 1000,
+        "time": 1789149291.3110514
+      },
+      {
+        "reporter": "seed2",
+        "reason": "scam",
+        "amount": 1000,
+        "time": 1789149291.313334
+      }
+    ],
+    "report_count": 3,
+    "first_reported": 1789149291.3086638,
+    "tier": "high_risk",
+    "last_reported": 1789150880.3678825
   }
 }

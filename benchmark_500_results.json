@@ -1,0 +1,4008 @@
+{
+  "dev": [
+    {
+      "case_id": "C0442",
+      "category": "THRESHOLD",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 70,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0450",
+      "category": "THRESHOLD",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 86,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0016",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 28,
+      "latency_ms": 1202.2449970245361
+    },
+    {
+      "case_id": "C0452",
+      "category": "THRESHOLD",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 70,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0277",
+      "category": "LOCATION",
+      "expected": "HIGH_RISK",
+      "pred": "SAFE",
+      "score": 65,
+      "latency_ms": 36.75723075866699
+    },
+    {
+      "case_id": "C0086",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 28.960466384887695
+    },
+    {
+      "case_id": "C0311",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 100,
+      "latency_ms": 29.14905548095703
+    },
+    {
+      "case_id": "C0132",
+      "category": "NEW_RECIPIENT",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 34.8207950592041
+    },
+    {
+      "case_id": "C0249",
+      "category": "DEVICE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 35.07494926452637
+    },
+    {
+      "case_id": "C0014",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 29,
+      "latency_ms": 34.42525863647461
+    },
+    {
+      "case_id": "C0403",
+      "category": "CONFLICTING",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 80,
+      "latency_ms": 44.881582260131836
+    },
+    {
+      "case_id": "C0453",
+      "category": "THRESHOLD",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 84,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0371",
+      "category": "COLD_START",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 35.06183624267578
+    },
+    {
+      "case_id": "C0002",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 30,
+      "latency_ms": 35.462141036987305
+    },
+    {
+      "case_id": "C0197",
+      "category": "VELOCITY",
+      "expected": "HIGH_RISK",
+      "pred": "SAFE",
+      "score": 63,
+      "latency_ms": 37.53924369812012
+    },
+    {
+      "case_id": "C0120",
+      "category": "NEW_RECIPIENT",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 41,
+      "latency_ms": 38.09475898742676
+    },
+    {
+      "case_id": "C0125",
+      "category": "NEW_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 78,
+      "latency_ms": 32.157182693481445
+    },
+    {
+      "case_id": "C0276",
+      "category": "LOCATION",
+      "expected": "HIGH_RISK",
+      "pred": "SAFE",
+      "score": 65,
+      "latency_ms": 29.658794403076172
+    },
+    {
+      "case_id": "C0372",
+      "category": "COLD_START",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 27.492523193359375
+    },
+    {
+      "case_id": "C0181",
+      "category": "VELOCITY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 61,
+      "latency_ms": 32.292842864990234
+    },
+    {
+      "case_id": "C0443",
+      "category": "THRESHOLD",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 84,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0463",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 30.835628509521484
+    },
+    {
+      "case_id": "C0128",
+      "category": "NEW_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 78,
+      "latency_ms": 29.19149398803711
+    },
+    {
+      "case_id": "C0189",
+      "category": "VELOCITY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 61,
+      "latency_ms": 26.729345321655273
+    },
+    {
+      "case_id": "C0324",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 100,
+      "latency_ms": 29.829978942871094
+    },
+    {
+      "case_id": "C0364",
+      "category": "COLD_START",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 29.22534942626953
+    },
+    {
+      "case_id": "C0019",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 28,
+      "latency_ms": 29.086828231811523
+    },
+    {
+      "case_id": "C0445",
+      "category": "THRESHOLD",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 0,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0241",
+      "category": "DEVICE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 28.012752532958984
+    },
+    {
+      "case_id": "C0164",
+      "category": "TIME_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 80,
+      "latency_ms": 32.51338005065918
+    },
+    {
+      "case_id": "C0003",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 33.41817855834961
+    },
+    {
+      "case_id": "C0149",
+      "category": "TIME_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 25,
+      "latency_ms": 34.33680534362793
+    },
+    {
+      "case_id": "C0303",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 29.65712547302246
+    },
+    {
+      "case_id": "C0315",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 92,
+      "latency_ms": 32.454729080200195
+    },
+    {
+      "case_id": "C0379",
+      "category": "COLD_START",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 27.59242057800293
+    },
+    {
+      "case_id": "C0446",
+      "category": "THRESHOLD",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 100,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0114",
+      "category": "NEW_RECIPIENT",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 41,
+      "latency_ms": 29.245853424072266
+    },
+    {
+      "case_id": "C0020",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 42.85454750061035
+    },
+    {
+      "case_id": "C0087",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 37.30368614196777
+    },
+    {
+      "case_id": "C0163",
+      "category": "TIME_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 81,
+      "latency_ms": 36.281585693359375
+    },
+    {
+      "case_id": "C0344",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 97,
+      "latency_ms": 38.50865364074707
+    },
+    {
+      "case_id": "C0159",
+      "category": "TIME_ANOMALY",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 70,
+      "latency_ms": 43.69926452636719
+    },
+    {
+      "case_id": "C0037",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 28,
+      "latency_ms": 42.36435890197754
+    },
+    {
+      "case_id": "C0175",
+      "category": "VELOCITY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 18,
+      "latency_ms": 37.61649131774902
+    },
+    {
+      "case_id": "C0223",
+      "category": "SOCIAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 39,
+      "latency_ms": 37.11509704589844
+    },
+    {
+      "case_id": "C0431",
+      "category": "INPUT_EDGE",
+      "expected": "INVALID",
+      "pred": "ACCEPTED_200",
+      "score": -1,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0065",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 26.224613189697266
+    },
+    {
+      "case_id": "C0399",
+      "category": "CONFLICTING",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 52,
+      "latency_ms": 29.636859893798828
+    },
+    {
+      "case_id": "C0307",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 33.9047908782959
+    },
+    {
+      "case_id": "C0326",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 100,
+      "latency_ms": 31.075000762939453
+    },
+    {
+      "case_id": "C0285",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 34.31057929992676
+    },
+    {
+      "case_id": "C0494",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 30.32827377319336
+    },
+    {
+      "case_id": "C0036",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 39,
+      "latency_ms": 29.740333557128906
+    },
+    {
+      "case_id": "C0168",
+      "category": "TIME_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 79,
+      "latency_ms": 29.201984405517578
+    },
+    {
+      "case_id": "C0353",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 100,
+      "latency_ms": 31.5401554107666
+    },
+    {
+      "case_id": "C0214",
+      "category": "SOCIAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 39,
+      "latency_ms": 37.98031806945801
+    },
+    {
+      "case_id": "C0377",
+      "category": "COLD_START",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 33.07008743286133
+    },
+    {
+      "case_id": "C0063",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 32.33170509338379
+    },
+    {
+      "case_id": "C0234",
+      "category": "SOCIAL",
+      "expected": "HIGH_RISK",
+      "pred": "SAFE",
+      "score": 63,
+      "latency_ms": 38.477182388305664
+    },
+    {
+      "case_id": "C0272",
+      "category": "LOCATION",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 45,
+      "latency_ms": 49.051523208618164
+    },
+    {
+      "case_id": "C0297",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 31.209707260131836
+    },
+    {
+      "case_id": "C0244",
+      "category": "DEVICE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 36.52787208557129
+    },
+    {
+      "case_id": "C0098",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 35.60781478881836
+    },
+    {
+      "case_id": "C0139",
+      "category": "NEW_RECIPIENT",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 36.663055419921875
+    },
+    {
+      "case_id": "C0317",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 100,
+      "latency_ms": 50.29559135437012
+    },
+    {
+      "case_id": "C0356",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 97,
+      "latency_ms": 31.20732307434082
+    },
+    {
+      "case_id": "C0049",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 26.349782943725586
+    },
+    {
+      "case_id": "C0275",
+      "category": "LOCATION",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 44,
+      "latency_ms": 26.493310928344727
+    },
+    {
+      "case_id": "C0322",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 100,
+      "latency_ms": 33.154964447021484
+    },
+    {
+      "case_id": "C0274",
+      "category": "LOCATION",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 45,
+      "latency_ms": 32.042741775512695
+    },
+    {
+      "case_id": "C0226",
+      "category": "SOCIAL",
+      "expected": "HIGH_RISK",
+      "pred": "SAFE",
+      "score": 50,
+      "latency_ms": 38.74087333679199
+    },
+    {
+      "case_id": "C0142",
+      "category": "TIME_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 30.368566513061523
+    },
+    {
+      "case_id": "C0418",
+      "category": "CONFLICTING",
+      "expected": "CAUTION",
+      "pred": "HIGH_RISK",
+      "score": 85,
+      "latency_ms": 30.34210205078125
+    },
+    {
+      "case_id": "C0021",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 32,
+      "latency_ms": 28.47003936767578
+    },
+    {
+      "case_id": "C0040",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 29,
+      "latency_ms": 40.5120849609375
+    },
+    {
+      "case_id": "C0489",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 42.09136962890625
+    },
+    {
+      "case_id": "C0412",
+      "category": "CONFLICTING",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 36.20266914367676
+    },
+    {
+      "case_id": "C0266",
+      "category": "LOCATION",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 34.81101989746094
+    },
+    {
+      "case_id": "C0375",
+      "category": "COLD_START",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 33.97870063781738
+    },
+    {
+      "case_id": "C0340",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 91,
+      "latency_ms": 39.80088233947754
+    },
+    {
+      "case_id": "C0447",
+      "category": "THRESHOLD",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 68,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0208",
+      "category": "SOCIAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 28,
+      "latency_ms": 34.4388484954834
+    },
+    {
+      "case_id": "C0298",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 81,
+      "latency_ms": 34.802913665771484
+    },
+    {
+      "case_id": "C0263",
+      "category": "LOCATION",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 35.42590141296387
+    },
+    {
+      "case_id": "C0474",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 28,
+      "latency_ms": 34.18326377868652
+    },
+    {
+      "case_id": "C0393",
+      "category": "CONFLICTING",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 43,
+      "latency_ms": 40.634870529174805
+    },
+    {
+      "case_id": "C0359",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 100,
+      "latency_ms": 41.66698455810547
+    },
+    {
+      "case_id": "C0177",
+      "category": "VELOCITY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 38,
+      "latency_ms": 34.485816955566406
+    },
+    {
+      "case_id": "C0439",
+      "category": "INPUT_EDGE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 42.16432571411133
+    },
+    {
+      "case_id": "C0233",
+      "category": "SOCIAL",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 70,
+      "latency_ms": 41.08595848083496
+    },
+    {
+      "case_id": "C0069",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 30.307531356811523
+    },
+    {
+      "case_id": "C0384",
+      "category": "COLD_START",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 31.760454177856445
+    },
+    {
+      "case_id": "C0042",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 27.034759521484375
+    },
+    {
+      "case_id": "C0421",
+      "category": "INPUT_EDGE",
+      "expected": "SAFE",
+      "pred": "CAUTION",
+      "score": 70,
+      "latency_ms": 35.750627517700195
+    },
+    {
+      "case_id": "C0144",
+      "category": "TIME_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 28,
+      "latency_ms": 35.192012786865234
+    },
+    {
+      "case_id": "C0117",
+      "category": "NEW_RECIPIENT",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 44,
+      "latency_ms": 32.16099739074707
+    },
+    {
+      "case_id": "C0464",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 31.58879280090332
+    },
+    {
+      "case_id": "C0432",
+      "category": "INPUT_EDGE",
+      "expected": "INVALID",
+      "pred": "REJECTED",
+      "score": -1,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0304",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 32.82666206359863
+    },
+    {
+      "case_id": "C0082",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 31.368255615234375
+    },
+    {
+      "case_id": "C0048",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 26.442527770996094
+    },
+    {
+      "case_id": "C0160",
+      "category": "TIME_ANOMALY",
+      "expected": "CAUTION",
+      "pred": "SAFE",
+      "score": 53,
+      "latency_ms": 31.670570373535156
+    },
+    {
+      "case_id": "C0195",
+      "category": "VELOCITY",
+      "expected": "HIGH_RISK",
+      "pred": "SAFE",
+      "score": 62,
+      "latency_ms": 32.182931900024414
+    },
+    {
+      "case_id": "C0267",
+      "category": "LOCATION",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 29.943466186523438
+    },
+    {
+      "case_id": "C0472",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 30.05242347717285
+    },
+    {
+      "case_id": "C0104",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 28,
+      "latency_ms": 32.558441162109375
+    },
+    {
+      "case_id": "C0327",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 92,
+      "latency_ms": 32.466888427734375
+    },
+    {
+      "case_id": "C0231",
+      "category": "SOCIAL",
+      "expected": "HIGH_RISK",
+      "pred": "SAFE",
+      "score": 52,
+      "latency_ms": 34.55853462219238
+    },
+    {
+      "case_id": "C0213",
+      "category": "SOCIAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 39,
+      "latency_ms": 31.891345977783203
+    },
+    {
+      "case_id": "C0390",
+      "category": "COLD_START",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 31.22711181640625
+    },
+    {
+      "case_id": "C0427",
+      "category": "INPUT_EDGE",
+      "expected": "INVALID",
+      "pred": "REJECTED",
+      "score": -1,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0488",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 31.359195709228516
+    },
+    {
+      "case_id": "C0367",
+      "category": "COLD_START",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 31.92281723022461
+    },
+    {
+      "case_id": "C0282",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 45.61614990234375
+    },
+    {
+      "case_id": "C0392",
+      "category": "CONFLICTING",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 42,
+      "latency_ms": 35.363197326660156
+    },
+    {
+      "case_id": "C0192",
+      "category": "VELOCITY",
+      "expected": "HIGH_RISK",
+      "pred": "SAFE",
+      "score": 63,
+      "latency_ms": 40.09079933166504
+    },
+    {
+      "case_id": "C0265",
+      "category": "LOCATION",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 34.08956527709961
+    },
+    {
+      "case_id": "C0366",
+      "category": "COLD_START",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 25.583744049072266
+    },
+    {
+      "case_id": "C0055",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 32,
+      "latency_ms": 29.244422912597656
+    },
+    {
+      "case_id": "C0487",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 33.68186950683594
+    },
+    {
+      "case_id": "C0294",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 81,
+      "latency_ms": 27.751922607421875
+    },
+    {
+      "case_id": "C0430",
+      "category": "INPUT_EDGE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 35,
+      "latency_ms": 36.32521629333496
+    },
+    {
+      "case_id": "C0473",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 34.51657295227051
+    },
+    {
+      "case_id": "C0238",
+      "category": "SOCIAL",
+      "expected": "HIGH_RISK",
+      "pred": "SAFE",
+      "score": 48,
+      "latency_ms": 42.4652099609375
+    },
+    {
+      "case_id": "C0330",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 97,
+      "latency_ms": 40.53902626037598
+    },
+    {
+      "case_id": "C0370",
+      "category": "COLD_START",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 34.88659858703613
+    },
+    {
+      "case_id": "C0155",
+      "category": "TIME_ANOMALY",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 42.040109634399414
+    },
+    {
+      "case_id": "C0183",
+      "category": "VELOCITY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 61,
+      "latency_ms": 31.438112258911133
+    },
+    {
+      "case_id": "C0419",
+      "category": "CONFLICTING",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 40.16470909118652
+    },
+    {
+      "case_id": "C0001",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 41.129112243652344
+    },
+    {
+      "case_id": "C0358",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 100,
+      "latency_ms": 35.53891181945801
+    },
+    {
+      "case_id": "C0261",
+      "category": "LOCATION",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 39.804935455322266
+    },
+    {
+      "case_id": "C0184",
+      "category": "VELOCITY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 60,
+      "latency_ms": 29.99711036682129
+    },
+    {
+      "case_id": "C0466",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 35.83407402038574
+    },
+    {
+      "case_id": "C0093",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 31.952857971191406
+    },
+    {
+      "case_id": "C0123",
+      "category": "NEW_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 78,
+      "latency_ms": 34.10601615905762
+    },
+    {
+      "case_id": "C0346",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 97,
+      "latency_ms": 37.62388229370117
+    },
+    {
+      "case_id": "C0022",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 39.275407791137695
+    },
+    {
+      "case_id": "C0074",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 47,
+      "latency_ms": 35.71033477783203
+    },
+    {
+      "case_id": "C0333",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 100,
+      "latency_ms": 33.57267379760742
+    },
+    {
+      "case_id": "C0143",
+      "category": "TIME_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 32.03868865966797
+    },
+    {
+      "case_id": "C0180",
+      "category": "VELOCITY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 19,
+      "latency_ms": 31.30364418029785
+    },
+    {
+      "case_id": "C0101",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 34,
+      "latency_ms": 37.52613067626953
+    },
+    {
+      "case_id": "C0119",
+      "category": "NEW_RECIPIENT",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 41,
+      "latency_ms": 37.57119178771973
+    },
+    {
+      "case_id": "C0010",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 34.073829650878906
+    },
+    {
+      "case_id": "C0007",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 28,
+      "latency_ms": 32.501935958862305
+    },
+    {
+      "case_id": "C0100",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 31.408309936523438
+    },
+    {
+      "case_id": "C0235",
+      "category": "SOCIAL",
+      "expected": "HIGH_RISK",
+      "pred": "SAFE",
+      "score": 52,
+      "latency_ms": 30.81989288330078
+    },
+    {
+      "case_id": "C0425",
+      "category": "INPUT_EDGE",
+      "expected": "INVALID",
+      "pred": "REJECTED",
+      "score": -1,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0157",
+      "category": "TIME_ANOMALY",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 70,
+      "latency_ms": 31.8453311920166
+    },
+    {
+      "case_id": "C0475",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 53.908348083496094
+    },
+    {
+      "case_id": "C0196",
+      "category": "VELOCITY",
+      "expected": "HIGH_RISK",
+      "pred": "SAFE",
+      "score": 63,
+      "latency_ms": 43.93410682678223
+    },
+    {
+      "case_id": "C0054",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 32,
+      "latency_ms": 28.354406356811523
+    },
+    {
+      "case_id": "C0096",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 28.218746185302734
+    },
+    {
+      "case_id": "C0166",
+      "category": "TIME_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 80,
+      "latency_ms": 28.33700180053711
+    },
+    {
+      "case_id": "C0286",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 34.30771827697754
+    },
+    {
+      "case_id": "C0256",
+      "category": "DEVICE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 44,
+      "latency_ms": 32.29403495788574
+    },
+    {
+      "case_id": "C0268",
+      "category": "LOCATION",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 30.933141708374023
+    },
+    {
+      "case_id": "C0257",
+      "category": "DEVICE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 45,
+      "latency_ms": 29.10470962524414
+    },
+    {
+      "case_id": "C0245",
+      "category": "DEVICE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 29,
+      "latency_ms": 30.52544593811035
+    },
+    {
+      "case_id": "C0460",
+      "category": "THRESHOLD",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 80,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0024",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 30.742168426513672
+    },
+    {
+      "case_id": "C0158",
+      "category": "TIME_ANOMALY",
+      "expected": "CAUTION",
+      "pred": "SAFE",
+      "score": 51,
+      "latency_ms": 46.43535614013672
+    },
+    {
+      "case_id": "C0273",
+      "category": "LOCATION",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 44,
+      "latency_ms": 44.461965560913086
+    },
+    {
+      "case_id": "C0323",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 87,
+      "latency_ms": 33.28108787536621
+    },
+    {
+      "case_id": "C0200",
+      "category": "VELOCITY",
+      "expected": "HIGH_RISK",
+      "pred": "SAFE",
+      "score": 63,
+      "latency_ms": 35.36224365234375
+    },
+    {
+      "case_id": "C0362",
+      "category": "COLD_START",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 42.710304260253906
+    },
+    {
+      "case_id": "C0319",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 100,
+      "latency_ms": 68.9995288848877
+    },
+    {
+      "case_id": "C0217",
+      "category": "SOCIAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 40,
+      "latency_ms": 36.78274154663086
+    },
+    {
+      "case_id": "C0382",
+      "category": "COLD_START",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 31.790971755981445
+    },
+    {
+      "case_id": "C0044",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 32.930612564086914
+    },
+    {
+      "case_id": "C0162",
+      "category": "TIME_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 80,
+      "latency_ms": 32.09114074707031
+    },
+    {
+      "case_id": "C0147",
+      "category": "TIME_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 35.802602767944336
+    },
+    {
+      "case_id": "C0376",
+      "category": "COLD_START",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 30.375957489013672
+    },
+    {
+      "case_id": "C0229",
+      "category": "SOCIAL",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 70,
+      "latency_ms": 34.75308418273926
+    },
+    {
+      "case_id": "C0169",
+      "category": "TIME_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 80,
+      "latency_ms": 33.724308013916016
+    },
+    {
+      "case_id": "C0043",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 32.968759536743164
+    },
+    {
+      "case_id": "C0470",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 35.858869552612305
+    },
+    {
+      "case_id": "C0269",
+      "category": "LOCATION",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 25,
+      "latency_ms": 42.282819747924805
+    },
+    {
+      "case_id": "C0076",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 49,
+      "latency_ms": 37.14704513549805
+    },
+    {
+      "case_id": "C0029",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 32.81116485595703
+    },
+    {
+      "case_id": "C0060",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 32,
+      "latency_ms": 46.4630126953125
+    },
+    {
+      "case_id": "C0449",
+      "category": "THRESHOLD",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0479",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 28,
+      "latency_ms": 35.85076332092285
+    },
+    {
+      "case_id": "C0309",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 30.879735946655273
+    },
+    {
+      "case_id": "C0005",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 31.170129776000977
+    },
+    {
+      "case_id": "C0270",
+      "category": "LOCATION",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 30.94005584716797
+    },
+    {
+      "case_id": "C0210",
+      "category": "SOCIAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 31.729936599731445
+    },
+    {
+      "case_id": "C0070",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 27.973413467407227
+    },
+    {
+      "case_id": "C0064",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 33.54287147521973
+    },
+    {
+      "case_id": "C0279",
+      "category": "LOCATION",
+      "expected": "HIGH_RISK",
+      "pred": "SAFE",
+      "score": 66,
+      "latency_ms": 41.35775566101074
+    },
+    {
+      "case_id": "C0368",
+      "category": "COLD_START",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 35.4924201965332
+    },
+    {
+      "case_id": "C0150",
+      "category": "TIME_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 28,
+      "latency_ms": 40.862083435058594
+    },
+    {
+      "case_id": "C0395",
+      "category": "CONFLICTING",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 52,
+      "latency_ms": 47.52063751220703
+    },
+    {
+      "case_id": "C0363",
+      "category": "COLD_START",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 34.87563133239746
+    },
+    {
+      "case_id": "C0281",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 29.943466186523438
+    },
+    {
+      "case_id": "C0352",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 92,
+      "latency_ms": 31.25905990600586
+    },
+    {
+      "case_id": "C0459",
+      "category": "THRESHOLD",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 95,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0089",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 32.344818115234375
+    },
+    {
+      "case_id": "C0126",
+      "category": "NEW_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 78,
+      "latency_ms": 40.41433334350586
+    },
+    {
+      "case_id": "C0288",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 84,
+      "latency_ms": 36.801815032958984
+    },
+    {
+      "case_id": "C0332",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 100,
+      "latency_ms": 30.719518661499023
+    },
+    {
+      "case_id": "C0498",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 33.560991287231445
+    },
+    {
+      "case_id": "C0221",
+      "category": "SOCIAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 37,
+      "latency_ms": 36.55600547790527
+    },
+    {
+      "case_id": "C0339",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 100,
+      "latency_ms": 37.80817985534668
+    },
+    {
+      "case_id": "C0033",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 30.80439567565918
+    },
+    {
+      "case_id": "C0320",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 92,
+      "latency_ms": 54.962873458862305
+    },
+    {
+      "case_id": "C0480",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 29.71649169921875
+    },
+    {
+      "case_id": "C0107",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 36,
+      "latency_ms": 36.618947982788086
+    },
+    {
+      "case_id": "C0500",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 37.76407241821289
+    },
+    {
+      "case_id": "C0023",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 38,
+      "latency_ms": 38.00535202026367
+    },
+    {
+      "case_id": "C0468",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 43.30801963806152
+    },
+    {
+      "case_id": "C0103",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 42,
+      "latency_ms": 40.68470001220703
+    },
+    {
+      "case_id": "C0102",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 33,
+      "latency_ms": 34.1641902923584
+    },
+    {
+      "case_id": "C0187",
+      "category": "VELOCITY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 61,
+      "latency_ms": 40.32111167907715
+    },
+    {
+      "case_id": "C0408",
+      "category": "CONFLICTING",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 80,
+      "latency_ms": 50.15230178833008
+    },
+    {
+      "case_id": "C0434",
+      "category": "INPUT_EDGE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 28,
+      "latency_ms": 35.26186943054199
+    },
+    {
+      "case_id": "C0381",
+      "category": "COLD_START",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 28.67746353149414
+    },
+    {
+      "case_id": "C0202",
+      "category": "SOCIAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 33.96439552307129
+    },
+    {
+      "case_id": "C0106",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 41,
+      "latency_ms": 30.31134605407715
+    },
+    {
+      "case_id": "C0193",
+      "category": "VELOCITY",
+      "expected": "HIGH_RISK",
+      "pred": "SAFE",
+      "score": 63,
+      "latency_ms": 37.914276123046875
+    },
+    {
+      "case_id": "C0012",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 57.42812156677246
+    },
+    {
+      "case_id": "C0212",
+      "category": "SOCIAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 41,
+      "latency_ms": 44.666290283203125
+    },
+    {
+      "case_id": "C0278",
+      "category": "LOCATION",
+      "expected": "HIGH_RISK",
+      "pred": "SAFE",
+      "score": 65,
+      "latency_ms": 28.871536254882812
+    },
+    {
+      "case_id": "C0134",
+      "category": "NEW_RECIPIENT",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 66.39790534973145
+    },
+    {
+      "case_id": "C0380",
+      "category": "COLD_START",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 34.22880172729492
+    },
+    {
+      "case_id": "C0422",
+      "category": "INPUT_EDGE",
+      "expected": "INVALID",
+      "pred": "REJECTED",
+      "score": -1,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0130",
+      "category": "NEW_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 78,
+      "latency_ms": 36.12995147705078
+    },
+    {
+      "case_id": "C0191",
+      "category": "VELOCITY",
+      "expected": "HIGH_RISK",
+      "pred": "SAFE",
+      "score": 62,
+      "latency_ms": 37.7964973449707
+    },
+    {
+      "case_id": "C0365",
+      "category": "COLD_START",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 26.615381240844727
+    },
+    {
+      "case_id": "C0316",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 87,
+      "latency_ms": 33.841609954833984
+    },
+    {
+      "case_id": "C0348",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 97,
+      "latency_ms": 31.36610984802246
+    },
+    {
+      "case_id": "C0301",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 33.974647521972656
+    },
+    {
+      "case_id": "C0201",
+      "category": "SOCIAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 24,
+      "latency_ms": 34.818172454833984
+    },
+    {
+      "case_id": "C0258",
+      "category": "DEVICE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 48,
+      "latency_ms": 37.49895095825195
+    },
+    {
+      "case_id": "C0025",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 29,
+      "latency_ms": 32.97090530395508
+    },
+    {
+      "case_id": "C0186",
+      "category": "VELOCITY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 60,
+      "latency_ms": 50.73094367980957
+    },
+    {
+      "case_id": "C0398",
+      "category": "CONFLICTING",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 52,
+      "latency_ms": 53.78532409667969
+    },
+    {
+      "case_id": "C0250",
+      "category": "DEVICE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 28,
+      "latency_ms": 37.836313247680664
+    },
+    {
+      "case_id": "C0402",
+      "category": "CONFLICTING",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 80,
+      "latency_ms": 39.273977279663086
+    },
+    {
+      "case_id": "C0471",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 52.251338958740234
+    },
+    {
+      "case_id": "C0207",
+      "category": "SOCIAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 59.08918380737305
+    },
+    {
+      "case_id": "C0420",
+      "category": "CONFLICTING",
+      "expected": "CAUTION",
+      "pred": "HIGH_RISK",
+      "score": 85,
+      "latency_ms": 42.4656867980957
+    },
+    {
+      "case_id": "C0068",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 48.07639122009277
+    },
+    {
+      "case_id": "C0081",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 47.44219779968262
+    },
+    {
+      "case_id": "C0329",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 100,
+      "latency_ms": 46.1735725402832
+    },
+    {
+      "case_id": "C0047",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 43.71023178100586
+    },
+    {
+      "case_id": "C0133",
+      "category": "NEW_RECIPIENT",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 43.60032081604004
+    },
+    {
+      "case_id": "C0216",
+      "category": "SOCIAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 41,
+      "latency_ms": 44.367313385009766
+    },
+    {
+      "case_id": "C0490",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 31.292438507080078
+    },
+    {
+      "case_id": "C0438",
+      "category": "INPUT_EDGE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 29,
+      "latency_ms": 37.552833557128906
+    },
+    {
+      "case_id": "C0071",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 41,
+      "latency_ms": 37.186622619628906
+    },
+    {
+      "case_id": "C0391",
+      "category": "CONFLICTING",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 43,
+      "latency_ms": 38.5746955871582
+    },
+    {
+      "case_id": "C0484",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 33.24770927429199
+    },
+    {
+      "case_id": "C0291",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 29.053688049316406
+    },
+    {
+      "case_id": "C0219",
+      "category": "SOCIAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 24,
+      "latency_ms": 30.257463455200195
+    },
+    {
+      "case_id": "C0161",
+      "category": "TIME_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 80,
+      "latency_ms": 33.01525115966797
+    },
+    {
+      "case_id": "C0228",
+      "category": "SOCIAL",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 70,
+      "latency_ms": 36.59629821777344
+    },
+    {
+      "case_id": "C0009",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 29,
+      "latency_ms": 35.4304313659668
+    },
+    {
+      "case_id": "C0283",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 82,
+      "latency_ms": 43.33662986755371
+    },
+    {
+      "case_id": "C0373",
+      "category": "COLD_START",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 33.939361572265625
+    },
+    {
+      "case_id": "C0296",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 82,
+      "latency_ms": 32.46045112609863
+    },
+    {
+      "case_id": "C0112",
+      "category": "NEW_RECIPIENT",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 42,
+      "latency_ms": 34.68489646911621
+    },
+    {
+      "case_id": "C0407",
+      "category": "CONFLICTING",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 80,
+      "latency_ms": 38.59138488769531
+    },
+    {
+      "case_id": "C0435",
+      "category": "INPUT_EDGE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 46.07343673706055
+    },
+    {
+      "case_id": "C0400",
+      "category": "CONFLICTING",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 52,
+      "latency_ms": 31.47411346435547
+    },
+    {
+      "case_id": "C0178",
+      "category": "VELOCITY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 17,
+      "latency_ms": 33.87117385864258
+    },
+    {
+      "case_id": "C0135",
+      "category": "NEW_RECIPIENT",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 35.48550605773926
+    },
+    {
+      "case_id": "C0360",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 100,
+      "latency_ms": 40.711402893066406
+    },
+    {
+      "case_id": "C0313",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 92,
+      "latency_ms": 35.58230400085449
+    },
+    {
+      "case_id": "C0111",
+      "category": "NEW_RECIPIENT",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 42,
+      "latency_ms": 52.15883255004883
+    },
+    {
+      "case_id": "C0017",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 31.668901443481445
+    },
+    {
+      "case_id": "C0140",
+      "category": "NEW_RECIPIENT",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 33.464670181274414
+    },
+    {
+      "case_id": "C0110",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 42,
+      "latency_ms": 36.417245864868164
+    },
+    {
+      "case_id": "C0335",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 86,
+      "latency_ms": 37.1706485748291
+    },
+    {
+      "case_id": "C0306",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 39.10493850708008
+    },
+    {
+      "case_id": "C0215",
+      "category": "SOCIAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 39,
+      "latency_ms": 37.98198699951172
+    },
+    {
+      "case_id": "C0415",
+      "category": "CONFLICTING",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 52.95538902282715
+    },
+    {
+      "case_id": "C0008",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 44.13294792175293
+    },
+    {
+      "case_id": "C0109",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 32.51361846923828
+    },
+    {
+      "case_id": "C0172",
+      "category": "VELOCITY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 16,
+      "latency_ms": 59.61012840270996
+    },
+    {
+      "case_id": "C0038",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 63.76910209655762
+    },
+    {
+      "case_id": "C0099",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 36.087751388549805
+    },
+    {
+      "case_id": "C0129",
+      "category": "NEW_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 78,
+      "latency_ms": 37.68658638000488
+    },
+    {
+      "case_id": "C0056",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 32,
+      "latency_ms": 27.405977249145508
+    },
+    {
+      "case_id": "C0336",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 92,
+      "latency_ms": 46.547651290893555
+    },
+    {
+      "case_id": "C0253",
+      "category": "DEVICE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 48,
+      "latency_ms": 37.81461715698242
+    },
+    {
+      "case_id": "C0176",
+      "category": "VELOCITY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 37,
+      "latency_ms": 38.80000114440918
+    },
+    {
+      "case_id": "C0243",
+      "category": "DEVICE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 38.69891166687012
+    },
+    {
+      "case_id": "C0152",
+      "category": "TIME_ANOMALY",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 70,
+      "latency_ms": 29.789209365844727
+    },
+    {
+      "case_id": "C0383",
+      "category": "COLD_START",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 30.786514282226562
+    },
+    {
+      "case_id": "C0465",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 32.508134841918945
+    },
+    {
+      "case_id": "C0361",
+      "category": "COLD_START",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 28.568744659423828
+    },
+    {
+      "case_id": "C0280",
+      "category": "LOCATION",
+      "expected": "HIGH_RISK",
+      "pred": "SAFE",
+      "score": 65,
+      "latency_ms": 35.124778747558594
+    },
+    {
+      "case_id": "C0182",
+      "category": "VELOCITY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 61,
+      "latency_ms": 33.09226036071777
+    },
+    {
+      "case_id": "C0174",
+      "category": "VELOCITY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 17,
+      "latency_ms": 44.71087455749512
+    },
+    {
+      "case_id": "C0444",
+      "category": "THRESHOLD",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 85,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0255",
+      "category": "DEVICE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 46,
+      "latency_ms": 44.22736167907715
+    },
+    {
+      "case_id": "C0148",
+      "category": "TIME_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 25,
+      "latency_ms": 49.69477653503418
+    },
+    {
+      "case_id": "C0441",
+      "category": "THRESHOLD",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 69,
+      "latency_ms": 0
+    }
+  ],
+  "val": [
+    {
+      "case_id": "C0058",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 32,
+      "latency_ms": 36.81612014770508
+    },
+    {
+      "case_id": "C0059",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 32,
+      "latency_ms": 37.63103485107422
+    },
+    {
+      "case_id": "C0448",
+      "category": "THRESHOLD",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 71,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0053",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 32,
+      "latency_ms": 36.88335418701172
+    },
+    {
+      "case_id": "C0271",
+      "category": "LOCATION",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 46,
+      "latency_ms": 37.89925575256348
+    },
+    {
+      "case_id": "C0369",
+      "category": "COLD_START",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 34.89971160888672
+    },
+    {
+      "case_id": "C0401",
+      "category": "CONFLICTING",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 81,
+      "latency_ms": 44.00277137756348
+    },
+    {
+      "case_id": "C0122",
+      "category": "NEW_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 78,
+      "latency_ms": 36.154985427856445
+    },
+    {
+      "case_id": "C0057",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 32,
+      "latency_ms": 32.416343688964844
+    },
+    {
+      "case_id": "C0073",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 47,
+      "latency_ms": 31.79144859313965
+    },
+    {
+      "case_id": "C0118",
+      "category": "NEW_RECIPIENT",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 40,
+      "latency_ms": 53.56025695800781
+    },
+    {
+      "case_id": "C0247",
+      "category": "DEVICE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 51.995277404785156
+    },
+    {
+      "case_id": "C0203",
+      "category": "SOCIAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 56.02240562438965
+    },
+    {
+      "case_id": "C0458",
+      "category": "THRESHOLD",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 30,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0211",
+      "category": "SOCIAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 41,
+      "latency_ms": 31.361103057861328
+    },
+    {
+      "case_id": "C0097",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 30.150175094604492
+    },
+    {
+      "case_id": "C0410",
+      "category": "CONFLICTING",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 80,
+      "latency_ms": 39.797067642211914
+    },
+    {
+      "case_id": "C0153",
+      "category": "TIME_ANOMALY",
+      "expected": "CAUTION",
+      "pred": "SAFE",
+      "score": 52,
+      "latency_ms": 32.16361999511719
+    },
+    {
+      "case_id": "C0225",
+      "category": "SOCIAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 37,
+      "latency_ms": 57.602882385253906
+    },
+    {
+      "case_id": "C0146",
+      "category": "TIME_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 73.38523864746094
+    },
+    {
+      "case_id": "C0496",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 74.84292984008789
+    },
+    {
+      "case_id": "C0052",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 32,
+      "latency_ms": 35.29548645019531
+    },
+    {
+      "case_id": "C0467",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 29,
+      "latency_ms": 65.16766548156738
+    },
+    {
+      "case_id": "C0194",
+      "category": "VELOCITY",
+      "expected": "HIGH_RISK",
+      "pred": "SAFE",
+      "score": 62,
+      "latency_ms": 57.262420654296875
+    },
+    {
+      "case_id": "C0454",
+      "category": "THRESHOLD",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 85,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0354",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 97,
+      "latency_ms": 37.232160568237305
+    },
+    {
+      "case_id": "C0426",
+      "category": "INPUT_EDGE",
+      "expected": "INVALID",
+      "pred": "REJECTED",
+      "score": -1,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0461",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 31.362295150756836
+    },
+    {
+      "case_id": "C0318",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 100,
+      "latency_ms": 36.60273551940918
+    },
+    {
+      "case_id": "C0394",
+      "category": "CONFLICTING",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 51,
+      "latency_ms": 43.89023780822754
+    },
+    {
+      "case_id": "C0170",
+      "category": "TIME_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 80,
+      "latency_ms": 40.882110595703125
+    },
+    {
+      "case_id": "C0347",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 92,
+      "latency_ms": 32.40704536437988
+    },
+    {
+      "case_id": "C0039",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 29,
+      "latency_ms": 35.31646728515625
+    },
+    {
+      "case_id": "C0486",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 30.806303024291992
+    },
+    {
+      "case_id": "C0018",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 32,
+      "latency_ms": 42.93942451477051
+    },
+    {
+      "case_id": "C0240",
+      "category": "SOCIAL",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 70,
+      "latency_ms": 41.03541374206543
+    },
+    {
+      "case_id": "C0310",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 34.531593322753906
+    },
+    {
+      "case_id": "C0094",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 35.89773178100586
+    },
+    {
+      "case_id": "C0136",
+      "category": "NEW_RECIPIENT",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 42.585134506225586
+    },
+    {
+      "case_id": "C0171",
+      "category": "VELOCITY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 19,
+      "latency_ms": 39.18004035949707
+    },
+    {
+      "case_id": "C0495",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 36.98086738586426
+    },
+    {
+      "case_id": "C0328",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 92,
+      "latency_ms": 36.91816329956055
+    },
+    {
+      "case_id": "C0028",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 29.451370239257812
+    },
+    {
+      "case_id": "C0173",
+      "category": "VELOCITY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 37,
+      "latency_ms": 34.189701080322266
+    },
+    {
+      "case_id": "C0493",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 29,
+      "latency_ms": 36.34524345397949
+    },
+    {
+      "case_id": "C0341",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 92,
+      "latency_ms": 45.37653923034668
+    },
+    {
+      "case_id": "C0113",
+      "category": "NEW_RECIPIENT",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 41,
+      "latency_ms": 37.30344772338867
+    },
+    {
+      "case_id": "C0078",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 40,
+      "latency_ms": 35.77375411987305
+    },
+    {
+      "case_id": "C0062",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 36.895036697387695
+    },
+    {
+      "case_id": "C0004",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 29,
+      "latency_ms": 41.864871978759766
+    },
+    {
+      "case_id": "C0232",
+      "category": "SOCIAL",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 70,
+      "latency_ms": 47.32465744018555
+    },
+    {
+      "case_id": "C0041",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 34.09719467163086
+    },
+    {
+      "case_id": "C0334",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 100,
+      "latency_ms": 36.992788314819336
+    },
+    {
+      "case_id": "C0027",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 29,
+      "latency_ms": 40.78555107116699
+    },
+    {
+      "case_id": "C0222",
+      "category": "SOCIAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 38,
+      "latency_ms": 43.363332748413086
+    },
+    {
+      "case_id": "C0030",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 30,
+      "latency_ms": 36.10944747924805
+    },
+    {
+      "case_id": "C0476",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 38.1317138671875
+    },
+    {
+      "case_id": "C0483",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 40.299415588378906
+    },
+    {
+      "case_id": "C0374",
+      "category": "COLD_START",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 31.91661834716797
+    },
+    {
+      "case_id": "C0085",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 38.66100311279297
+    },
+    {
+      "case_id": "C0481",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 38.3148193359375
+    },
+    {
+      "case_id": "C0185",
+      "category": "VELOCITY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 62,
+      "latency_ms": 31.531572341918945
+    },
+    {
+      "case_id": "C0455",
+      "category": "THRESHOLD",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 50,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0342",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 92,
+      "latency_ms": 36.03982925415039
+    },
+    {
+      "case_id": "C0138",
+      "category": "NEW_RECIPIENT",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 34.3782901763916
+    },
+    {
+      "case_id": "C0031",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 35.437583923339844
+    },
+    {
+      "case_id": "C0108",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 45,
+      "latency_ms": 37.438392639160156
+    },
+    {
+      "case_id": "C0485",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 29,
+      "latency_ms": 33.05363655090332
+    },
+    {
+      "case_id": "C0338",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 92,
+      "latency_ms": 37.520408630371094
+    },
+    {
+      "case_id": "C0259",
+      "category": "DEVICE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 45,
+      "latency_ms": 34.07549858093262
+    },
+    {
+      "case_id": "C0389",
+      "category": "COLD_START",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 30.005455017089844
+    },
+    {
+      "case_id": "C0385",
+      "category": "COLD_START",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 36.80920600891113
+    },
+    {
+      "case_id": "C0254",
+      "category": "DEVICE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 46,
+      "latency_ms": 39.096832275390625
+    },
+    {
+      "case_id": "C0013",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 31.311988830566406
+    },
+    {
+      "case_id": "C0491",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 32.73963928222656
+    },
+    {
+      "case_id": "C0227",
+      "category": "SOCIAL",
+      "expected": "HIGH_RISK",
+      "pred": "SAFE",
+      "score": 48,
+      "latency_ms": 34.851789474487305
+    },
+    {
+      "case_id": "C0242",
+      "category": "DEVICE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 39.827823638916016
+    },
+    {
+      "case_id": "C0325",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 92,
+      "latency_ms": 38.85793685913086
+    },
+    {
+      "case_id": "C0314",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 97,
+      "latency_ms": 37.38737106323242
+    },
+    {
+      "case_id": "C0492",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 28,
+      "latency_ms": 36.82518005371094
+    },
+    {
+      "case_id": "C0095",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 31.588315963745117
+    },
+    {
+      "case_id": "C0305",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 82,
+      "latency_ms": 40.503740310668945
+    },
+    {
+      "case_id": "C0204",
+      "category": "SOCIAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 25,
+      "latency_ms": 40.40384292602539
+    },
+    {
+      "case_id": "C0072",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 35,
+      "latency_ms": 35.943031311035156
+    },
+    {
+      "case_id": "C0299",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 82,
+      "latency_ms": 30.192852020263672
+    },
+    {
+      "case_id": "C0188",
+      "category": "VELOCITY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 48,
+      "latency_ms": 36.1027717590332
+    },
+    {
+      "case_id": "C0015",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 36.53073310852051
+    },
+    {
+      "case_id": "C0396",
+      "category": "CONFLICTING",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 52,
+      "latency_ms": 35.071372985839844
+    },
+    {
+      "case_id": "C0115",
+      "category": "NEW_RECIPIENT",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 41,
+      "latency_ms": 35.97450256347656
+    },
+    {
+      "case_id": "C0151",
+      "category": "TIME_ANOMALY",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 70,
+      "latency_ms": 36.80300712585449
+    },
+    {
+      "case_id": "C0079",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 47,
+      "latency_ms": 35.42590141296387
+    },
+    {
+      "case_id": "C0252",
+      "category": "DEVICE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 49,
+      "latency_ms": 37.137508392333984
+    },
+    {
+      "case_id": "C0337",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 100,
+      "latency_ms": 39.38484191894531
+    },
+    {
+      "case_id": "C0462",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 29,
+      "latency_ms": 41.11647605895996
+    },
+    {
+      "case_id": "C0251",
+      "category": "DEVICE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 48,
+      "latency_ms": 33.47945213317871
+    },
+    {
+      "case_id": "C0451",
+      "category": "THRESHOLD",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 69,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0287",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 33.78129005432129
+    },
+    {
+      "case_id": "C0469",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 43.25985908508301
+    },
+    {
+      "case_id": "C0137",
+      "category": "NEW_RECIPIENT",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 41.58830642700195
+    },
+    {
+      "case_id": "C0308",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 84,
+      "latency_ms": 38.69986534118652
+    }
+  ],
+  "final": [
+    {
+      "case_id": "C0414",
+      "category": "CONFLICTING",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 40.62247276306152
+    },
+    {
+      "case_id": "C0121",
+      "category": "NEW_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 78,
+      "latency_ms": 35.6905460357666
+    },
+    {
+      "case_id": "C0424",
+      "category": "INPUT_EDGE",
+      "expected": "INVALID",
+      "pred": "REJECTED",
+      "score": -1,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0378",
+      "category": "COLD_START",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 27.377605438232422
+    },
+    {
+      "case_id": "C0077",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 39,
+      "latency_ms": 33.237457275390625
+    },
+    {
+      "case_id": "C0105",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 42,
+      "latency_ms": 33.832550048828125
+    },
+    {
+      "case_id": "C0230",
+      "category": "SOCIAL",
+      "expected": "HIGH_RISK",
+      "pred": "SAFE",
+      "score": 47,
+      "latency_ms": 34.27886962890625
+    },
+    {
+      "case_id": "C0091",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 37.00876235961914
+    },
+    {
+      "case_id": "C0083",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 38.95449638366699
+    },
+    {
+      "case_id": "C0262",
+      "category": "LOCATION",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 33.528804779052734
+    },
+    {
+      "case_id": "C0199",
+      "category": "VELOCITY",
+      "expected": "HIGH_RISK",
+      "pred": "SAFE",
+      "score": 63,
+      "latency_ms": 35.83693504333496
+    },
+    {
+      "case_id": "C0167",
+      "category": "TIME_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 80,
+      "latency_ms": 31.77928924560547
+    },
+    {
+      "case_id": "C0406",
+      "category": "CONFLICTING",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 80,
+      "latency_ms": 35.62211990356445
+    },
+    {
+      "case_id": "C0154",
+      "category": "TIME_ANOMALY",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 70,
+      "latency_ms": 35.57443618774414
+    },
+    {
+      "case_id": "C0032",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 28,
+      "latency_ms": 35.34102439880371
+    },
+    {
+      "case_id": "C0345",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 92,
+      "latency_ms": 39.84880447387695
+    },
+    {
+      "case_id": "C0331",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 92,
+      "latency_ms": 41.27001762390137
+    },
+    {
+      "case_id": "C0209",
+      "category": "SOCIAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 35.719871520996094
+    },
+    {
+      "case_id": "C0436",
+      "category": "INPUT_EDGE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 42,
+      "latency_ms": 41.49436950683594
+    },
+    {
+      "case_id": "C0034",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 38.65957260131836
+    },
+    {
+      "case_id": "C0066",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 30.95269203186035
+    },
+    {
+      "case_id": "C0045",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 30.883312225341797
+    },
+    {
+      "case_id": "C0413",
+      "category": "CONFLICTING",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 81,
+      "latency_ms": 32.55152702331543
+    },
+    {
+      "case_id": "C0165",
+      "category": "TIME_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 80,
+      "latency_ms": 38.02967071533203
+    },
+    {
+      "case_id": "C0351",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 100,
+      "latency_ms": 34.50822830200195
+    },
+    {
+      "case_id": "C0284",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 34.00015830993652
+    },
+    {
+      "case_id": "C0088",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 31.716585159301758
+    },
+    {
+      "case_id": "C0218",
+      "category": "SOCIAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 37,
+      "latency_ms": 32.71055221557617
+    },
+    {
+      "case_id": "C0246",
+      "category": "DEVICE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 48.596858978271484
+    },
+    {
+      "case_id": "C0290",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 32.93585777282715
+    },
+    {
+      "case_id": "C0417",
+      "category": "CONFLICTING",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 32.21845626831055
+    },
+    {
+      "case_id": "C0343",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 100,
+      "latency_ms": 37.5216007232666
+    },
+    {
+      "case_id": "C0239",
+      "category": "SOCIAL",
+      "expected": "HIGH_RISK",
+      "pred": "SAFE",
+      "score": 63,
+      "latency_ms": 41.94808006286621
+    },
+    {
+      "case_id": "C0131",
+      "category": "NEW_RECIPIENT",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 25,
+      "latency_ms": 31.917810440063477
+    },
+    {
+      "case_id": "C0387",
+      "category": "COLD_START",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 34.92403030395508
+    },
+    {
+      "case_id": "C0437",
+      "category": "INPUT_EDGE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 39,
+      "latency_ms": 34.45172309875488
+    },
+    {
+      "case_id": "C0220",
+      "category": "SOCIAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 39,
+      "latency_ms": 39.29424285888672
+    },
+    {
+      "case_id": "C0090",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 37.06622123718262
+    },
+    {
+      "case_id": "C0145",
+      "category": "TIME_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 28,
+      "latency_ms": 38.67959976196289
+    },
+    {
+      "case_id": "C0248",
+      "category": "DEVICE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 34.48605537414551
+    },
+    {
+      "case_id": "C0300",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 85,
+      "latency_ms": 40.52925109863281
+    },
+    {
+      "case_id": "C0433",
+      "category": "INPUT_EDGE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 33.03861618041992
+    },
+    {
+      "case_id": "C0482",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 35.35604476928711
+    },
+    {
+      "case_id": "C0061",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 31.57496452331543
+    },
+    {
+      "case_id": "C0477",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 31.89229965209961
+    },
+    {
+      "case_id": "C0075",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 37,
+      "latency_ms": 37.249088287353516
+    },
+    {
+      "case_id": "C0355",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 100,
+      "latency_ms": 42.568206787109375
+    },
+    {
+      "case_id": "C0092",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 51.145076751708984
+    },
+    {
+      "case_id": "C0478",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 29,
+      "latency_ms": 37.056922912597656
+    },
+    {
+      "case_id": "C0116",
+      "category": "NEW_RECIPIENT",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 41,
+      "latency_ms": 31.993865966796875
+    },
+    {
+      "case_id": "C0237",
+      "category": "SOCIAL",
+      "expected": "HIGH_RISK",
+      "pred": "SAFE",
+      "score": 48,
+      "latency_ms": 34.856319427490234
+    },
+    {
+      "case_id": "C0236",
+      "category": "SOCIAL",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 70,
+      "latency_ms": 38.823604583740234
+    },
+    {
+      "case_id": "C0141",
+      "category": "TIME_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 29,
+      "latency_ms": 36.07630729675293
+    },
+    {
+      "case_id": "C0423",
+      "category": "INPUT_EDGE",
+      "expected": "INVALID",
+      "pred": "REJECTED",
+      "score": -1,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0456",
+      "category": "THRESHOLD",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0190",
+      "category": "VELOCITY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 61,
+      "latency_ms": 34.98554229736328
+    },
+    {
+      "case_id": "C0080",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 40,
+      "latency_ms": 31.804323196411133
+    },
+    {
+      "case_id": "C0312",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 92,
+      "latency_ms": 39.881229400634766
+    },
+    {
+      "case_id": "C0428",
+      "category": "INPUT_EDGE",
+      "expected": "SAFE",
+      "pred": "HIGH_RISK",
+      "score": 86,
+      "latency_ms": 42.79780387878418
+    },
+    {
+      "case_id": "C0264",
+      "category": "LOCATION",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 37.52589225769043
+    },
+    {
+      "case_id": "C0404",
+      "category": "CONFLICTING",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 80,
+      "latency_ms": 36.53073310852051
+    },
+    {
+      "case_id": "C0295",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 38.051605224609375
+    },
+    {
+      "case_id": "C0349",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 100,
+      "latency_ms": 39.293527603149414
+    },
+    {
+      "case_id": "C0006",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 36.27896308898926
+    },
+    {
+      "case_id": "C0026",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 29,
+      "latency_ms": 34.464359283447266
+    },
+    {
+      "case_id": "C0260",
+      "category": "DEVICE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 45,
+      "latency_ms": 29.410600662231445
+    },
+    {
+      "case_id": "C0357",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 92,
+      "latency_ms": 31.534671783447266
+    },
+    {
+      "case_id": "C0350",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 97,
+      "latency_ms": 34.934282302856445
+    },
+    {
+      "case_id": "C0127",
+      "category": "NEW_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 78,
+      "latency_ms": 35.23087501525879
+    },
+    {
+      "case_id": "C0156",
+      "category": "TIME_ANOMALY",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 70,
+      "latency_ms": 43.61987113952637
+    },
+    {
+      "case_id": "C0206",
+      "category": "SOCIAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 24,
+      "latency_ms": 34.09934043884277
+    },
+    {
+      "case_id": "C0293",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 37.15324401855469
+    },
+    {
+      "case_id": "C0050",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 29.54244613647461
+    },
+    {
+      "case_id": "C0035",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 30,
+      "latency_ms": 37.77742385864258
+    },
+    {
+      "case_id": "C0405",
+      "category": "CONFLICTING",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 80,
+      "latency_ms": 31.041622161865234
+    },
+    {
+      "case_id": "C0409",
+      "category": "CONFLICTING",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 80,
+      "latency_ms": 33.10203552246094
+    },
+    {
+      "case_id": "C0084",
+      "category": "AMOUNT_ANOMALY",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 37.14346885681152
+    },
+    {
+      "case_id": "C0321",
+      "category": "COMBINED",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 92,
+      "latency_ms": 35.75587272644043
+    },
+    {
+      "case_id": "C0499",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 26,
+      "latency_ms": 35.14552116394043
+    },
+    {
+      "case_id": "C0302",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 32.5014591217041
+    },
+    {
+      "case_id": "C0224",
+      "category": "SOCIAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 35.141706466674805
+    },
+    {
+      "case_id": "C0198",
+      "category": "VELOCITY",
+      "expected": "HIGH_RISK",
+      "pred": "SAFE",
+      "score": 63,
+      "latency_ms": 36.775827407836914
+    },
+    {
+      "case_id": "C0386",
+      "category": "COLD_START",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 30.223369598388672
+    },
+    {
+      "case_id": "C0011",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 33.727169036865234
+    },
+    {
+      "case_id": "C0440",
+      "category": "INPUT_EDGE",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 36,
+      "latency_ms": 38.74850273132324
+    },
+    {
+      "case_id": "C0416",
+      "category": "CONFLICTING",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 84,
+      "latency_ms": 38.7423038482666
+    },
+    {
+      "case_id": "C0457",
+      "category": "THRESHOLD",
+      "expected": "HIGH_RISK",
+      "pred": "HIGH_RISK",
+      "score": 90,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0205",
+      "category": "SOCIAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 41.402339935302734
+    },
+    {
+      "case_id": "C0051",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 32,
+      "latency_ms": 35.33315658569336
+    },
+    {
+      "case_id": "C0429",
+      "category": "INPUT_EDGE",
+      "expected": "INVALID",
+      "pred": "REJECTED",
+      "score": -1,
+      "latency_ms": 0
+    },
+    {
+      "case_id": "C0292",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 38.330793380737305
+    },
+    {
+      "case_id": "C0388",
+      "category": "COLD_START",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 37.73975372314453
+    },
+    {
+      "case_id": "C0067",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "CAUTION",
+      "score": 75,
+      "latency_ms": 38.25187683105469
+    },
+    {
+      "case_id": "C0397",
+      "category": "CONFLICTING",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 51,
+      "latency_ms": 33.77556800842285
+    },
+    {
+      "case_id": "C0124",
+      "category": "NEW_RECIPIENT",
+      "expected": "HIGH_RISK",
+      "pred": "CAUTION",
+      "score": 78,
+      "latency_ms": 38.91897201538086
+    },
+    {
+      "case_id": "C0179",
+      "category": "VELOCITY",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 17,
+      "latency_ms": 32.83500671386719
+    },
+    {
+      "case_id": "C0497",
+      "category": "NORMAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 27,
+      "latency_ms": 37.09220886230469
+    },
+    {
+      "case_id": "C0046",
+      "category": "LEGITIMATE_UNUSUAL",
+      "expected": "SAFE",
+      "pred": "SAFE",
+      "score": 31,
+      "latency_ms": 38.15460205078125
+    },
+    {
+      "case_id": "C0411",
+      "category": "CONFLICTING",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 38.626909255981445
+    },
+    {
+      "case_id": "C0289",
+      "category": "FRAUD_RECIPIENT",
+      "expected": "CAUTION",
+      "pred": "CAUTION",
+      "score": 83,
+      "latency_ms": 37.468671798706055
+    }
+  ]
+}
