@@ -15,18 +15,18 @@
 <div id="root"></div>
 <div id="modal-root" style="position:relative;z-index:9999;pointer-events:all;"></div>
 
-<script src="js/config.js?v=1"></script>
+<script src="js/config.js?v=2"></script>
 <script src="react.min.js?v=1"></script>
 <script src="react-dom.min.js?v=1"></script>
 <script src="babel.min.js?v=1"></script>
 <script src="socket.io.min.js?v=1"></script>
 
 <script src="js/security-monitor.js?v=1"></script>
-<script src="js/constants.js?v=1"></script>
+<script src="js/constants.js?v=2"></script>
 <script src="js/geo-device.js?v=1"></script>
 <script src="js/fraud-engine.js?v=1"></script>
 <script src="js/fraud-intelligence.js?v=1"></script>
-<script src="js/pages/scam-database.js?v=1"></script>
+<script type="text/babel" src="js/pages/scam-database.js?v=2"></script>
 <script src="js/keyword-engine.js?v=1"></script>
 <script type="text/babel" src="js/ai-investigator.js?v=1"></script>
 <script type="text/babel" src="js/simulator.js?v=1"></script>
@@ -295,8 +295,23 @@ function LoginPage({onLogin}){
       }catch(e){setMsg({text:"Backend unreachable. Is server running?",ok:false});}
       finally{setLoading(false);}
     }else{
-      // Admin user - skip OTP server call, accept constant OTP 000000
+      // Admin user - still verify via backend to get token/balance (was skipping token before → balance 0)
       if (mobile === "1234567890" && otp === "000000") {
+        setLoading(true);
+        try{
+          const res=await fetch(`${API}/verify-otp`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({mobile,otp})});
+          const data=await res.json().catch(()=>({}));
+          if(data.token){ try{ localStorage.setItem("iron_token", data.token); localStorage.setItem("iron_user", mobile); }catch{} }
+          if(data.status==="SUCCESS" || data.token){
+            setMsg({text:"Login Successful ✔",ok:true});
+            const u=Object.entries(USERS).find(([,v])=>v.number===mobile);
+            // Ensure authoritative balance from backend
+            try{ if(data.token){ const rr=await fetch(`${API}/auth/me`,{headers:{"Authorization":"Bearer "+data.token}}); const jj=await rr.json().catch(()=>({})); if(jj.balance!=null) u[1].balance=jj.balance; } }catch{}
+            setTimeout(()=>onLogin({...u[1]}),500);
+            return;
+          }
+        }catch(e){}
+        // Fallback local if backend unreachable
         setMsg({text:"Login Successful ✔",ok:true});
         const u=Object.entries(USERS).find(([,v])=>v.number===mobile);
         setTimeout(()=>onLogin({...u[1]}),500);
@@ -1208,8 +1223,9 @@ function FraudRiskCard({score, recipient, recipientNum, amount, signals, onVerif
           // LAYER 3 — Tags: 1-2 word chips
           // No signal repeats across layers.
 
-          // Collect all engine insight sentences (existing signals array, deduplicated)
-          const engineInsights = signals ? [...new Set(signals)] : [];
+          // Collect all engine insight sentences (existing signals array, deduplicated) – normalize objects
+          const normalizedSignals = (signals || []).map(s => typeof s === 'string' ? s : (s.description || s.id || String(s)));
+          const engineInsights = normalizedSignals ? [...new Set(normalizedSignals)] : [];
 
           // Build explanation layers from recipientNum context
           const rr = recipientNum ? getRecipientRisk(recipientNum) : 0;
@@ -1223,9 +1239,9 @@ function FraudRiskCard({score, recipient, recipientNum, amount, signals, onVerif
           }
 
           // Parse short reasons from signals — avoid duplicating what engine insights say
-          if (signals) {
-            signals.forEach(s => {
-              const sl = s.toLowerCase();
+          if (normalizedSignals) {
+            normalizedSignals.forEach(s => {
+              const sl = (typeof s === 'string' ? s : (s.description || s.id || String(s))).toLowerCase();
               if ((sl.includes("new recipient") || sl.includes("not seen in your contacts")) &&
                   !whyReasons.some(r => r.toLowerCase().includes("new recipient"))) {
                 whyReasons.push("New recipient");
@@ -2432,7 +2448,7 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
         : [];
       // === End Urgency Detection Feature ===
 
-      let allSignals = [...ruleResult.signals, ...mlSignals, ...kwSignals, ...urgencySignals, ...geoSignals];
+      allSignals = [...ruleResult.signals, ...mlSignals, ...kwSignals, ...urgencySignals, ...geoSignals];
       const amountSignalPriority = [
         /This transaction drains \d+% of your balance/i,
         /Large transfer:.*of your current balance/i,
@@ -2469,7 +2485,9 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
             // Override totalRisk/tier with authoritative if available
             totalRisk = prepData.risk.score;
             tier = prepData.risk.tier==="HIGH_RISK"?"high_risk": prepData.risk.tier==="CAUTION"?"caution":"normal";
-            allSignals = prepData.risk.signals || allSignals;
+            // Normalize signals: backend returns objects {description,id}, frontend expects strings
+            const rawSigs = prepData.risk.signals || allSignals;
+            allSignals = rawSigs.map(s => typeof s === 'string' ? s : (s.description || s.id || String(s)));
             console.log("[IRON] prepare authoritative", prepData);
           }
         }
@@ -4945,7 +4963,7 @@ function RequestMoneyPage({user, setPage}){
     // === VPN Detection Check ===
     // Run this check before creating any payment request
     const vpnCheck = await checkVPNDetection(user.number);
-    if (vpnCheck.vpnDetected) // Phase 1A non-blocking {
+    if (vpnCheck.vpnDetected) { // Phase 1A non-blocking
       alert("VPN detected. Please turn off VPN to proceed with payment.");
       return;
     }
@@ -7182,22 +7200,20 @@ function App(){
   function handleLogin(u){
     setUser(u);
     userRef.current = u;
+    // Immediate local balance to avoid Zero Balance flash, then authoritative fetch
+    setBalance(u.balance);
     // Phase 2/3: fetch authoritative balance & transactions from backend
     try{
       const hdr=getAuthHeader();
       if(hdr.Authorization){
-        fetch(`${API}/balance`,{headers: hdr}).then(r=>r.json()).then(j=>{ if(j.balance!=null) setBalance(j.balance); }).catch(()=>setBalance(u.balance));
+        fetch(`${API}/balance`,{headers: hdr}).then(r=>r.json()).then(j=>{ if(j.balance!=null) setBalance(j.balance); localStorage.setItem("iron_balance", JSON.stringify(j.balance!=null? j.balance : u.balance)); }).catch(()=>{ setBalance(u.balance); try{ localStorage.setItem("iron_balance", JSON.stringify(u.balance)); }catch{} });
         fetch(`${API}/transactions?limit=50`,{headers: hdr}).then(r=>r.json()).then(j=>{ if(j.transactions) setTxs(j.transactions.map(x=>({id:x.transaction_id, to:x.recipient_name||x.recipient, toNum:x.recipient, amt:x.amount, date:x.timestamp.slice(0,10), time:x.timestamp.slice(11,16), risk:x.risk_score, status:x.status==="SUCCESS"?"success":x.status==="HIGH_RISK"?"high_risk":x.status.toLowerCase(), type:"debit", note:x.note, isNew:false, risk_tag:x.risk_tier?.toLowerCase()||"normal", otp_used:x.verification_method==="OTP"}))); }).catch(()=>setTxs(SEED_TXS));
       } else {
-        // Fallback to local if no token (should not happen)
-        try{
-          const pb=localStorage.getItem("iron_balance");
-          if(pb!==null) setBalance(JSON.parse(pb));
-          else setBalance(u.balance);
-          const pt=localStorage.getItem("iron_txs");
-          if(pt) setTxs(JSON.parse(pt));
-          else setTxs(SEED_TXS);
-        }catch{ setBalance(u.balance); setTxs(SEED_TXS); }
+        // Fallback to local if no token – clear stale local 0 and use u.balance
+        try{ localStorage.removeItem("iron_balance"); localStorage.removeItem("iron_txs"); }catch{}
+        setBalance(u.balance);
+        setTxs(SEED_TXS);
+        try{ localStorage.setItem("iron_balance", JSON.stringify(u.balance)); }catch{}
       }
     }catch{ setBalance(u.balance); setTxs(SEED_TXS); }
     setRequests(SEED_REQS);

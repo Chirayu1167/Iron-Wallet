@@ -646,7 +646,7 @@ def seed_users_if_needed():
         ("8765432109","Rohan Deshmukh",28500,26,False,"rohan@ironwallet"),
         ("7654321098","Kavita Sharma",92300,38,True,"kavita@ironwallet"),
         ("9699624733","Shivshree Shinde",90000,19,True,"shivshree@ironwallet"),
-        ("1234567890","Admin",999999,99,True,"admin@ironwallet"),
+        ("1234567890","Admin",9999999,99,True,"admin@ironwallet"),
     ]
     for phone,name,bal,age,ver,upi in seed:
         if not get_user(phone):

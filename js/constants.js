@@ -360,7 +360,7 @@ const USERS = {
     name: "Admin",
     number: "1234567890",
     pin: "1234",
-    balance: 999999,
+    balance: 9999999,
     upi: "admin@ironwallet",
     age: 99,
     contacts: {},
