@@ -2730,8 +2730,8 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
         if(data.duplicate || res.status===409){ /* ignore */ }
         else return;
       }
-      // Update authoritative balance & tx
-      if(data.balance != null) setBalance(data.balance);
+      // Update authoritative balance & tx (updateBalance is the App-provided setter)
+      if(data.balance != null) updateBalance(()=>data.balance);
       // Map backend tx to frontend format
       const txAuth = { id: data.transaction_id || preparedId, to: name || recipient, toNum: targetNum || recipient, upi: recipientType === 'upi' ? recipient : (USERS[targetNum]?.upi || ''), amt: a, date: new Date().toISOString().slice(0,10), time: new Date().toISOString().slice(11,16), risk: data.risk_score ?? riskData.score, status: (data.status==="HIGH_RISK"||data.status==="high_risk")?"high_risk": (data.status==="SUCCESS"?"success":data.status?.toLowerCase()||"success"), type: "debit", note: note || "Payment", isNew: true, risk_tag: (data.risk_tier||riskData.tier||"normal").toLowerCase(), otp_used: !!otpVal, location: (typeof MockLocation!=="undefined"&&MockLocation.active?MockLocation.label:null), device: (typeof getTxGeoDeviceMeta==="function"?getTxGeoDeviceMeta().device:null) };
       addTx(txAuth);
