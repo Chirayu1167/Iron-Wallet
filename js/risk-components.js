@@ -126,11 +126,9 @@ function RiskScoreCard({ score, tier, explanation, reasons, requires_otp, attack
     <div style={{ background:"#fff", border:"1px solid #E0E1DD", borderRadius:8, padding:16 }}>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
         <div>
-          <div style={{ fontSize:11, fontWeight:700, color:"#64748b", textTransform:"uppercase", letterSpacing:.5 }}>Risk Score</div>
+          <div style={{ fontSize:11, fontWeight:700, color:"#64748b", textTransform:"uppercase", letterSpacing:.5 }}>Payment check</div>
           <div style={{ display:"flex", alignItems:"baseline", gap:6, marginTop:4 }}>
-            <span style={{ fontSize:28, fontWeight:800, color:"#0f172a" }}>{score}</span>
-            <span style={{ fontSize:13, color:"#64748b" }}>/ 100</span>
-            <span style={{ marginLeft:8, padding:"4px 10px", borderRadius:20, fontSize:12, fontWeight:800, background:tierBg, color:tierColor, border:`1px solid ${tierBorder}` }}>{icon} {tier}</span>
+            <span style={{ fontSize:16, fontWeight:800, color:tierColor }}>{tier==="SAFE" ? "Looks consistent" : "Needs your review"}</span>
           </div>
         </div>
         <div style={{ width:56, height:56, borderRadius:12, background: tierBg, border:`1px solid ${tierBorder}`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>{tier==="HIGH_RISK"?"⚠️": tier==="CAUTION"?"🔍":"✅"}</div>
@@ -156,7 +154,7 @@ function RiskScoreCard({ score, tier, explanation, reasons, requires_otp, attack
           </ul>
         </div>
       )}
-      {requires_otp && <div style={{ marginTop:10, padding:"8px 10px", background:"#fef3c7", border:"1px solid #fcd34d", borderRadius:6, fontSize:12, color:"#92400e", fontWeight:600 }}>Verification required • You can still proceed after OTP</div>}
+      {requires_otp && <div style={{ marginTop:10, padding:"8px 10px", background:"#fffbeb", border:"1px solid #fde68a", borderRadius:6, fontSize:12, color:"#854d0e", fontWeight:600 }}>We'll ask you to verify this payment before it goes through.</div>}
     </div>
   );
 }

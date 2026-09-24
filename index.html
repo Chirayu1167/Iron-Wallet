@@ -611,7 +611,6 @@ function OTPModal({mobile,onSuccess,onCancel}){
     const v=e.target.value.replace(/\D/,"");
     const d=[...digits];d[i]=v;setDigits(d);
     if(v&&i<5)refs[i+1].current&&refs[i+1].current.focus();
-    if(d.every(x=>x))submit(d.join(""));
   }
   function bk(i,e){
     if(e.key==="Backspace"&&!digits[i]&&i>0){
@@ -677,22 +676,22 @@ function OTPModal({mobile,onSuccess,onCancel}){
     <Modal>
       <div style={{position:"fixed",top:0,left:0,width:"100%",height:"100%",zIndex:9999,
         overflowY:"auto",overscrollBehavior:"contain",
-        background:"rgba(10,25,70,.65)",backdropFilter:"blur(8px)",WebkitBackdropFilter:"blur(8px)"}}>
+        background:"transparent",backdropFilter:"none",WebkitBackdropFilter:"none"}}>
         <div style={{minHeight:"100%",display:"flex",alignItems:"center",justifyContent:"center",
           padding:"20px",boxSizing:"border-box"}}>
           <div style={{background:"#fff",borderRadius:8,width:"100%",maxWidth:380,
             boxShadow:"0 32px 80px rgba(0,0,0,.28)",animation:"scaleIn .28s cubic-bezier(.16,1,.3,1)",
             overflow:"hidden",flexShrink:0}}>
-            <div style={{background:`linear-gradient(135deg,#1B263B,#0F1E2E)`,padding:"20px 24px 16px",textAlign:"center"}}>
-              <div style={{width:50,height:50,borderRadius:"50%",background:"rgba(255,255,255,.2)",
+            <div style={{background:"#F7F8FA",padding:"20px 24px 16px",textAlign:"center",borderBottom:"1px solid #E5E7EB"}}>
+              <div style={{width:50,height:50,borderRadius:"50%",background:"#FFF1E8",
                 display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 10px"}}>
                 <svg width="24"height="24"viewBox="0 0 48 48">
-                  <path d="M24 4L6 12v14c0 12 7.6 23.2 18 26 10.4-2.8 18-14 18-26V12L24 4z"fill="rgba(255,255,255,.2)"stroke="#fff"strokeWidth="2.5"/>
-                  <polyline points="16 24 22 30 34 18"fill="none"stroke="#fff"strokeWidth="2.8"strokeLinecap="round"strokeLinejoin="round"/>
+                  <path d="M24 4L6 12v14c0 12 7.6 23.2 18 26 10.4-2.8 18-14 18-26V12L24 4z"fill="none"stroke="#FF6B00"strokeWidth="2.5"/>
+                  <polyline points="16 24 22 30 34 18"fill="none"stroke="#FF6B00"strokeWidth="2.8"strokeLinecap="round"strokeLinejoin="round"/>
                 </svg>
               </div>
-              <h3 style={{fontWeight:800,fontSize:18,color:"#fff",marginBottom:3}}>OTP Verification</h3>
-              <p style={{fontSize:12,color:"rgba(255,255,255,.75)"}}>6-digit code sent to +91 {mobile}</p>
+              <h3 style={{fontWeight:800,fontSize:18,color:"#111827",marginBottom:3}}>OTP Verification</h3>
+              <p style={{fontSize:12,color:"#667085"}}>6-digit code sent to +91 {mobile}</p>
             </div>
             <div style={{padding:"20px 22px 22px"}}>
               <div style={{display:"flex",gap:8,justifyContent:"center",marginBottom:12,
@@ -709,6 +708,9 @@ function OTPModal({mobile,onSuccess,onCancel}){
               </div>
               {error&&<p style={{color:"#ba1a1a",textAlign:"center",fontSize:13,marginBottom:10,fontWeight:600}}>{errMsg}</p>}
               {loading&&<p style={{textAlign:"center",fontSize:13,color:"#C5A059",marginBottom:10,fontWeight:600,animation:"pulse 1s infinite"}}>Verifying…</p>}
+              <Btn onClick={()=>submit(digits.join(""))} disabled={loading||digits.some(d=>!d)} fullWidth>
+                {loading ? "Verifying…" : "Verify OTP"}
+              </Btn>
               <div style={{textAlign:"center",color:"#75777D",fontSize:13,marginBottom:16}}>
                 {resend
                   ?<button onClick={resendOTP} style={{background:"none",border:"none",color:"#C5A059",
@@ -807,7 +809,7 @@ function PINModal({userPin, onSuccess, onCancel, user}){
     <Modal>
       <div style={{position:"fixed",top:0,left:0,width:"100%",height:"100%",zIndex:9999,
         overflowY:"auto",overscrollBehavior:"contain",
-        background:"rgba(10,25,70,.65)",backdropFilter:"blur(8px)",WebkitBackdropFilter:"blur(8px)"}}>
+        background:"transparent",backdropFilter:"none",WebkitBackdropFilter:"none"}}>
         <div style={{minHeight:"100%",display:"flex",alignItems:"center",justifyContent:"center",
           padding:"20px",boxSizing:"border-box"}}>
           <div style={{background:"#fff",borderRadius:8,width:"100%",maxWidth:320,flexShrink:0,
@@ -840,13 +842,13 @@ function PINModal({userPin, onSuccess, onCancel, user}){
               </>
             ) : (
               <>
-                <div style={{background:`linear-gradient(135deg,#1B263B,#0F1E2E)`,padding:"20px 24px 16px",textAlign:"center"}}>
-                  <div style={{width:50,height:50,borderRadius:"50%",background:"rgba(255,255,255,.2)",
+                <div style={{background:"#F7F8FA",padding:"20px 24px 16px",textAlign:"center",borderBottom:"1px solid #E5E7EB"}}>
+                  <div style={{width:50,height:50,borderRadius:"50%",background:"#FFF1E8",
                     display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 10px"}}>
-                    {Ic.lock("#fff")}
+                    {Ic.lock("#FF6B00")}
                   </div>
-                  <h3 style={{fontWeight:800,fontSize:18,color:"#fff",marginBottom:3}}>Enter PIN</h3>
-                  <p style={{fontSize:12,color:"rgba(255,255,255,.75)"}}>Confirm your 4-digit IronWallet PIN</p>
+                  <h3 style={{fontWeight:800,fontSize:18,color:"#111827",marginBottom:3}}>Enter PIN</h3>
+                  <p style={{fontSize:12,color:"#667085"}}>Confirm your 4-digit IronWallet PIN</p>
                 </div>
                 <div style={{padding:"20px 22px 22px"}}>
                   {/* Attempt dots */}
@@ -1147,6 +1149,17 @@ function FraudRiskCard({score, recipient, recipientNum, amount, signals, onVerif
   const title = isNormal
     ? '🟢 Payment looks consistent with your usual activity'
     : '🟠 This payment looks unusual for you';
+  const simpleReasons = [];
+  (signals || []).forEach(raw => {
+    const text = String(typeof raw === "string" ? raw : (raw.description || raw.id || "")).toLowerCase();
+    if (text.includes("new recipient") || text.includes("not seen in your contacts")) simpleReasons.push("New recipient");
+    else if (text.includes("amount") || text.includes("drain") || text.includes("spend")) simpleReasons.push("Amount higher than usual");
+    else if (text.includes("device")) simpleReasons.push("Unfamiliar device");
+    else if (text.includes("location") || text.includes("travel") || text.includes("far outside")) simpleReasons.push("Unusual location");
+    else if (text.includes("hour") || text.includes("night") || text.includes("time")) simpleReasons.push("Unusual timing");
+    else if (text.includes("behavior") || text.includes("pattern") || text.includes("velocity")) simpleReasons.push("Unusual payment behavior");
+  });
+  const displayReasons = [...new Set(simpleReasons)].slice(0, 4);
 
   return(
     <Card style={{padding:0,overflow:"hidden",border:`1.5px solid ${m.border}`}}>
@@ -1181,6 +1194,14 @@ function FraudRiskCard({score, recipient, recipientNum, amount, signals, onVerif
             Iron compared this payment with your usual spending pattern, recipient familiarity, recent activity, and account context.
           </div>
         </div>
+        {!isNormal && displayReasons.length > 0 && (
+          <div style={{marginBottom:14,padding:"12px 14px",background:"#FFFBEB",border:"1px solid #FDE68A",borderRadius:8}}>
+            <div style={{fontSize:12,fontWeight:800,color:"#854D0E",marginBottom:7}}>Why this looks unusual</div>
+            {displayReasons.map(reason => (
+              <div key={reason} style={{fontSize:13,color:"#92400E",lineHeight:1.5,marginBottom:3}}>• {reason}</div>
+            ))}
+          </div>
+        )}
         {/* ===== Network Fraud Intelligence — recipient report count ===== */}
         {recipientNum&&getRecipientRisk(recipientNum)>=1&&(
           <div style={{marginBottom:12}}>
@@ -1887,34 +1908,26 @@ function Dashboard({user,balance,txs,setPage,updateUser}){
         {/* Services */}
         <ServicesGrid setPage={setPage}/>
 
-        {/* Stats — LIVE computed from actual txs */}
+        {/* Recent payments — keep the home view focused on everyday activity */}
         {(()=>{
-          const liveDebits = txs.filter(t=>t.type==="debit"&&t.status!=="high_risk"&&t.status!=="blocked").reduce((s,t)=>s+t.amt,0);
-          const liveHighRisk = txs.filter(t=>t.status==="high_risk" || t.status==="blocked").length;
-          const liveCount = txs.length;
-          const protectedCount = txs.filter(t=>t.risk>=70).length;
+          const recentPayments = txs.filter(t=>t.type==="debit").slice(-4).reverse();
           return (
             <div style={{background:"#fff",border:"1px solid #E0E1DD",borderRadius:6,padding:20}}>
-              <div style={{fontWeight:700,color:"#1A1C1A",fontSize:12,marginBottom:16,textTransform:"uppercase",letterSpacing:"0.1em"}}>Account Stats</div>
-              <div style={{display:"flex",flexDirection:"column",gap:14}}>
-                <div>
-                  <div style={{fontSize:13,color:"#45474D",marginBottom:4}}>Total Spent</div>
-                  <div style={{fontWeight:700,fontSize:20,color:"#1B263B",fontFamily:"'Playfair Display',serif"}}>₹{liveDebits.toLocaleString("en-IN")}</div>
-                </div>
-                <div style={{borderTop:"1px solid #E0E1DD",paddingTop:14}}>
-                  <div style={{fontSize:13,color:"#45474D",marginBottom:4}}>Protected Transactions</div>
-                  <div style={{fontWeight:700,fontSize:20,color:"#ba1a1a",fontFamily:"'Playfair Display',serif"}}>{protectedCount}</div>
-                </div>
-                <div style={{borderTop:"1px solid #E0E1DD",paddingTop:14}}>
-                  <div style={{fontSize:13,color:"#45474D",marginBottom:4}}>Transactions</div>
-                  <div style={{fontWeight:700,fontSize:20,color:"#1B263B",fontFamily:"'Playfair Display',serif"}}>{liveCount}</div>
-                </div>
-                {liveHighRisk>0 && (
-                  <div style={{borderTop:"1px solid #E0E1DD",paddingTop:14}}>
-                    <div style={{fontSize:13,color:"#45474D",marginBottom:4}}>High Risk</div>
-                    <div style={{fontWeight:700,fontSize:20,color:"#ba1a1a",fontFamily:"'Playfair Display',serif"}}>{liveHighRisk}</div>
+              <div style={{fontWeight:700,color:"#1A1C1A",fontSize:16,marginBottom:16}}>Recent payments</div>
+              <div style={{display:"flex",flexDirection:"column",gap:12}}>
+                {recentPayments.length===0 && <div style={{fontSize:13,color:"#667085"}}>Your recent payments will appear here.</div>}
+                {recentPayments.map((tx,i)=>(
+                  <div key={tx.id||i} style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,borderTop:i?"1px solid #E5E7EB":"none",paddingTop:i?12:0}}>
+                    <div style={{display:"flex",alignItems:"center",gap:10,minWidth:0}}>
+                      <Avatar name={tx.to||"Payment"} size={34}/>
+                      <div style={{minWidth:0}}>
+                        <div style={{fontSize:13,fontWeight:700,color:"#111827",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{tx.to||"Payment"}</div>
+                        <div style={{fontSize:11,color:"#667085"}}>{tx.date||"Today"}</div>
+                      </div>
+                    </div>
+                    <div style={{fontSize:14,fontWeight:800,color:"#111827",whiteSpace:"nowrap"}}>−₹{Number(tx.amt||0).toLocaleString("en-IN")}</div>
                   </div>
-                )}
+                ))}
               </div>
             </div>
           );
@@ -2599,19 +2612,6 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
       }
     }
 
-    // === Out-of-Band Verification Feature ===
-    // Trigger the OOB modal BEFORE PIN/OTP if:
-    //   (a) risk score > 75, OR
-    //   (b) recipient is unknown to contacts AND amount is ≥ ₹2000
-    const { inContacts, inHistory } = getRecipientInfo();
-    const isUnknownContact = !inContacts && !inHistory;
-    const shouldShowOOB = riskData.score > 75 || (isUnknownContact && parsedAmt >= 2000);
-    if (shouldShowOOB) {
-      setShowOOBModal(true);
-      return; // halt here — user must explicitly choose to proceed or cancel
-    }
-    // === End Out-of-Band Verification Feature ===
-
     // ===== NEW: Show smart delay if high-value transaction =====
     if (riskData.requiresDelay) {
       setShowSmartDelay(true);
@@ -2659,11 +2659,10 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
   }
 
   function handleOTPSuccess(otp) {
-    // Store OTP for confirm step (Phase 2E)
-    const val = otp || (typeof otp==="string"?otp:null);
-    if(val) setRiskData(prev=>({...prev, otpValue: val}));
-    // Slight delay to ensure state updated before confirm
-    setTimeout(()=>completePayment(), 50);
+    const val = typeof otp === "string" && otp.length === 6 ? otp : null;
+    if (!val) return;
+    setRiskData(prev=>({...prev, otpValue: val}));
+    completePayment(val);
   }
 
   const [reportModal, setReportModal] = useState(null); // null | target number
@@ -2708,7 +2707,7 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
     setStage("form");
   }
 
-  async function completePayment(){
+  async function completePayment(otpOverride=null){
     const a = parsedAmt;
     const { targetNum, name } = getRecipientInfo();
     // Phase 2G: authoritative backend — prepare was already done in analyzeRisk, now confirm.
@@ -2721,7 +2720,7 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
     }
     // Authenticated confirm
     try{
-      const otpVal = riskData.otpValue || null; // set when OTP verified
+      const otpVal = otpOverride || riskData.otpValue || null;
       const hdr = getAuthHeader();
       const res = await fetch(`${API}/transactions/confirm`, {method:"POST", headers:{...hdr, "Content-Type":"application/json"}, body: JSON.stringify({transaction_id: preparedId, otp: otpVal})});
       const data = await res.json().catch(()=>({}));
@@ -2861,17 +2860,6 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
         </Modal>
       )}
 
-      {/* === Out-of-Band Verification Feature: modal rendered before PIN/OTP === */}
-      {showOOBModal && (
-        <OutOfBandVerificationModal
-          recipientName={getRecipientInfo().name || recipient}
-          recipientNum={getRecipientInfo().targetNum || recipient}
-          inContacts={getRecipientInfo().inContacts}
-          onProceed={handleOOBProceed}
-          onCancel={handleOOBCancel}
-        />
-      )}
-      {/* === End Out-of-Band Verification Feature === */}
       {reportModal && (
         <ReportReasonModal
           onSelect={completeReport}
@@ -2896,7 +2884,7 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
 
       <PageHeader
         title="Send Money"
-        subtitle="Every transfer is AI-analyzed for fraud in real-time"
+        subtitle="A quick security check helps keep your payment safe"
         onBack={() => setPage("dashboard")}
       />
 

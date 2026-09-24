@@ -664,14 +664,13 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
     //   (b) recipient is unknown to contacts AND amount is ≥ ₹2000
     const { inContacts, inHistory } = getRecipientInfo();
     const isUnknownContact = !inContacts && !inHistory;
-    // Removed OOB Modal trigger to streamline flow
-    /*
-    const shouldShowOOB = riskData.score > 75 || (isUnknownContact && parsedAmt >= 2000);
-    if (shouldShowOOB) {
-      setShowOOBModal(true);
-      return; // halt here — user must explicitly choose to proceed or cancel
-    }
-    */
+
+    // OOB Modal trigger removed to streamline flow
+    // const shouldShowOOB = riskData.score > 75 || (isUnknownContact && parsedAmt >= 2000);
+    // if (shouldShowOOB) {
+    //   setShowOOBModal(true);
+    //   return;
+    // }
     // === End Out-of-Band Verification Feature ===
 
     // ===== NEW: Show smart delay if high-value transaction =====
@@ -705,8 +704,9 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
   }
 
   function handleOTPSuccess(otp) {
+    if (typeof otp !== "string" || otp.length !== 6) return;
     setRiskData(prev => ({ ...prev, otpValue: otp }));
-    completePayment();
+    completePayment(otp);
   }
 
   const [reportModal, setReportModal] = useState(null); // null | target number
@@ -751,7 +751,7 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
     setStage("form");
   }
 
-  async function completePayment(){
+  async function completePayment(otpOverride=null){
     const a = parsedAmt;
     const { date, time } = nowStamp();
     const { targetNum, name } = getRecipientInfo();
@@ -767,7 +767,7 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
       const res = await fetch(`${API}/transactions/confirm`, {
         method: "POST",
         headers: {...hdr, "Content-Type": "application/json"},
-        body: JSON.stringify({transaction_id: riskData.transaction_id || riskData.preparedId, otp: riskData.otpValue || null})
+        body: JSON.stringify({transaction_id: riskData.transaction_id || riskData.preparedId, otp: otpOverride || riskData.otpValue || null})
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok && !data.duplicate) throw new Error(data.error || data.detail || "Transaction confirmation failed.");
@@ -785,7 +785,7 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
         note: note || "Payment",
         isNew: true,
         risk_tag: (data.risk_tier || riskData.tier || "normal").toLowerCase(),
-        otp_used: !!riskData.otpValue
+        otp_used: !!(otpOverride || riskData.otpValue)
       };
       addTx(confirmedTx);
       setLastTx(confirmedTx);
@@ -993,17 +993,6 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
         </Modal>
       )}
 
-      {/* === Out-of-Band Verification Feature: modal rendered before PIN/OTP === */}
-      {showOOBModal && (
-        <OutOfBandVerificationModal
-          recipientName={getRecipientInfo().name || recipient}
-          recipientNum={getRecipientInfo().targetNum || recipient}
-          inContacts={getRecipientInfo().inContacts}
-          onProceed={handleOOBProceed}
-          onCancel={handleOOBCancel}
-        />
-      )}
-      {/* === End Out-of-Band Verification Feature === */}
       {reportModal && (
         <ReportReasonModal
           onSelect={completeReport}

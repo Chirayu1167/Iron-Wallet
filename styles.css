@@ -363,3 +363,143 @@ hr{border:0!important;border-top:1px solid var(--iron-border)!important;}
 @media(prefers-reduced-motion:reduce){
   *,*:before,*:after{animation-duration:.001ms!important;transition-duration:.001ms!important;}
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CONSUMER FINTECH REDESIGN
+   Presentation-only overrides. Payment preparation, confirmation, OTP,
+   fraud analysis, and security data remain unchanged.
+═══════════════════════════════════════════════════════════════════════ */
+:root{
+  --iron-bg:#F7F8FA;
+  --iron-surface:#FFFFFF;
+  --iron-elevated:#FFFFFF;
+  --iron-border:#E5E7EB;
+  --iron-orange:#FF6B00;
+  --iron-orange-hi:#e85f00;
+  --iron-text:#111827;
+  --iron-muted:#667085;
+  --iron-safe:#16A34A;
+  --iron-caution:#EAB308;
+  --iron-risk:#DC2626;
+  --iron-info:#475467;
+  --shadow-sm:0 1px 2px rgba(16,24,40,.04);
+  --shadow-md:0 8px 24px rgba(16,24,40,.07);
+}
+
+html,body,#root,#root>div{
+  background:var(--iron-bg)!important;
+  color:var(--iron-text)!important;
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif!important;
+}
+body{letter-spacing:0!important;}
+#main-content{background:var(--iron-bg)!important;}
+h1,h2,h3,h4{color:var(--iron-text)!important;font-family:'Inter',sans-serif!important;letter-spacing:-.025em!important;}
+p,span,label,td,th{color:inherit;}
+.font-serif{font-family:'Inter',sans-serif!important;}
+.page-pad{max-width:1180px!important;padding:32px clamp(18px,4vw,48px) 120px!important;}
+
+/* Neutralize legacy cyber surfaces and gradients without changing behavior. */
+#root>div[style*="background-image"]{
+  background-image:none!important;background-color:var(--iron-bg)!important;
+}
+#root>div[style*="background-image"]>div[style*="rgba(11,18,29"]{
+  display:none!important;
+}
+#main-content [style*="linear-gradient"],
+#main-content [style*="radial-gradient"]{
+  background-image:none!important;
+}
+.glass{
+  background:#fff!important;
+  color:var(--iron-text)!important;
+  border:1px solid var(--iron-border)!important;
+  border-radius:12px!important;
+  box-shadow:var(--shadow-sm)!important;
+}
+.glass:hover,.hover-lift:hover{
+  border-color:#d0d5dd!important;
+  box-shadow:var(--shadow-md)!important;
+}
+
+.btn-primary,.btn-primary:hover:not(:disabled){
+  background:var(--iron-orange)!important;
+  border:1px solid var(--iron-orange)!important;
+  color:#fff!important;
+  border-radius:8px!important;
+  box-shadow:none!important;
+  letter-spacing:0!important;
+  text-transform:none!important;
+}
+.btn-primary:hover:not(:disabled){background:var(--iron-orange-hi)!important;}
+button:not(.dock-item){letter-spacing:0!important;text-transform:none!important;}
+input,select,textarea{
+  background:#fff!important;color:var(--iron-text)!important;
+  border:1px solid var(--iron-border)!important;border-radius:8px!important;
+}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--iron-orange)!important;
+  box-shadow:0 0 0 3px rgba(255,107,0,.12)!important;
+}
+input::placeholder,textarea::placeholder{color:#98A2B3!important;}
+
+/* Login / authentication */
+#root>div[style*="background-image"] .glass{
+  border-radius:16px!important;box-shadow:0 16px 40px rgba(16,24,40,.1)!important;
+}
+#root>div[style*="background-image"] h1{color:var(--iron-text)!important;}
+#root>div[style*="background-image"] h1+ p{color:var(--iron-orange)!important;}
+
+/* Dashboard surfaces */
+#main-content [style*="background: rgb(27, 38, 59)"],
+#main-content [style*="background:#1B263B"]{
+  background:#fff!important;color:var(--iron-text)!important;
+  border:1px solid var(--iron-border)!important;border-radius:14px!important;
+  box-shadow:var(--shadow-sm)!important;
+}
+#main-content [style*="color: rgb(253, 252, 251)"],
+#main-content [style*="color:#FDFCFB"]{color:var(--iron-text)!important;}
+#main-content [style*="color: rgba(255,255,255"],
+#main-content [style*="color:rgba(255,255,255"]{color:var(--iron-muted)!important;}
+
+/* Orange is reserved for primary actions and selected navigation. */
+.dock-pill{
+  background:#fff!important;border:1px solid var(--iron-border)!important;
+  border-radius:14px!important;box-shadow:0 8px 24px rgba(16,24,40,.1)!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+}
+.dock-item{color:var(--iron-muted)!important;border-radius:8px!important;}
+.dock-item:hover{transform:none!important;color:var(--iron-text)!important;}
+.dock-item.active{color:var(--iron-orange)!important;}
+.dock-item.active .dock-icon-wrap{
+  background:rgba(255,107,0,.1)!important;box-shadow:none!important;
+}
+
+.svc-card{
+  background:#fff!important;border:1px solid var(--iron-border)!important;
+  border-radius:10px!important;color:var(--iron-text)!important;
+}
+.svc-card:hover{background:#fff!important;border-color:rgba(255,107,0,.45)!important;}
+.pt-toast{
+  background:#111827!important;color:#fff!important;border:0!important;
+  border-radius:10px!important;box-shadow:0 10px 28px rgba(16,24,40,.2)!important;
+}
+.quick-reply-btn{background:#fff!important;border:1px solid var(--iron-border)!important;color:var(--iron-text)!important;border-radius:8px!important;}
+.quick-reply-btn:hover{background:#fff7ed!important;color:var(--iron-orange)!important;border-color:#fed7aa!important;box-shadow:none!important;}
+
+/* Keep risk language calm and grounded in the payment flow. */
+.risk-tag,.ins-chip{border-radius:8px!important;}
+#modal-root>div{background:rgba(17,24,39,.35)!important;backdrop-filter:blur(3px)!important;}
+#modal-root .glass{background:#fff!important;border-radius:14px!important;}
+table{color:var(--iron-text)!important;}
+th{background:#F9FAFB!important;color:#667085!important;font-family:'Inter',sans-serif!important;letter-spacing:0!important;}
+td{border-bottom:1px solid var(--iron-border)!important;}
+tr:hover td{background:#F9FAFB!important;}
+hr{border-top-color:var(--iron-border)!important;}
+
+@media(max-width:768px){
+  .page-pad{padding:22px 16px 112px!important;}
+  .dock-pill{left:10px!important;right:10px!important;bottom:10px!important;border-radius:14px!important;}
+  .dock-item{padding:5px 4px!important;}
+  .dock-item .dock-icon-wrap{width:32px!important;height:30px!important;}
+  .page-pad [style*="grid-template-columns: 1fr 1fr"]{grid-template-columns:1fr!important;}
+}

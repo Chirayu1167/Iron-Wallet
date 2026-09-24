@@ -24,7 +24,6 @@ function OTPModal({mobile,onSuccess,onCancel}){
     const v=e.target.value.replace(/\D/,"");
     const d=[...digits];d[i]=v;setDigits(d);
     if(v&&i<5)refs[i+1].current&&refs[i+1].current.focus();
-    if(d.every(x=>x))submit(d.join(""));
   }
   function bk(i,e){
     if(e.key==="Backspace"&&!digits[i]&&i>0){
@@ -70,7 +69,7 @@ function OTPModal({mobile,onSuccess,onCancel}){
         position:"fixed",top:0,left:0,width:"100%",height:"100%",zIndex:9999,
         display:"flex",alignItems:"center",justifyContent:"center",
         padding:"20px",boxSizing:"border-box",
-        background:"rgba(10,25,70,.65)",backdropFilter:"blur(8px)",WebkitBackdropFilter:"blur(8px)"}}>
+        background:"rgba(10,25,70,.65)",backdropFilter:"blur(8px)",WebkitBackdropFilter:"blur(8px"}}>
         <div style={{background:"#fff",borderRadius:24,width:"100%",maxWidth:380,
           boxShadow:"0 32px 80px rgba(0,0,0,.28)",animation:"scaleIn .28s cubic-bezier(.16,1,.3,1)",
           overflow:"hidden",flexShrink:0}}>
@@ -100,6 +99,9 @@ function OTPModal({mobile,onSuccess,onCancel}){
               </div>
               {error&&<p style={{color:"#dc2626",textAlign:"center",fontSize:13,marginBottom:10,fontWeight:600}}>{errMsg}</p>}
               {loading&&<p style={{textAlign:"center",fontSize:13,color:"#0078FF",marginBottom:10,fontWeight:600,animation:"pulse 1s infinite"}}>Verifying…</p>}
+              <Btn onClick={()=>submit(digits.join(""))} disabled={loading||digits.some(d=>!d)} fullWidth>
+                {loading ? "Verifying…" : "Verify OTP"}
+              </Btn>
               <div style={{textAlign:"center",color:"#94a3b8",fontSize:13,marginBottom:16}}>
                 {resend
                   ?<button onClick={resendOTP} style={{background:"none",border:"none",color:"#0078FF",
