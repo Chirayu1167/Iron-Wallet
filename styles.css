@@ -507,6 +507,21 @@ input::placeholder,textarea::placeholder{color:#98A2B3!important;}
   background:rgba(255,107,0,.1)!important;box-shadow:none!important;
 }
 
+.balance-highlight{
+  background:#FFF1E8!important;
+  border:1px solid #FFD2B3!important;
+  box-shadow:0 8px 24px rgba(255,107,0,.08)!important;
+}
+.balance-highlight .balance-amt{color:#111827!important;}
+.balance-highlight [style*="Available Balance"]{color:#667085!important;}
+.send-balance-highlight{
+  background:#FFF7ED!important;
+  border:1px solid #FED7AA!important;
+  box-shadow:none!important;
+}
+.send-balance-highlight [style*="Available Balance"]{color:#9A3412!important;}
+.send-balance-highlight [style*="fontSize:22"]{color:#111827!important;}
+
 .svc-card{
   background:#fff!important;border:1px solid var(--iron-border)!important;
   border-radius:10px!important;color:var(--iron-text)!important;

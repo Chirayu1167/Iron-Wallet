@@ -389,6 +389,31 @@ def _resolve_history_for_user(phone: str, limit: int = 50) -> List[Dict[str, Any
     except Exception:
         return []
 
+def _build_user_risk_profile(phone: str, history: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Build amount baselines from this account, never from a global default."""
+    amounts = []
+    for tx in history:
+        try:
+            amount = float(tx.get("amount", 0) or 0)
+            if amount > 0 and str(tx.get("status", "")).upper() not in {"PENDING", "CANCELLED", "FAILED"}:
+                amounts.append(amount)
+        except (TypeError, ValueError):
+            continue
+    if not amounts:
+        return {"user_id": phone, "avg_amount": 1000.0, "daily_avg_spend": 3000.0, "history_count": 0}
+    # A trimmed mean prevents one exceptional payment from redefining the user.
+    ordered = sorted(amounts)
+    trim = int(len(ordered) * 0.1) if len(ordered) >= 10 else 0
+    baseline = ordered[trim:len(ordered) - trim] if trim else ordered
+    avg_amount = sum(baseline) / len(baseline)
+    daily_total = sum(amounts)
+    return {
+        "user_id": phone,
+        "avg_amount": avg_amount,
+        "daily_avg_spend": max(daily_total / max(len(amounts), 1) * 3, avg_amount),
+        "history_count": len(amounts),
+    }
+
 def _parse_history_epochs(history: List[Dict[str, Any]]) -> List[float]:
     out = []
     for h in history:
@@ -842,7 +867,7 @@ def _get_risk_for_transaction(phone: str, tx: Dict[str, Any]) -> Dict[str, Any]:
             txn_dict["day_of_week"] = dow_map[wday]
             txn_dict["is_weekend"] = 1 if wday>=5 else 0
     except: pass
-    user_profile = {"user_id": phone, "avg_amount": 1000, "daily_avg_spend": 3000}
+    user_profile = _build_user_risk_profile(phone, history)
     return _compute_unified_risk(phone, txn_dict, history, user_profile)
 
 def _publish_live_event(phone: str, event_type: str, data: Dict[str, Any]):
@@ -1369,7 +1394,7 @@ def intel_fraud(user_id: str = Query("", description="user phone"), current: Opt
         raise HTTPException(status_code=422, detail="user_id required")
     history = _resolve_history_for_user(phone, limit=50)
     txn = {"user_id": phone, "amount": 500, "merchant_name": "9158763151", "note": "", "device_familiarity": 1.0, "location_familiarity": 1.0, "balance_before": 10000, "hour_of_day": 12}
-    user_profile = {"user_id": phone, "avg_amount": 1000, "daily_avg_spend": 3000}
+    user_profile = _build_user_risk_profile(phone, history)
     result = _build_fraud_result(txn, history, user_profile, 30)
     return JSONResponse(content=result)
 
@@ -1618,7 +1643,7 @@ def transactions_prepare(data: TransactionPrepareIn, request: Request, current: 
     # Build txn for risk
     txn_dict, history = _build_txn_for_risk(phone, data.recipient, float(data.amount), data.note or "", data.device_familiarity, data.location_familiarity, data.hour_of_day)
     # Override note etc already
-    user_profile = {"user_id": phone, "avg_amount": 1000, "daily_avg_spend": 3000}
+    user_profile = _build_user_risk_profile(phone, history)
     try:
         unified = _compute_unified_risk(phone, txn_dict, history, user_profile)
     except HTTPException as he:
@@ -2515,7 +2540,7 @@ def risk_simulate(req: SimulateRequest, request: Request, current: Dict[str, Any
     curr_txn, curr_hist = _build_txn_for_risk(phone, "9158763151", 500, "", 1.0, 1.0, 12)
     curr_hist = _resolve_history_for_user(phone, limit=50)
     # Use normal profile
-    user_profile = {"user_id": phone, "avg_amount": 1000, "daily_avg_spend": 3000}
+    user_profile = _build_user_risk_profile(phone, history)
     try:
         curr_risk = _compute_unified_risk(phone, curr_txn, curr_hist, user_profile)
     except:
@@ -2697,7 +2722,7 @@ async def assistant(req: AssistantRequest, request: Request):
     try:
         async with httpx.AsyncClient(timeout=20.0) as client:
             resp = await client.post(
-                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}",
+                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}",
                 json=payload,
                 headers={"Content-Type":"application/json"},
             )

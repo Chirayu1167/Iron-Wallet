@@ -461,10 +461,6 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
     const _secRisk = Math.min(_vpnRisk + _srRisk, 35);
 
     // -- Security monitor signals --
-    const _sec     = window._ironWalletSecurity || {};
-    const _vpnRisk = _sec.vpn && _sec.vpn.detected   ? (_sec.vpn.riskScore   || 20) : 0;
-    const _srRisk  = _sec.screenRecording && _sec.screenRecording.detected ? (_sec.screenRecording.riskScore || 15) : 0;
-    const _secRisk = Math.min(_vpnRisk + _srRisk, 35);
 
     setStage("analyzing");
     setProg(0);
@@ -607,7 +603,7 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
         console.log("[IronWallet WS] 🚨 fraud_alert emitted, score:", totalRisk);
       }
       // ─────────────────────────────────────────────────────────────────
-    }, 1600);
+    }, 0);
   }
 
   async function handleVerify(){
@@ -1043,7 +1039,7 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
 
       {(stage==="form"||stage==="analyzing")&&(
         <Card style={{padding:24}}>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",
+          <div className="send-balance-highlight" style={{display:"flex",alignItems:"center",justifyContent:"space-between",
             padding:"14px 16px",background:`linear-gradient(135deg,#0078FF,#0055cc)`,
             borderRadius:14,marginBottom:22,boxShadow:"0 6px 18px rgba(0,120,255,.22)"}}>
             <div>
@@ -1225,13 +1221,13 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
             </div>
           )}
 
-          <button onClick={analyzeRisk} disabled={!isFormReady||stage==="analyzing"}
+          <button onClick={analyzeRisk} disabled={stage==="analyzing"}
             className="btn-primary"
             style={{width:"100%",padding:"14px",fontSize:16,borderRadius:14,border:"none",
-              background:(!isFormReady||stage==="analyzing")?"#93c5fd":`linear-gradient(135deg,#0078FF,#0055cc)`,
+              background:(stage==="analyzing")?"#93c5fd":`linear-gradient(135deg,#0078FF,#0055cc)`,
               color:"#fff",fontWeight:700,
-              cursor:(!isFormReady||stage==="analyzing")?"not-allowed":"pointer",
-              boxShadow:(!isFormReady||stage==="analyzing")?"none":"0 6px 18px rgba(0,120,255,.28)"}}>
+              cursor:(stage==="analyzing")?"not-allowed":"pointer",
+              boxShadow:(stage==="analyzing")?"none":"0 6px 18px rgba(0,120,255,.28)"}}>
             {stage==="analyzing"?"Analyzing…":"Analyze & Send →"}
           </button>
         </Card>

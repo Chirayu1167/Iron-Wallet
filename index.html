@@ -1849,7 +1849,7 @@ function Dashboard({user,balance,txs,setPage,updateUser}){
       )}
 
       {/* ── Balance Card ── */}
-      <div style={{background:"#1B263B",borderRadius:8,padding:"28px 28px 24px",marginBottom:16,display:"flex",
+      <div className="balance-highlight" style={{background:"#1B263B",borderRadius:8,padding:"28px 28px 24px",marginBottom:16,display:"flex",
         justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:16,
         border:"none",position:"relative",overflow:"hidden"}}>
         <div style={{position:"absolute",top:-40,right:-40,width:180,height:180,borderRadius:"50%",background:"rgba(197,160,89,0.05)"}}/>
@@ -2574,7 +2574,7 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
         console.log("[IronWallet WS] 🚨 fraud_alert emitted, score:", totalRisk);
       }
       // ─────────────────────────────────────────────────────────────────
-    }, 1600);
+    }, 0);
     } catch (err) {
       console.error("[IronWallet] analyzeRisk crashed:", err);
       setBalErr(`Couldn't analyze: ${err && err.message ? err.message : String(err)}`);
@@ -2890,7 +2890,7 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
 
       {(stage==="form"||stage==="analyzing")&&(
         <Card style={{padding:24}}>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",
+          <div className="send-balance-highlight" style={{display:"flex",alignItems:"center",justifyContent:"space-between",
             padding:"14px 16px",background:`linear-gradient(135deg,#1B263B,#0F1E2E)`,
             borderRadius:6,marginBottom:22,boxShadow:"0 6px 18px rgba(0,120,255,.22)"}}>
             <div>
@@ -3076,13 +3076,13 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
             </div>
           )}
 
-          <button onClick={analyzeRisk} disabled={!isFormReady||stage==="analyzing"}
+          <button onClick={analyzeRisk} disabled={stage==="analyzing"}
             className="btn-primary"
             style={{width:"100%",padding:"14px",fontSize:16,borderRadius:6,border:"none",
-              background:(!isFormReady||stage==="analyzing")?"rgba(27,38,59,0.35)":`linear-gradient(135deg,#1B263B,#0F1E2E)`,
+              background:(stage==="analyzing")?"rgba(27,38,59,0.35)":`linear-gradient(135deg,#1B263B,#0F1E2E)`,
               color:"#fff",fontWeight:700,
-              cursor:(!isFormReady||stage==="analyzing")?"not-allowed":"pointer",
-              boxShadow:(!isFormReady||stage==="analyzing")?"none":"0 6px 18px rgba(0,120,255,.28)"}}>
+              cursor:(stage==="analyzing")?"not-allowed":"pointer",
+              boxShadow:(stage==="analyzing")?"none":"0 6px 18px rgba(0,120,255,.28)"}}>
             {stage==="analyzing"?"Analyzing…":"Analyze & Send →"}
           </button>
         </Card>
@@ -6920,7 +6920,7 @@ Use user's actual data above for personalized answers.`;
         const err = await response.json().catch(()=>({}));
         // Surface backend 429/503/504 with proper message instead of generic HTTP error
         const msg = err?.error || err?.message || `HTTP ${response.status}`;
-        if (response.status === 503) throw new Error(msg + " (demo mode — set GEMINI_API_KEY on server)");
+        if (response.status === 503) throw new Error(msg);
         if (response.status === 429) throw new Error("429 " + msg);
         if (response.status === 504) throw new Error(msg);
         throw new Error(msg);
