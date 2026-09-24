@@ -621,8 +621,9 @@ function OTPModal({mobile,onSuccess,onCancel}){
   }
   async function submit(code){
     // Admin user - skip OTP server call, accept constant OTP 000000
+    // (pass the code through so confirm sends it and backend marks OTP_SUCCESS)
     if (mobile === "1234567890" && code === "000000") {
-      onSuccess();
+      onSuccess("000000");
       return;
     }
     setLoad(true);
@@ -2646,8 +2647,8 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
   }
 
   function handlePINSuccess() {
-    // Admin accounts skip OTP — go straight to payment after PIN
-    if (user && user.isAdmin) { completePayment(); return; }
+    // OTP step applies to everyone on risky payments (admin enters 000000),
+    // so the OTP popup reliably appears after PIN.
     // The backend's prepared risk decision is authoritative for OTP.
     const requiresOTP = !!riskData.requires_otp || riskData.tier === 'high_risk';
     if (requiresOTP) {
@@ -3100,6 +3101,9 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
       )}
 
       {stage==="risk" && (
+        <Modal>
+        <div style={{width:"100%",maxWidth:480,maxHeight:"calc(100vh - 32px)",
+          overflowY:"auto",borderRadius:12,animation:"scaleIn .28s cubic-bezier(.16,1,.3,1)"}}>
         <>
           {/* ===== FEATURE 2: Behavioral Biometrics alert ===== */}
           {getBiometricRisk(user.number).risk >= 5 && (
@@ -3174,6 +3178,8 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
           )}
           </div>
         </>
+        </div>
+        </Modal>
       )}
       {stage==="popup" && (
         <Card style={{padding:0, marginBottom:18, border:`1px solid ${GOLD_BORDER}`, overflow:'hidden'}}>
