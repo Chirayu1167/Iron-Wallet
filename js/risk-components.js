@@ -1,7 +1,121 @@
 // js/risk-components.js — Phase 14: Risk visualization + Transaction detail + consistent UX
+// Phase 16: Attack Intelligence display (advisory, reuses backend signals).
+// Phase 17: Account Takeover Intelligence display (combination-based, advisory).
+// Phase 18: Scam Network & Campaign Intelligence display (existing data, advisory).
 // Simple readable presentation, no excessive gradients, serious security-focused.
 
-function RiskScoreCard({ score, tier, explanation, reasons, requires_otp }) {
+// Phase 16 — human labels + icons for attack types (frontend display only;
+// authoritative classification lives in backend RiskEngine).
+const ATTACK_META = {
+  FAKE_KYC_SUSPENSION: { label: "Fake KYC / Account Suspension", icon: "🛡️" },
+  IMPERSONATION: { label: "Impersonation", icon: "🎭" },
+  FAKE_REFUND_REWARD: { label: "Fake Refund / Reward", icon: "🎁" },
+  INVESTMENT_LOAN_SCAM: { label: "Investment / Loan Scam", icon: "📈" },
+  REMOTE_ACCESS: { label: "Remote Access", icon: "🖥️" },
+  OTP_HARVESTING: { label: "OTP Harvesting", icon: "🔑" },
+  PAYMENT_ANOMALY: { label: "Payment Anomaly", icon: "⚡" },
+  ACCOUNT_THREAT: { label: "Account-related threats", icon: "👤" },
+  NONE: { label: "No attack detected", icon: "✅" },
+};
+
+function AttackIntelBadge({ attack_type, attack_category, attack_confidence, attack_detail, compact }) {
+  const t = attack_type || attack_detail?.attack_type || "NONE";
+  if (!t || t === "NONE") {
+    if (compact) return null;
+    return (
+      <div style={{ marginTop:10, padding:"8px 10px", background:"#f0fdf4", border:"1px solid #bbf7d0", borderRadius:6, fontSize:12, color:"#166534" }}>
+        ✅ No known attack pattern detected
+      </div>
+    );
+  }
+  const meta = ATTACK_META[t] || { label: t.replace(/_/g," ").toLowerCase(), icon:"⚠️" };
+  const cat = attack_category || attack_detail?.attack_category || "";
+  const conf = attack_confidence ?? attack_detail?.attack_confidence ?? null;
+  const sigIds = attack_detail?.signal_ids || [];
+  return (
+    <div style={{ marginTop:10, padding:"10px 12px", background:"#fffbeb", border:"1px solid #fcd34d", borderRadius:6 }}>
+      <div style={{ fontSize:11, fontWeight:800, color:"#92400e", textTransform:"uppercase", letterSpacing:.4 }}>Attack Intelligence</div>
+      <div style={{ fontSize:13, fontWeight:800, color:"#0f172a", marginTop:4 }}>{meta.icon} {meta.label}</div>
+      <div style={{ fontSize:11, color:"#64748b", marginTop:2 }}>
+        {cat ? <span>Category: <b>{cat}</b></span> : null}
+        {conf !== null && conf !== undefined ? <span> • Confidence: <b>{Math.round(conf*100)}%</b></span> : null}
+      </div>
+      {attack_detail?.description ? <div style={{ fontSize:12, color:"#475569", marginTop:4 }}>{attack_detail.description}</div> : null}
+      {sigIds.length>0 && !compact ? <div style={{ fontSize:11, color:"#64748b", marginTop:6 }}>Evidence: {sigIds.slice(0,4).join(", ")}{sigIds.length>4 ? ` +${sigIds.length-4} more` : ""}</div> : null}
+      <div style={{ fontSize:11, color:"#92400e", marginTop:4 }}>Advisory only — you can still proceed after verification.</div>
+    </div>
+  );
+}
+
+function AccountTakeoverBadge({ detected, confidence, signal_ids, detail, compact }) {
+  // Phase 17 — combination-based takeover display (frontend only; authoritative
+  // detection lives in backend RiskEngine). Hidden when not detected unless
+  // compact is false and caller wants the reassuring state — keep minimal:
+  // render nothing when not detected in compact mode, subtle line otherwise.
+  if (!detected) {
+    if (compact) return null;
+    return null;
+  }
+  const sigIds = signal_ids || detail?.signal_ids || [];
+  return (
+    <div style={{ marginTop:10, padding:"10px 12px", background:"#fef2f2", border:"1px solid #fca5a5", borderRadius:6 }}>
+      <div style={{ fontSize:11, fontWeight:800, color:"#991b1b", textTransform:"uppercase", letterSpacing:.4 }}>Account Takeover Risk</div>
+      <div style={{ fontSize:13, fontWeight:800, color:"#0f172a", marginTop:4 }}>🔐 Possible account takeover</div>
+      <div style={{ fontSize:11, color:"#64748b", marginTop:2 }}>
+        {confidence !== null && confidence !== undefined ? <span>Confidence: <b>{Math.round(confidence*100)}%</b></span> : null}
+      </div>
+      {detail?.explanation ? <div style={{ fontSize:12, color:"#475569", marginTop:4 }}>{detail.explanation}</div> : null}
+      {sigIds.length>0 && !compact ? <div style={{ fontSize:11, color:"#64748b", marginTop:6 }}>Evidence: {sigIds.slice(0,4).join(", ")}{sigIds.length>4 ? ` +${sigIds.length-4} more` : ""}</div> : null}
+      <div style={{ fontSize:11, color:"#991b1b", marginTop:4 }}>Advisory only — verify via OTP. You can still proceed.</div>
+    </div>
+  );
+}
+
+const NETWORK_META = {
+  REPORTED_RECIPIENT_NETWORK: { label: "Reported recipient network", icon: "🕸️" },
+  SHARED_HANDLE_CAMPAIGN: { label: "Shared handle campaign", icon: "🔗" },
+  REPEATED_ATTACK_CAMPAIGN: { label: "Repeated attack campaign", icon: "🔁" },
+  RECIPIENT_REPEAT_CLUSTER: { label: "Repeat recipient cluster", icon: "👥" },
+  NONE: { label: "No network pattern", icon: "✅" },
+};
+
+function ScamNetworkBadge({ detected, confidence, network_type, signal_ids, detail, compact }) {
+  // Phase 18 — existing-data network display (frontend only; authoritative
+  // detection lives in backend RiskEngine). Render nothing when not detected.
+  if (!detected) return null;
+  const meta = NETWORK_META[network_type] || { label: (network_type || "").replace(/_/g, " ").toLowerCase(), icon: "🕸️" };
+  const sigIds = signal_ids || detail?.signal_ids || [];
+  return (
+    <div style={{ marginTop:10, padding:"10px 12px", background:"#f5f3ff", border:"1px solid #c4b5fd", borderRadius:6 }}>
+      <div style={{ fontSize:11, fontWeight:800, color:"#5b21b6", textTransform:"uppercase", letterSpacing:.4 }}>Scam Network Intelligence</div>
+      <div style={{ fontSize:13, fontWeight:800, color:"#0f172a", marginTop:4 }}>{meta.icon} {meta.label}</div>
+      <div style={{ fontSize:11, color:"#64748b", marginTop:2 }}>
+        {confidence !== null && confidence !== undefined ? <span>Confidence: <b>{Math.round(confidence*100)}%</b></span> : null}
+      </div>
+      {detail?.explanation ? <div style={{ fontSize:12, color:"#475569", marginTop:4 }}>{detail.explanation}</div> : null}
+      {sigIds.length>0 && !compact ? <div style={{ fontSize:11, color:"#64748b", marginTop:6 }}>Evidence: {sigIds.slice(0,4).join(", ")}{sigIds.length>4 ? ` +${sigIds.length-4} more` : ""}</div> : null}
+      <div style={{ fontSize:11, color:"#5b21b6", marginTop:4 }}>Advisory only — you can still proceed after verification.</div>
+    </div>
+  );
+}
+
+function RiskScoreCard({ score, tier, explanation, reasons, requires_otp, attack_type, attack_category, attack_confidence, attack_detail, risk, account_threat_detected, account_threat_confidence, account_threat_signal_ids, account_takeover_detail, network_threat_detected, network_confidence, network_type, network_signal_ids, network_detail }) {
+  // Phase 16: accept attack fields directly or via `risk` / explanation_detail.
+  const atkType = attack_type || risk?.attack_type || risk?.explanation_detail?.attack_type || risk?.attack_detail?.attack_type || "NONE";
+  const atkCat = attack_category || risk?.attack_category || risk?.explanation_detail?.attack_category || risk?.attack_detail?.attack_category || "NONE";
+  const atkConf = attack_confidence ?? risk?.attack_confidence ?? risk?.explanation_detail?.attack_confidence ?? risk?.attack_detail?.attack_confidence ?? null;
+  const atkDetail = attack_detail || risk?.attack_detail || risk?.explanation_detail?.attack || null;
+  // Phase 17: accept takeover fields directly or via `risk` / explanation_detail.
+  const atoDetail = account_takeover_detail || risk?.account_takeover_detail || risk?.explanation_detail?.account_takeover || null;
+  const atoDetected = account_threat_detected ?? risk?.account_threat_detected ?? risk?.explanation_detail?.account_threat_detected ?? atoDetail?.account_threat_detected ?? false;
+  const atoConf = account_threat_confidence ?? risk?.account_threat_confidence ?? risk?.explanation_detail?.account_threat_confidence ?? atoDetail?.account_threat_confidence ?? null;
+  const atoSigIds = account_threat_signal_ids || risk?.account_threat_signal_ids || risk?.explanation_detail?.account_threat_signal_ids || atoDetail?.signal_ids || [];
+  // Phase 18: accept network fields directly or via `risk` / explanation_detail.
+  const netDetail = network_detail || risk?.network_detail || risk?.explanation_detail?.scam_network || null;
+  const netDetected = network_threat_detected ?? risk?.network_threat_detected ?? risk?.explanation_detail?.network_threat_detected ?? netDetail?.network_threat_detected ?? false;
+  const netConf = network_confidence ?? risk?.network_confidence ?? risk?.explanation_detail?.network_confidence ?? netDetail?.network_confidence ?? null;
+  const netType = network_type || risk?.network_type || risk?.explanation_detail?.network_type || netDetail?.network_type || "NONE";
+  const netSigIds = network_signal_ids || risk?.network_signal_ids || risk?.explanation_detail?.network_signal_ids || netDetail?.signal_ids || [];
   const meta = riskMeta(score) || riskMetaIron(score);
   const tierColor = tier==="HIGH_RISK" ? "#991b1b" : tier==="CAUTION" ? "#92400e" : "#166534";
   const tierBg = tier==="HIGH_RISK" ? "#fef2f2" : tier==="CAUTION" ? "#fef3c7" : "#dcfce7";
@@ -27,6 +141,9 @@ function RiskScoreCard({ score, tier, explanation, reasons, requires_otp }) {
         {tier==="HIGH_RISK" && "High-risk payment — This payment has multiple risk signals. Verify with OTP to continue. You can still proceed."}
       </div>
       {explanation && <div style={{ marginTop:8, fontSize:12, color:"#475569", fontStyle:"italic" }}>{explanation}</div>}
+      <AttackIntelBadge attack_type={atkType} attack_category={atkCat} attack_confidence={atkConf} attack_detail={atkDetail} />
+      <AccountTakeoverBadge detected={atoDetected} confidence={atoConf} signal_ids={atoSigIds} detail={atoDetail} />
+      <ScamNetworkBadge detected={netDetected} confidence={netConf} network_type={netType} signal_ids={netSigIds} detail={netDetail} />
       {reasons && reasons.length>0 && (
         <div style={{ marginTop:12 }}>
           <div style={{ fontSize:11, fontWeight:800, color:"#1B263B", marginBottom:6 }}>Why?</div>
@@ -75,6 +192,21 @@ function TransactionDetailCard({ tx, risk, onClose }) {
   const score = risk?.score ?? tx?.risk ?? tx?.risk_score ?? 0;
   const tier = risk?.tier ?? tx?.risk_tier ?? (score>=85?"HIGH_RISK": score>=70?"CAUTION":"SAFE");
   const reasons = risk?.explanation_detail?.reasons || risk?.reasons || [];
+  const atkDetailTx = risk?.attack_detail || risk?.explanation_detail?.attack || null;
+  const atkTypeTx = risk?.attack_type || risk?.explanation_detail?.attack_type || atkDetailTx?.attack_type || "NONE";
+  const atkCatTx = risk?.attack_category || risk?.explanation_detail?.attack_category || atkDetailTx?.attack_category || "NONE";
+  const atkConfTx = risk?.attack_confidence ?? risk?.explanation_detail?.attack_confidence ?? atkDetailTx?.attack_confidence ?? null;
+  // Phase 17: takeover fields via risk / explanation_detail.
+  const atoDetailTx = risk?.account_takeover_detail || risk?.explanation_detail?.account_takeover || null;
+  const atoDetectedTx = risk?.account_threat_detected ?? risk?.explanation_detail?.account_threat_detected ?? atoDetailTx?.account_threat_detected ?? false;
+  const atoConfTx = risk?.account_threat_confidence ?? risk?.explanation_detail?.account_threat_confidence ?? atoDetailTx?.account_threat_confidence ?? null;
+  const atoSigIdsTx = risk?.account_threat_signal_ids || risk?.explanation_detail?.account_threat_signal_ids || atoDetailTx?.signal_ids || [];
+  // Phase 18: network fields via risk / explanation_detail.
+  const netDetailTx = risk?.network_detail || risk?.explanation_detail?.scam_network || null;
+  const netDetectedTx = risk?.network_threat_detected ?? risk?.explanation_detail?.network_threat_detected ?? netDetailTx?.network_threat_detected ?? false;
+  const netConfTx = risk?.network_confidence ?? risk?.explanation_detail?.network_confidence ?? netDetailTx?.network_confidence ?? null;
+  const netTypeTx = risk?.network_type || risk?.explanation_detail?.network_type || netDetailTx?.network_type || "NONE";
+  const netSigIdsTx = risk?.network_signal_ids || risk?.explanation_detail?.network_signal_ids || netDetailTx?.signal_ids || [];
   const verification = tx?.otp_used ? "OTP verified" : (risk?.requires_otp ? "OTP required" : "PIN verified");
   const status = tx?.status || "SUCCESS";
   return (
@@ -99,6 +231,9 @@ function TransactionDetailCard({ tx, risk, onClose }) {
               {reasons.slice(0,3).map((r,i)=><li key={i} style={{ fontSize:12, color:"#334155" }}>{r.title || r.description || r}</li>)}
             </ul>
           )}
+          <AttackIntelBadge attack_type={atkTypeTx} attack_category={atkCatTx} attack_confidence={atkConfTx} attack_detail={atkDetailTx} compact={false} />
+          <AccountTakeoverBadge detected={atoDetectedTx} confidence={atoConfTx} signal_ids={atoSigIdsTx} detail={atoDetailTx} compact={false} />
+          <ScamNetworkBadge detected={netDetectedTx} confidence={netConfTx} network_type={netTypeTx} signal_ids={netSigIdsTx} detail={netDetailTx} compact={false} />
         </div>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:12 }}>
           <div style={{ padding:10, background:"#f8fafc", border:"1px solid #E0E1DD", borderRadius:6 }}>

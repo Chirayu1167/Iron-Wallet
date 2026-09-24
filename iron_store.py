@@ -316,6 +316,7 @@ def confirm_transaction_atomic(phone: str, tx_id: str, expected_amount: float) -
             if time.time() > exp:
                 cur.execute("UPDATE transactions SET status=?, outcome=? WHERE transaction_id=?", ("FAILED", "FAILED_VALIDATION", tx_id))
                 conn.commit()
+                conn.close()
                 return {"ok": False, "error": "expired preparation"}
         except: pass
         # Check balance
@@ -822,6 +823,33 @@ def seed_transactions_if_needed():
             conn.commit()
             conn.close()
     return True
+
+# ── Scheduled maintenance (keep-alive repair job) ─────────────────────────────
+# Called periodically by the otp_server background repair loop
+# (PrepHire-style scheduled job: render.yaml healthCheck + cron cleanup).
+# - Marks expired unconfirmed preparations (PENDING/PREPARED past expires_at)
+#   as FAILED/EXPIRED so history never shows stale pending rows.
+#   Confirm-time logic treats these as expired, never as payable.
+# - Sweeps expired auth sessions (also deleted lazily on access).
+# Read-only otherwise: never touches balances or confirmed transactions.
+
+def run_maintenance() -> Dict[str, Any]:
+    now_s = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    conn = _conn()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "UPDATE transactions SET status='FAILED', outcome='EXPIRED' "
+            "WHERE status='PENDING' AND outcome='PREPARED' AND expires_at < ?",
+            (now_s,),
+        )
+        expired_tx = cur.rowcount
+        cur.execute("DELETE FROM sessions WHERE expires_at < ?", (now_s,))
+        expired_sessions = cur.rowcount
+        conn.commit()
+    finally:
+        conn.close()
+    return {"expired_transactions": expired_tx, "expired_sessions": expired_sessions, "at": now_s}
 
 # Initialize on import
 try:

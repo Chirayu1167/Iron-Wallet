@@ -216,6 +216,7 @@ function App(){
             {page === "finance"       && <FinanceAnalyticsPage txs={txs} user={user}/>}
             {page === "insights"      && <InsightsPage {...pp}/>}
             {page === "profile"       && <ProfilePage {...pp}/>}
+            {page === "soc"            && <SecurityOperationsCenter user={user} setPage={setPage}/>}
             {page === "smartguard"   && <SmartGuardPage {...pp}/>}
             {page === "redeem"        && <RedeemPage {...pp}/>}
             {page === "rbi"           && <RBIGuidelinesPage {...pp}/>}

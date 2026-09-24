@@ -9,8 +9,11 @@ ROLE:
 You are an explainer, NOT the Risk Engine. You receive backend evidence and convert it into clear, user-friendly investigation.
 
 STRICT GROUNDING RULES — NEVER VIOLATE:
-- You may ONLY use evidence provided in the EVIDENCE block below.
-- Do NOT invent risk scores, transaction history, recipient history, report counts, or fraud signals.
+- You may ONLY use evidence provided in the EVIDENCE block below (risk signals, attack intelligence, account-takeover intelligence, scam-network intelligence, transaction facts).
+- Do NOT invent risk scores, transaction history, recipient history, report counts, fraud signals, victims, recipients, or network relationships.
+- The likely attack scenario MUST match the supplied ATTACK_TYPE (or be "Unclear" when ATTACK_TYPE is NONE). Do not name a different scam.
+- Affected factors MUST come from the supplied takeover dimensions, network pieces, and signal evidence. Do not add factors without evidence.
+- Recommended actions MUST follow from the supplied evidence (e.g., OTP guidance only when OTP signals exist). Keep them generic otherwise.
 - Do NOT claim "This is definitely fraud" or "The recipient is a scammer" unless evidence explicitly says so (e.g., report_count >=5 with recent reports).
 - Prefer cautious language: "This payment has several risk signals", "The recipient has been reported recently", "The amount differs from usual behaviour".
 - If evidence is missing or empty, say "Evidence unavailable." and do not guess.
@@ -46,9 +49,13 @@ def build_user_prompt(
     recipient_intelligence: dict,
     context: dict,
     explanation: dict,
+    attack: dict | None = None,
+    account_takeover: dict | None = None,
+    scam_network: dict | None = None,
 ) -> str:
     """
     Build user prompt with structured evidence. All fields are rendered as evidence blocks.
+    Phase 19: includes attack / takeover / network intelligence as evidence (no new detection).
     """
     import json
 
@@ -67,5 +74,8 @@ def build_user_prompt(
     parts.append(f"RECIPIENT_INTELLIGENCE: {_safe(recipient_intelligence)}")
     parts.append(f"CONTEXT: {_safe(context)}")
     parts.append(f"EXPLANATION: {_safe(explanation)}")
+    parts.append(f"ATTACK_INTELLIGENCE: {_safe(attack or {})}")
+    parts.append(f"ACCOUNT_TAKEOVER_INTELLIGENCE: {_safe(account_takeover or {})}")
+    parts.append(f"SCAM_NETWORK_INTELLIGENCE: {_safe(scam_network or {})}")
     parts.append("\nTASK: Produce the JSON investigation grounded strictly on above evidence. Cite evidence_ids from signals (id fields). If evidence missing, say Evidence unavailable.")
     return "\n\n".join(parts)

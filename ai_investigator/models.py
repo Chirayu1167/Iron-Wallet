@@ -23,6 +23,12 @@ class InvestigatorOutput(BaseModel):
     recommended_action: str
     confidence: float = Field(ge=0, le=1)
     investigator_version: str = "ai-investigator-v1"
+    # Phase 19 — grounded intel fields (optional, backward-compatible).
+    # Always derived deterministically from supplied RiskEngine evidence,
+    # never invented by the model (see investigator._build_intel_fields).
+    attack_scenario: Optional[str] = None
+    affected_factors: List[str] = Field(default_factory=list)
+    recommended_actions: List[str] = Field(default_factory=list)
 
     class Config:
         extra = "ignore"

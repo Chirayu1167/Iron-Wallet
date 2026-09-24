@@ -68,12 +68,18 @@
         "reason": "test",
         "amount": 100.0,
         "time": 1789108629.2465184
+      },
+      {
+        "reporter": "1234567890",
+        "reason": "test",
+        "amount": 100.0,
+        "time": 1790166369.8845668
       }
     ],
-    "report_count": 1,
+    "report_count": 2,
     "first_reported": 1789108629.2465134,
     "tier": "flagged",
-    "last_reported": 1789150810.7775958
+    "last_reported": 1790176508.0838377
   },
   "999999990": {
     "reports": [
@@ -82,12 +88,18 @@
         "reason": "test",
         "amount": 0.0,
         "time": 1789108629.277131
+      },
+      {
+        "reporter": "1234567890",
+        "reason": "test",
+        "amount": 0.0,
+        "time": 1790166369.928412
       }
     ],
-    "report_count": 1,
+    "report_count": 2,
     "first_reported": 1789108629.2771251,
     "tier": "flagged",
-    "last_reported": 1789150810.796864
+    "last_reported": 1790176508.1260154
   },
   "999999991": {
     "reports": [
@@ -96,12 +108,18 @@
         "reason": "test",
         "amount": 0.0,
         "time": 1789108629.2955735
+      },
+      {
+        "reporter": "1234567890",
+        "reason": "test",
+        "amount": 0.0,
+        "time": 1790166369.955709
       }
     ],
-    "report_count": 1,
+    "report_count": 2,
     "first_reported": 1789108629.2955687,
     "tier": "flagged",
-    "last_reported": 1789150810.807966
+    "last_reported": 1790176508.1540825
   },
   "999999992": {
     "reports": [
@@ -110,12 +128,18 @@
         "reason": "test",
         "amount": 0.0,
         "time": 1789108629.3436332
+      },
+      {
+        "reporter": "1234567890",
+        "reason": "test",
+        "amount": 0.0,
+        "time": 1790166369.9825163
       }
     ],
-    "report_count": 1,
+    "report_count": 2,
     "first_reported": 1789108629.3436244,
     "tier": "flagged",
-    "last_reported": 1789150810.81894
+    "last_reported": 1790176508.1825309
   },
   "999999993": {
     "reports": [
@@ -180,12 +204,30 @@
         "reason": "scam",
         "amount": 1000,
         "time": 1789149291.2975035
+      },
+      {
+        "reporter": "tester1",
+        "reason": "scam",
+        "amount": 1000,
+        "time": 1790166345.0776634
+      },
+      {
+        "reporter": "tester2",
+        "reason": "scam",
+        "amount": 1000,
+        "time": 1790166345.0908206
+      },
+      {
+        "reporter": "tester3",
+        "reason": "scam",
+        "amount": 1000,
+        "time": 1790166345.1009552
       }
     ],
-    "report_count": 8,
+    "report_count": 11,
     "first_reported": 1789114565.74152,
     "tier": "high_risk",
-    "last_reported": 1789150880.3632452
+    "last_reported": 1790233860.9925535
   },
   "8887776665": {
     "reports": [
@@ -214,12 +256,18 @@
         "reason": "scam",
         "amount": 500,
         "time": 1789114669.322683
+      },
+      {
+        "reporter": "tester_report1",
+        "reason": "scam",
+        "amount": 500,
+        "time": 1790166362.705015
       }
     ],
-    "report_count": 1,
+    "report_count": 2,
     "first_reported": 1789114669.3226805,
     "tier": "flagged",
-    "last_reported": 1789147238.4491196
+    "last_reported": 1790176428.2675555
   },
   "7776665555": {
     "reports": [
@@ -228,12 +276,18 @@
         "reason": "test reason",
         "amount": 100,
         "time": 1789114669.324735
+      },
+      {
+        "reporter": "tester_once",
+        "reason": "test reason",
+        "amount": 100,
+        "time": 1790166362.7079186
       }
     ],
-    "report_count": 1,
+    "report_count": 2,
     "first_reported": 1789114669.3247313,
     "tier": "flagged",
-    "last_reported": 1789147238.4515946
+    "last_reported": 1790176428.2727337
   },
   "7776665556": {
     "reports": [
@@ -266,12 +320,42 @@
         "reason": "scam high",
         "amount": 500,
         "time": 1789114669.3324018
+      },
+      {
+        "reporter": "tester0_high",
+        "reason": "scam high",
+        "amount": 500,
+        "time": 1790166362.7125447
+      },
+      {
+        "reporter": "tester1_high",
+        "reason": "scam high",
+        "amount": 500,
+        "time": 1790166362.7154112
+      },
+      {
+        "reporter": "tester2_high",
+        "reason": "scam high",
+        "amount": 500,
+        "time": 1790166362.7187002
+      },
+      {
+        "reporter": "tester3_high",
+        "reason": "scam high",
+        "amount": 500,
+        "time": 1790166362.7218928
+      },
+      {
+        "reporter": "tester4_high",
+        "reason": "scam high",
+        "amount": 500,
+        "time": 1790166362.725303
       }
     ],
-    "report_count": 5,
+    "report_count": 10,
     "first_reported": 1789114669.3273585,
     "tier": "high_risk",
-    "last_reported": 1789147238.460553
+    "last_reported": 1790176428.287063
   },
   "6665554443": {
     "reports": [
@@ -304,12 +388,42 @@
         "reason": "scam case3",
         "amount": 1000,
         "time": 1789114701.8096442
+      },
+      {
+        "reporter": "reporter_case3_0",
+        "reason": "scam case3",
+        "amount": 1000,
+        "time": 1790166363.9328318
+      },
+      {
+        "reporter": "reporter_case3_1",
+        "reason": "scam case3",
+        "amount": 1000,
+        "time": 1790166363.936933
+      },
+      {
+        "reporter": "reporter_case3_2",
+        "reason": "scam case3",
+        "amount": 1000,
+        "time": 1790166363.9402382
+      },
+      {
+        "reporter": "reporter_case3_3",
+        "reason": "scam case3",
+        "amount": 1000,
+        "time": 1790166363.9445403
+      },
+      {
+        "reporter": "reporter_case3_4",
+        "reason": "scam case3",
+        "amount": 1000,
+        "time": 1790166363.9487505
       }
     ],
-    "report_count": 5,
+    "report_count": 10,
     "first_reported": 1789114701.8033829,
     "tier": "high_risk",
-    "last_reported": 1789147239.2510674
+    "last_reported": 1790176429.2074363
   },
   "9990004444": {
     "reports": [
@@ -412,12 +526,18 @@
         "reason": "suspected_scam",
         "amount": 0.0,
         "time": 1789147403.8259764
+      },
+      {
+        "reporter": "9340228345",
+        "reason": "suspected_scam",
+        "amount": 0.0,
+        "time": 1790166390.1506808
       }
     ],
-    "report_count": 1,
+    "report_count": 2,
     "first_reported": 1789147403.825973,
     "tier": "flagged",
-    "last_reported": 1789150802.339457
+    "last_reported": 1790176421.7594955
   },
   "9999999900": {
     "reports": [
@@ -426,12 +546,18 @@
         "reason": "suspected_scam",
         "amount": 0.0,
         "time": 1789147403.8762672
+      },
+      {
+        "reporter": "9340228345",
+        "reason": "suspected_scam",
+        "amount": 0.0,
+        "time": 1790166390.191863
       }
     ],
-    "report_count": 1,
+    "report_count": 2,
     "first_reported": 1789147403.8762622,
     "tier": "flagged",
-    "last_reported": 1789150802.3506153
+    "last_reported": 1790176421.7933443
   },
   "9999999910": {
     "reports": [
@@ -440,12 +566,18 @@
         "reason": "suspected_scam",
         "amount": 0.0,
         "time": 1789147403.9017036
+      },
+      {
+        "reporter": "9340228345",
+        "reason": "suspected_scam",
+        "amount": 0.0,
+        "time": 1790166390.213207
       }
     ],
-    "report_count": 1,
+    "report_count": 2,
     "first_reported": 1789147403.9016984,
     "tier": "flagged",
-    "last_reported": 1789150802.3727176
+    "last_reported": 1790176421.8339648
   },
   "9999999920": {
     "reports": [
@@ -454,12 +586,18 @@
         "reason": "suspected_scam",
         "amount": 0.0,
         "time": 1789147403.9406555
+      },
+      {
+        "reporter": "9340228345",
+        "reason": "suspected_scam",
+        "amount": 0.0,
+        "time": 1790166390.2459192
       }
     ],
-    "report_count": 1,
+    "report_count": 2,
     "first_reported": 1789147403.9406495,
     "tier": "flagged",
-    "last_reported": 1789150802.4070923
+    "last_reported": 1790176421.868172
   },
   "9999911000": {
     "reports": [
@@ -468,12 +606,18 @@
         "reason": "other",
         "amount": 0.0,
         "time": 1789148234.1308293
+      },
+      {
+        "reporter": "9000000020",
+        "reason": "other",
+        "amount": 0.0,
+        "time": 1790166340.4094844
       }
     ],
-    "report_count": 1,
+    "report_count": 2,
     "first_reported": 1789148234.1308253,
     "tier": "flagged",
-    "last_reported": 1789150870.4990292
+    "last_reported": 1790233858.8789058
   },
   "9999911010": {
     "reports": [
@@ -482,12 +626,18 @@
         "reason": "other",
         "amount": 0.0,
         "time": 1789148234.1510468
+      },
+      {
+        "reporter": "9000000020",
+        "reason": "other",
+        "amount": 0.0,
+        "time": 1790166340.474647
       }
     ],
-    "report_count": 1,
+    "report_count": 2,
     "first_reported": 1789148234.1510422,
     "tier": "flagged",
-    "last_reported": 1789150870.5104902
+    "last_reported": 1790233858.9169416
   },
   "9999911020": {
     "reports": [
@@ -496,12 +646,18 @@
         "reason": "other",
         "amount": 0.0,
         "time": 1789148234.1730897
+      },
+      {
+        "reporter": "9000000020",
+        "reason": "other",
+        "amount": 0.0,
+        "time": 1790166340.5254836
       }
     ],
-    "report_count": 1,
+    "report_count": 2,
     "first_reported": 1789148234.1730866,
     "tier": "flagged",
-    "last_reported": 1789150870.5234516
+    "last_reported": 1790233858.9462566
   },
   "9999911030": {
     "reports": [
@@ -510,12 +666,18 @@
         "reason": "other",
         "amount": 0.0,
         "time": 1789148234.1913671
+      },
+      {
+        "reporter": "9000000020",
+        "reason": "other",
+        "amount": 0.0,
+        "time": 1790166340.5757694
       }
     ],
-    "report_count": 1,
+    "report_count": 2,
     "first_reported": 1789148234.1913636,
     "tier": "flagged",
-    "last_reported": 1789150870.5356228
+    "last_reported": 1790233858.9795318
   },
   "9999911040": {
     "reports": [
@@ -524,12 +686,18 @@
         "reason": "other",
         "amount": 0.0,
         "time": 1789148234.2134154
+      },
+      {
+        "reporter": "9000000020",
+        "reason": "other",
+        "amount": 0.0,
+        "time": 1790166340.620936
       }
     ],
-    "report_count": 1,
+    "report_count": 2,
     "first_reported": 1789148234.2134116,
     "tier": "flagged",
-    "last_reported": 1789150870.5467637
+    "last_reported": 1790233859.0274148
   },
   "9999921000": {
     "reports": [
@@ -640,5 +808,65 @@
     "first_reported": 1789149291.3086638,
     "tier": "high_risk",
     "last_reported": 1789150880.3678825
+  },
+  "9991873729": {
+    "reports": [
+      {
+        "reporter": "9340228345",
+        "reason": "prize scam",
+        "amount": 1000,
+        "time": 1790173729.56083
+      },
+      {
+        "reporter": "9158763151",
+        "reason": "prize scam",
+        "amount": 1000,
+        "time": 1790173729.5634787
+      }
+    ],
+    "report_count": 2,
+    "first_reported": 1790173729.5608256,
+    "tier": "flagged",
+    "last_reported": 1790173729.5634816
+  },
+  "9991874569": {
+    "reports": [
+      {
+        "reporter": "9340228345",
+        "reason": "prize scam",
+        "amount": 1000,
+        "time": 1790174569.2149005
+      },
+      {
+        "reporter": "9158763151",
+        "reason": "prize scam",
+        "amount": 1000,
+        "time": 1790174569.2214832
+      }
+    ],
+    "report_count": 2,
+    "first_reported": 1790174569.2148895,
+    "tier": "flagged",
+    "last_reported": 1790174569.2214906
+  },
+  "9991876332": {
+    "reports": [
+      {
+        "reporter": "9340228345",
+        "reason": "prize scam",
+        "amount": 1000,
+        "time": 1790176332.5438976
+      },
+      {
+        "reporter": "9158763151",
+        "reason": "prize scam",
+        "amount": 1000,
+        "time": 1790176332.5550272
+      }
+    ],
+    "report_count": 2,
+    "first_reported": 1790176332.5438938,
+    "tier": "flagged",
+    "last_reported": 1790176332.5550344
   }
 }

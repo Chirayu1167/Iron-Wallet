@@ -76,6 +76,12 @@ function AIInvestigatorPanel({ transactionId, onClose }) {
               <div style={{ fontSize: 12, fontWeight: 700, color: "#1B263B", marginBottom: 4 }}>Summary</div>
               <div style={{ fontSize: 13, color: "#334155", lineHeight: 1.5 }}>{result.summary || "No summary."}</div>
             </div>
+            {result.attack_scenario && (
+              <div style={{ marginBottom: 14, padding: "10px 12px", background: "#fffbeb", border: "1px solid #fcd34d", borderRadius: 6 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#92400e", marginBottom: 4 }}>Likely attack scenario</div>
+                <div style={{ fontSize: 13, color: "#334155", lineHeight: 1.5 }}>{result.attack_scenario}</div>
+              </div>
+            )}
             <div style={{ marginBottom: 14 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: "#1B263B", marginBottom: 4 }}>Why this payment was flagged</div>
               <div style={{ fontSize: 13, color: "#334155", lineHeight: 1.5 }}>{result.risk_explanation || result.summary}</div>
@@ -108,6 +114,28 @@ function AIInvestigatorPanel({ transactionId, onClose }) {
                     </span>
                   ))}
                 </div>
+              </div>
+            )}
+            {result.affected_factors && result.affected_factors.length > 0 && (
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#1B263B", marginBottom: 6 }}>Affected factors</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {result.affected_factors.map((f, i) => (
+                    <span key={i} style={{ padding: "4px 8px", background: "#f5f3ff", border: "1px solid #c4b5fd", borderRadius: 6, fontSize: 11, color: "#334155" }}>
+                      {f}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {result.recommended_actions && result.recommended_actions.length > 0 && (
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#1B263B", marginBottom: 6 }}>Recommended actions</div>
+                <ul style={{ margin: 0, paddingLeft: 18 }}>
+                  {result.recommended_actions.map((a, i) => (
+                    <li key={i} style={{ fontSize: 13, color: "#475569", marginBottom: 4 }}>{a}</li>
+                  ))}
+                </ul>
               </div>
             )}
             <div style={{ padding: "10px 12px", background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 6 }}>

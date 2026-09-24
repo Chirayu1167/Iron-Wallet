@@ -14,6 +14,19 @@ Ranks by contribution/severity/confidence. Provides breakdown and audit.
 from __future__ import annotations
 from typing import Dict, Any, List
 from .thresholds import EXPLANATION_VERSION, iron_tier
+try:
+    from .attack import ATTACK_LABELS, ATTACK_CLASSIFIER_VERSION
+except ImportError:
+    ATTACK_LABELS = {}
+    ATTACK_CLASSIFIER_VERSION = "v1"
+try:
+    from .account_takeover import ACCOUNT_TAKEOVER_VERSION
+except ImportError:
+    ACCOUNT_TAKEOVER_VERSION = "v1"
+try:
+    from .scam_network import SCAM_NETWORK_VERSION
+except ImportError:
+    SCAM_NETWORK_VERSION = "v1"
 
 # Map signal ids to human-friendly titles (7C)
 TITLE_MAP: Dict[str, str] = {
@@ -80,9 +93,15 @@ def build_explanation(
     components: Dict[str, int] | None = None,
     confidence: float = 0.5,
     behavior_meta: Dict[str, Any] | None = None,
+    attack: Dict[str, Any] | None = None,
+    account_takeover: Dict[str, Any] | None = None,
+    scam_network: Dict[str, Any] | None = None,
 ) -> Dict[str, Any]:
     """
     7A–7B: Build structured explanation. Every reason backed by actual signal.
+    Phase 16: includes detected attack + supporting evidence (advisory only).
+    Phase 17: includes account-takeover combination + explanation (advisory only).
+    Phase 18: includes scam-network/campaign + evidence (advisory only).
 
     Returns:
       {
@@ -90,7 +109,13 @@ def build_explanation(
         "reasons": [ {id,title,description,severity,evidence,contribution,source}, ... top 3–5 ],
         "confidence_explanation": "...",
         "breakdown": {...},
-        "tier_message": {"SAFE":...}
+        "tier_message": {"SAFE":...},
+        "attack": {"attack_type","attack_category","attack_confidence","signal_ids","description"},
+        "attack_type","attack_category","attack_confidence" (top-level convenience),
+        "account_takeover": {"account_threat_detected","account_threat_confidence","signal_ids","explanation"},
+        "account_threat_detected","account_threat_confidence","account_threat_signal_ids" (top-level convenience),
+        "scam_network": {"network_threat_detected","network_confidence","network_type","signal_ids","explanation"},
+        "network_threat_detected","network_confidence","network_type","network_signal_ids" (top-level convenience),
       }
     """
     tier = tier.upper()
@@ -159,6 +184,71 @@ def build_explanation(
         "HIGH_RISK": "This payment has multiple risk signals. Verify before proceeding. You can still proceed.",
     }
 
+    # Phase 16 — attack intelligence (advisory, evidence-backed, backward-compatible).
+    # `attack` is produced by RiskEngine.classify_attack over the same signals.
+    # Every signal_id in attack["signal_ids"] is a subset of signals passed here.
+    atk = attack or {}
+    attack_type = str(atk.get("attack_type", "NONE") or "NONE").upper()
+    attack_category = str(atk.get("attack_category", "NONE") or "NONE").upper()
+    try:
+        attack_confidence = round(max(0.0, min(1.0, float(atk.get("attack_confidence", 0.0)))), 2)
+    except Exception:
+        attack_confidence = 0.0
+    attack_signal_ids = list(atk.get("signal_ids", []) or [])
+    attack_description = str(atk.get("description", "") or "")
+    attack_label = ATTACK_LABELS.get(attack_type, attack_type.replace("_", " ").title())
+    attack_block = {
+        "attack_type": attack_type,
+        "attack_category": attack_category,
+        "attack_confidence": attack_confidence,
+        "signal_ids": attack_signal_ids,
+        "description": attack_description,
+        "label": attack_label,
+        "version": atk.get("version", ATTACK_CLASSIFIER_VERSION),
+    }
+
+    # Phase 17 — account-takeover intelligence (advisory, combination-based,
+    # backward-compatible). `account_takeover` is produced by
+    # RiskEngine.detect_account_takeover over the same signals.
+    ato = account_takeover or {}
+    account_threat_detected = bool(ato.get("account_threat_detected", False))
+    try:
+        account_threat_confidence = round(max(0.0, min(1.0, float(ato.get("account_threat_confidence", 0.0)))), 2)
+    except Exception:
+        account_threat_confidence = 0.0
+    account_threat_signal_ids = list(ato.get("signal_ids", ato.get("account_threat_signal_ids", [])) or [])
+    account_takeover_block = {
+        "account_threat_detected": account_threat_detected,
+        "account_threat_confidence": account_threat_confidence,
+        "signal_ids": account_threat_signal_ids,
+        "explanation": str(ato.get("explanation", "") or ""),
+        "dimensions": dict(ato.get("dimensions", {}) or {}),
+        "dimension_count": int(ato.get("dimension_count", 0) or 0),
+        "version": ato.get("version", ACCOUNT_TAKEOVER_VERSION),
+    }
+
+    # Phase 18 — scam-network intelligence (advisory, existing-data only,
+    # backward-compatible). `scam_network` is produced by
+    # RiskEngine.detect_scam_network over signals + recipient/attack context.
+    net = scam_network or {}
+    network_threat_detected = bool(net.get("network_threat_detected", False))
+    try:
+        network_confidence = round(max(0.0, min(1.0, float(net.get("network_confidence", 0.0)))), 2)
+    except Exception:
+        network_confidence = 0.0
+    network_type = str(net.get("network_type", "NONE") or "NONE").upper()
+    network_signal_ids = list(net.get("signal_ids", net.get("network_signal_ids", [])) or [])
+    scam_network_block = {
+        "network_threat_detected": network_threat_detected,
+        "network_confidence": network_confidence,
+        "network_type": network_type,
+        "signal_ids": network_signal_ids,
+        "explanation": str(net.get("explanation", "") or ""),
+        "evidence": dict(net.get("evidence", {}) or {}),
+        "description": str(net.get("description", "") or ""),
+        "version": net.get("version", SCAM_NETWORK_VERSION),
+    }
+
     return {
         "summary": summary,
         "reasons": reasons,
@@ -167,6 +257,19 @@ def build_explanation(
         "tier_message": tier_messages.get(tier, summary),
         "version": EXPLANATION_VERSION,
         "total_signals": len(signals),
+        "attack": attack_block,
+        "attack_type": attack_type,
+        "attack_category": attack_category,
+        "attack_confidence": attack_confidence,
+        "account_takeover": account_takeover_block,
+        "account_threat_detected": account_threat_detected,
+        "account_threat_confidence": account_threat_confidence,
+        "account_threat_signal_ids": account_threat_signal_ids,
+        "scam_network": scam_network_block,
+        "network_threat_detected": network_threat_detected,
+        "network_confidence": network_confidence,
+        "network_type": network_type,
+        "network_signal_ids": network_signal_ids,
     }
 
 def build_breakdown(components: Dict[str, int]) -> Dict[str, int]:

@@ -1,0 +1,37 @@
+# Render Blueprint for IronWallet backend (PrepHire-style: healthCheckPath + env).
+# Deploy via Dashboard → New → Blueprint → select this repo,
+# or create a manual Web Service with the same build/start commands.
+services:
+  - type: web
+    name: ironwallet-backend
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn otp_server:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      # Comma-separated allowlist, or * for quick testing.
+      # Set to your frontend origin in production.
+      - key: CORS_ORIGINS
+        value: "*"
+      # In-app keep-alive: self-pings the public URL every 10 min so the
+      # free-tier idle timer never expires (same effect as UptimeRobot).
+      - key: KEEPALIVE_ENABLED
+        value: true
+      - key: KEEPALIVE_INTERVAL_S
+        value: 600
+      # Periodic self-repair: expires stale preparations, sweeps dead sessions.
+      - key: REPAIR_ENABLED
+        value: true
+      - key: REPAIR_INTERVAL_S
+        value: 3600
+      # Optional — OTP falls back to server logs when unset.
+      - key: ACCOUNT_SID
+        sync: false
+      - key: AUTH_TOKEN
+        sync: false
+      - key: TWILIO_PHONE
+        sync: false
+      # Optional — only for the AI assistant endpoint. Never expose client-side.
+      - key: GEMINI_API_KEY
+        sync: false

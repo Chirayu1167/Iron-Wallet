@@ -7,9 +7,20 @@ function WhatIfSimulator({ onClose }) {
   const [deviceChanged, setDeviceChanged] = useState(false);
   const [locationChanged, setLocationChanged] = useState(false);
   const [note, setNote] = useState("");
+  const [scenario, setScenario] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+
+  const SCENARIOS = [
+    { value: "", label: "Custom (manual inputs)" },
+    { value: "fake_kyc", label: "Fake KYC / account-suspension scam" },
+    { value: "otp_harvesting", label: "OTP harvesting" },
+    { value: "remote_access", label: "Remote-access scam" },
+    { value: "account_takeover", label: "Account takeover" },
+    { value: "investment_loan", label: "Investment / loan scam" },
+    { value: "scam_campaign", label: "Coordinated scam campaign" },
+  ];
 
   async function runSimulation() {
     setLoading(true);
@@ -23,6 +34,7 @@ function WhatIfSimulator({ onClose }) {
       body.device_changed = !!deviceChanged;
       body.location_changed = !!locationChanged;
       if (note) body.note = note;
+      if (scenario) body.scenario = scenario;
       const res = await fetch(`${API}/risk/simulate`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...hdr },
@@ -76,6 +88,13 @@ function WhatIfSimulator({ onClose }) {
           </div>
         </div>
         <div style={{ marginBottom: 12 }}>
+          <label style={{ fontSize: 11, fontWeight: 700, color: "#475569", display: "block", marginBottom: 4 }}>Attack scenario (optional preset)</label>
+          <select value={scenario} onChange={e => setScenario(e.target.value)} style={{ width: "100%", padding: "8px 10px", border: "1px solid #E0E1DD", borderRadius: 6, fontSize: 13, background: "#fff" }}>
+            {SCENARIOS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+          </select>
+          <div style={{ fontSize: 11, color: "#64748b", marginTop: 4 }}>Preset fills typical scam inputs — manual fields override it. Results are simulated only.</div>
+        </div>
+        <div style={{ marginBottom: 12 }}>
           <label style={{ fontSize: 11, fontWeight: 700, color: "#475569", display: "block", marginBottom: 4 }}>Note (optional)</label>
           <input type="text" value={note} onChange={e => setNote(e.target.value)} placeholder="urgent prize claim" style={{ width: "100%", padding: "8px 10px", border: "1px solid #E0E1DD", borderRadius: 6, fontSize: 13 }} />
         </div>
@@ -95,6 +114,11 @@ function WhatIfSimulator({ onClose }) {
 
         {result && (
           <div style={{ marginTop: 16, borderTop: "1px solid #E0E1DD", paddingTop: 16 }}>
+            {(result.scenario || result.scenario_applied) && (
+              <div style={{ marginBottom: 12, padding: "8px 10px", background: "#f1f5f9", border: "1px solid #E0E1DD", borderRadius: 6, fontSize: 12, color: "#334155" }}>
+                Scenario: <b>{(result.scenario || "").replace(/_/g, " ")}</b> • <span style={{ fontStyle: "italic" }}>Simulated — no real transaction</span>
+              </div>
+            )}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
               <div style={{ padding: 12, background: tierBg(result.current?.risk?.tier || "SAFE"), border: "1px solid #E0E1DD", borderRadius: 6, textAlign: "center" }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b" }}>Current</div>
@@ -121,6 +145,30 @@ function WhatIfSimulator({ onClose }) {
                     <li key={i} style={{ fontSize: 12, color: "#475569" }}>{r.title}: {r.description}</li>
                   ))}
                 </ul>
+              </div>
+            )}
+            {(result.attack_type || result.risk?.attack_type) && (result.attack_type !== "NONE" || result.risk?.attack_type !== "NONE") && (
+              <div style={{ marginBottom: 12, padding: "10px 12px", background: "#fffbeb", border: "1px solid #fcd34d", borderRadius: 6 }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: "#92400e", textTransform: "uppercase" }}>Attack Intelligence (simulated)</div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: "#0f172a", marginTop: 4 }}>{(result.attack_type || result.risk?.attack_type || "").replace(/_/g, " ")}</div>
+                <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>Category: <b>{result.attack_category || result.risk?.attack_category}</b> • Confidence: <b>{Math.round((result.attack_confidence ?? result.risk?.attack_confidence ?? 0)*100)}%</b></div>
+                {result.attack_detail?.description ? <div style={{ fontSize: 12, color: "#475569", marginTop: 4 }}>{result.attack_detail.description}</div> : null}
+              </div>
+            )}
+            {(result.account_threat_detected || result.risk?.account_threat_detected) && (
+              <div style={{ marginBottom: 12, padding: "10px 12px", background: "#fef2f2", border: "1px solid #fca5a5", borderRadius: 6 }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: "#991b1b", textTransform: "uppercase" }}>Account Takeover (simulated)</div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: "#0f172a", marginTop: 4 }}>🔐 Possible account takeover</div>
+                <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>Confidence: <b>{Math.round((result.account_threat_confidence ?? result.risk?.account_threat_confidence ?? 0)*100)}%</b></div>
+                {(result.account_takeover_detail?.explanation || result.risk?.account_takeover_detail?.explanation) ? <div style={{ fontSize: 12, color: "#475569", marginTop: 4 }}>{result.account_takeover_detail?.explanation || result.risk?.account_takeover_detail?.explanation}</div> : null}
+              </div>
+            )}
+            {(result.network_threat_detected || result.risk?.network_threat_detected) && (
+              <div style={{ marginBottom: 12, padding: "10px 12px", background: "#f5f3ff", border: "1px solid #c4b5fd", borderRadius: 6 }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: "#5b21b6", textTransform: "uppercase" }}>Scam Network (simulated)</div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: "#0f172a", marginTop: 4 }}>🕸️ {(result.network_type || result.risk?.network_type || "").replace(/_/g, " ")}</div>
+                <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>Confidence: <b>{Math.round((result.network_confidence ?? result.risk?.network_confidence ?? 0)*100)}%</b></div>
+                {(result.network_detail?.explanation || result.risk?.network_detail?.explanation) ? <div style={{ fontSize: 12, color: "#475569", marginTop: 4 }}>{result.network_detail?.explanation || result.risk?.network_detail?.explanation}</div> : null}
               </div>
             )}
             <div style={{ fontSize: 11, color: "#64748b", fontStyle: "italic", textAlign: "center", padding: "8px", background: "#f1f5f9", borderRadius: 6 }}>

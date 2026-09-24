@@ -49,6 +49,8 @@ import secrets
 import logging
 import calendar
 import asyncio
+import urllib.request
+from contextlib import asynccontextmanager
 from typing import Any, Dict, List, Optional
 from pathlib import Path
 from collections import defaultdict
@@ -203,8 +205,84 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.on_event("startup")
-def startup():
+# Lifespan startup/shutdown is defined after the keep-alive loops below
+# (see `lifespan` — assigned to app.router.lifespan_context there).
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  KEEP-ALIVE + SELF-REPAIR (PrepHire-style: render.yaml healthCheck + cron job)
+# ═══════════════════════════════════════════════════════════════════════════════
+# Render's free tier spins a web service down after ~15 min with no INBOUND
+# traffic. Every KEEPALIVE_INTERVAL_S this loop GETs the service's own PUBLIC
+# url (RENDER_EXTERNAL_URL, auto-provided by Render). That request arrives
+# through Render's proxy as inbound traffic, resetting the idle timer — the
+# same effect as an external uptime pinger, with no third-party dependency.
+# NOTE: pinging 127.0.0.1 does NOT count; only the public URL keeps it awake.
+# The repair loop runs iron_store.run_maintenance() (expire stale
+# preparations, sweep dead sessions). Both loops are best-effort, never raise.
+
+def _env_flag(name: str, default: bool = True) -> bool:
+    return os.environ.get(name, "true" if default else "false").lower() not in ("0", "false", "no", "off")
+
+def _env_int(name: str, default: int) -> int:
+    try:
+        return max(1, int(os.environ.get(name, default)))
+    except Exception:
+        return default
+
+KEEPALIVE_ENABLED    = _env_flag("KEEPALIVE_ENABLED", True)
+KEEPALIVE_INTERVAL_S = _env_int("KEEPALIVE_INTERVAL_S", 600)
+REPAIR_ENABLED       = _env_flag("REPAIR_ENABLED", True)
+REPAIR_INTERVAL_S    = _env_int("REPAIR_INTERVAL_S", 3600)
+
+_self_check = {"last_ping_at": None, "last_ping_ok": None, "last_repair_at": None, "last_repair": {}}
+
+def _keepalive_target() -> str:
+    override = os.environ.get("KEEPALIVE_URL", "").strip()
+    if override:
+        base = override.rstrip("/")
+    else:
+        base = (os.environ.get("RENDER_EXTERNAL_URL", "").strip()
+                or f"http://127.0.0.1:{os.environ.get('PORT', '8000')}").rstrip("/")
+    return base + "/health"
+
+def _http_get_ok(url: str, timeout: int = 15) -> bool:
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "IronWallet-keepalive/1.0"})
+        with urllib.request.urlopen(req, timeout=timeout) as res:
+            return 200 <= res.status < 300
+    except Exception as e:
+        log.warning("Keepalive ping failed (%s): %s", url, e)
+        return False
+
+async def _keepalive_loop():
+    await asyncio.sleep(30)  # let the server finish booting first
+    while True:
+        try:
+            ok = await asyncio.to_thread(_http_get_ok, _keepalive_target())
+            _self_check["last_ping_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+            _self_check["last_ping_ok"] = ok
+            log.info("Keepalive self-ping %s", "ok" if ok else "FAILED")
+        except Exception as e:
+            log.warning("Keepalive loop error: %s", e)
+        await asyncio.sleep(KEEPALIVE_INTERVAL_S)
+
+async def _repair_loop():
+    await asyncio.sleep(60)  # stagger after boot + first ping
+    while True:
+        try:
+            summary = await asyncio.to_thread(iron_store.run_maintenance)
+            _self_check["last_repair_at"] = summary.get("at")
+            _self_check["last_repair"] = {k: v for k, v in summary.items() if k != "at"}
+            if summary.get("expired_transactions") or summary.get("expired_sessions"):
+                log.info("Repair sweep: %s", summary)
+        except Exception as e:
+            log.warning("Repair loop error: %s", e)
+        await asyncio.sleep(REPAIR_INTERVAL_S)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     log.info("Loading Isolation Forest model ...")
     try:
         _if_scorer.load()
@@ -219,6 +297,22 @@ def startup():
     except Exception as e:
         log.warning("iron_store init failed: %s", e)
     log.info("✅ IronWallet backend ready — RiskEngine v=%s", RISK_ENGINE_VERSION)
+    # PrepHire-style background jobs: keep-alive self-ping + self-repair sweep
+    _bg_tasks = []
+    if KEEPALIVE_ENABLED:
+        _bg_tasks.append(asyncio.create_task(_keepalive_loop()))
+        log.info("Keepalive self-ping every %ss -> %s", KEEPALIVE_INTERVAL_S, _keepalive_target())
+    if REPAIR_ENABLED:
+        _bg_tasks.append(asyncio.create_task(_repair_loop()))
+        log.info("Repair sweep every %ss", REPAIR_INTERVAL_S)
+    try:
+        yield
+    finally:
+        for t in _bg_tasks:
+            t.cancel()
+
+
+app.router.lifespan_context = lifespan
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1058,7 +1152,8 @@ def health():
         "models": {
             "isolation_forest": "isolation_forest.joblib",
             "fraud_intelligence": "fraud_engine/ (20 rules)",
-        }
+        },
+        "self_check": _self_check,
     }
 
 # ── OTP ───────────────────────────────────────────────────────────────────────

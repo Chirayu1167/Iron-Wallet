@@ -241,6 +241,7 @@ function ServicesGrid({setPage}){
     {icon:<svg width="22"height="22"viewBox="0 0 24 24"fill="none"stroke="#8b5cf6"strokeWidth="2"strokeLinecap="round"strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,label:"Learn and Earn",color:"#8b5cf6",action:"smartguard"},
     {icon:<svg width="22"height="22"viewBox="0 0 24 24"fill="none"stroke="#f59e0b"strokeWidth="2"strokeLinecap="round"strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>,label:"Redeem",color:"#f59e0b",action:"redeem"},
     {icon:<svg width="22"height="22"viewBox="0 0 24 24"fill="none"stroke="#0f172a"strokeWidth="2"strokeLinecap="round"strokeLinejoin="round"><circle cx="12"cy="12"r="10"/><path d="M12 16v-4M12 8h.01"/></svg>,label:"RBI Guidelines",color:"#0f172a",action:"rbi"},
+    {icon:<svg width="22"height="22"viewBox="0 0 24 24"fill="none"stroke="#dc2626"strokeWidth="2"strokeLinecap="round"strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,label:"Security Ops",color:"#dc2626",action:"soc"},
   ];
   const [showMore,setShowMore]=React.useState(false);
   const handleClick=(s)=>{

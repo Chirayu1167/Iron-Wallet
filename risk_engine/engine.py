@@ -10,6 +10,29 @@ import time
 from typing import Dict, Any, List, Optional, Tuple
 from .thresholds import RISK_WEIGHTS, iron_tier, risk_level, RISK_ENGINE_VERSION, RISK_TIRESHOLDS
 try:
+    from .attack import classify_attack, ATTACK_CLASSIFIER_VERSION
+except ImportError:
+    ATTACK_CLASSIFIER_VERSION = "v1"
+    def classify_attack(signals=None):
+        return {"attack_type": "NONE", "attack_category": "NONE", "attack_confidence": 0.0,
+                "signal_ids": [], "description": "", "scores": {}, "version": "v1"}
+try:
+    from .account_takeover import detect_account_takeover, ACCOUNT_TAKEOVER_VERSION
+except ImportError:
+    ACCOUNT_TAKEOVER_VERSION = "v1"
+    def detect_account_takeover(signals=None):
+        return {"account_threat_detected": False, "account_threat_confidence": 0.0,
+                "signal_ids": [], "explanation": "", "dimensions": {},
+                "dimension_count": 0, "version": "v1"}
+try:
+    from .scam_network import detect_scam_network, SCAM_NETWORK_VERSION
+except ImportError:
+    SCAM_NETWORK_VERSION = "v1"
+    def detect_scam_network(*a, **kw):
+        return {"network_threat_detected": False, "network_confidence": 0.0,
+                "network_type": "NONE", "signal_ids": [], "explanation": "",
+                "evidence": {}, "description": "", "version": "v1"}
+try:
     from .binary import is_fraudulent, classify_binary
 except ImportError:
     def is_fraudulent(*a, **kw): return False
@@ -126,6 +149,7 @@ class RiskEngine:
         recipient: Dict[str, Any],
         context: Dict[str, Any] | None = None,
         transaction: Dict[str, Any] | None = None,
+        network_context: Dict[str, Any] | None = None,
     ) -> Dict[str, Any]:
         """
         Main entry. Inputs as per 6B spec. Returns authoritative decision.
@@ -135,6 +159,10 @@ class RiskEngine:
           fraud_intelligence: {"score":78, "confidence":0.94, "signals":[]}
           recipient: {"score":70, "confidence":0.91, "signals":[], "risk_score":...}  # score alias risk_score
           context: {"score":55, "confidence":0.7, "signals":[], "device":{}, "location":{}, "velocity":{}}
+        Phase 18: optional network_context built by caller from existing
+        recipient/scam-registry/transaction data (recipient, report_count,
+        reporter_count, reasons, user_tx_count, handle, attack_type).
+        Score/tier/OTP logic unchanged.
         """
         context = context or {}
         # Normalize scores to 0–100 ints and confidence 0–1
@@ -345,6 +373,48 @@ class RiskEngine:
             "component_confidences": {k: v["confidence"] for k,v in components_for_scoring.items()},
         }
 
+        # ── Phase 16: Attack Intelligence (classification over deduped signals) ──
+        # Reuses existing signals only; advisory, never affects score/tier/blocking.
+        try:
+            attack = classify_attack(signals_with_contrib)
+        except Exception:
+            attack = {"attack_type": "NONE", "attack_category": "NONE", "attack_confidence": 0.0,
+                      "signal_ids": [], "description": "", "scores": {}, "version": ATTACK_CLASSIFIER_VERSION}
+
+        # ── Phase 17: Account Takeover Intelligence (combinations only) ──
+        # Reuses the same deduped signals; advisory, never affects score/tier/OTP.
+        try:
+            takeover = detect_account_takeover(signals_with_contrib)
+        except Exception:
+            takeover = {"account_threat_detected": False, "account_threat_confidence": 0.0,
+                        "signal_ids": [], "explanation": "", "dimensions": {},
+                        "dimension_count": 0, "version": ACCOUNT_TAKEOVER_VERSION}
+
+        # ── Phase 18: Scam Network & Campaign Intelligence (existing data only) ──
+        # Advisory, never affects score/tier/OTP/blocking. Distinguishes
+        # recipient reputation (single report) from corroborated networks.
+        try:
+            r_raw = r.get("_raw", {}) if isinstance(r.get("_raw"), dict) else {}
+            _net_ctx = dict(network_context or {})
+            # Fill gaps from already-available recipient/transaction data.
+            if "report_count" not in _net_ctx:
+                _net_ctx["report_count"] = r_raw.get("report_count", 0)
+            if "recipient" not in _net_ctx and transaction:
+                _net_ctx["recipient"] = transaction.get("merchant_name") or transaction.get("recipient") or ""
+            if "attack_type" not in _net_ctx:
+                _net_ctx["attack_type"] = attack.get("attack_type", "NONE")
+            network = detect_scam_network(
+                signals=signals_with_contrib,
+                recipient_profile=r_raw,
+                attack=attack,
+                transaction=transaction or {},
+                network_context=_net_ctx,
+            )
+        except Exception:
+            network = {"network_threat_detected": False, "network_confidence": 0.0,
+                       "network_type": "NONE", "signal_ids": [], "explanation": "",
+                       "evidence": {}, "description": "", "version": SCAM_NETWORK_VERSION}
+
         return {
             "score": final_score,
             "tier": tier,
@@ -359,6 +429,19 @@ class RiskEngine:
             "binary_fraud": bool(is_fraud),
             "fraud_label": binary_label,
             "is_fraudulent": bool(is_fraud),
+            "attack_type": attack.get("attack_type", "NONE"),
+            "attack_category": attack.get("attack_category", "NONE"),
+            "attack_confidence": attack.get("attack_confidence", 0.0),
+            "attack_detail": attack,
+            "account_threat_detected": bool(takeover.get("account_threat_detected", False)),
+            "account_threat_confidence": float(takeover.get("account_threat_confidence", 0.0)),
+            "account_threat_signal_ids": list(takeover.get("signal_ids", [])),
+            "account_takeover_detail": takeover,
+            "network_threat_detected": bool(network.get("network_threat_detected", False)),
+            "network_confidence": float(network.get("network_confidence", 0.0)),
+            "network_type": str(network.get("network_type", "NONE")),
+            "network_signal_ids": list(network.get("signal_ids", [])),
+            "network_detail": network,
         }
 
 def get_risk_engine() -> RiskEngine:
