@@ -342,9 +342,11 @@ function getRecentTransactions(user, minutes) {
 }
 
 function calculateAvgTransaction(user) {
-  const txs = user.transactions || [];
+  const txs = (user.transactions || []).filter(t =>
+    Number(t.amt) > 0 && !["pending","cancelled","failed","blocked"].includes(String(t.status || "").toLowerCase())
+  );
   if (txs.length === 0) return 1000;
-  const sum = txs.reduce((s, t) => s + t.amt, 0);
+  const sum = txs.reduce((s, t) => s + Number(t.amt || 0), 0);
   return sum / txs.length;
 }
 
@@ -386,7 +388,10 @@ function scamPatternCheck(user, amount, receiverNum) {
   const inUPI = receiverNum in USERS;
   
   const isUnknown = !inContacts && !inHistory;
-  const isLarge = amount > 8 * avg;
+  // Treat an amount as unusual only when it is materially above this
+  // account's observed history. Low-value payments must not be flagged just
+  // because the account also has large payments.
+  const isLarge = amount > Math.max(8 * avg, avg + 3 * calculateStdDeviation(user, avg));
   const drainsBalance = amount > 0.65 * bal;
   const oddHour = isOddHour();
   

@@ -383,7 +383,7 @@ def get_current_user_optional(authorization: Optional[str] = Header(None), reque
     except HTTPException:
         return None
 
-def _resolve_history_for_user(phone: str, limit: int = 50) -> List[Dict[str, Any]]:
+def _resolve_history_for_user(phone: str, limit: int = 500) -> List[Dict[str, Any]]:
     try:
         return iron_store.get_transactions_for_user(phone, limit=limit)
     except Exception:
@@ -457,7 +457,7 @@ def _build_txn_for_risk(phone: str, recipient: str, amount: float, note: str = "
     """
     Build txn dict for risk pipeline. Returns (txn_dict, history)
     """
-    history = _resolve_history_for_user(phone, limit=50)
+    history = _resolve_history_for_user(phone, limit=500)
     bal = iron_store.get_balance(phone)
     if bal is None:
         bal = 100000
@@ -1331,7 +1331,7 @@ def behavior_score(txn: TransactionIn):
     # Resolve phone for history
     phone = (txn.user_id or txn.phone or "").strip()
     # If phone looks like admin etc, use it else fallback
-    history = _resolve_history_for_user(phone, limit=50) if phone else []
+    history = _resolve_history_for_user(phone, limit=500) if phone else []
     # Build dict
     txn_dict = txn.model_dump() if hasattr(txn, 'model_dump') else txn.dict()
     # Ensure user_id present for scorer
@@ -1346,7 +1346,7 @@ def intel_behavior(user_id: str = Query("", description="user phone"), current: 
     phone = current["phone"] if current else user_id
     if not phone:
         raise HTTPException(status_code=422, detail="user_id required")
-    history = _resolve_history_for_user(phone, limit=50)
+    history = _resolve_history_for_user(phone, limit=500)
     # Build minimal txn for baseline
     txn = {"user_id": phone, "amount": 500, "hour_of_day": 12, "day_of_week": "Monday", "is_weekend": 0, "is_salary_period": 0, "merchant_name": "9158763151", "merchant_category": "Transfer", "recipient_type": "individual", "payment_method": "UPI", "device_familiarity": 1.0, "location_familiarity": 1.0, "balance_before": 10000, "account_age_days": 365, "recipient_frequency_score": 0.0, "days_since_recipient_seen": 0, "merchant_frequency_score": 0.5, "recipient_report_count": 0, "is_off_network": False, "urgency_score": 0.0, "note": "", "txn_velocity_1h": 1, "txn_velocity_5m": 1, "txn_velocity_24h": 1, "unique_recipients_30m": 1, "amount_velocity_24h": 0, "recent_amounts": [], "daily_spend_today": 0}
     result = _build_behavior_result(txn, history)
@@ -1362,7 +1362,7 @@ def fraud_intelligence(req: FraudIntelRequest):
     """
     try:
         phone = (req.transaction.user_id or req.transaction.phone or req.user_profile.user_id or "").strip()
-        history = _resolve_history_for_user(phone, limit=50) if phone else []
+        history = _resolve_history_for_user(phone, limit=500) if phone else []
         txn_dict = req.transaction.model_dump() if hasattr(req.transaction, 'model_dump') else req.transaction.dict()
         user_profile_dict = req.user_profile.model_dump() if hasattr(req.user_profile, 'model_dump') else req.user_profile.dict()
         # Ensure merchant_name present for intelligence
@@ -1392,7 +1392,7 @@ def intel_fraud(user_id: str = Query("", description="user phone"), current: Opt
     phone = current["phone"] if current else user_id
     if not phone:
         raise HTTPException(status_code=422, detail="user_id required")
-    history = _resolve_history_for_user(phone, limit=50)
+    history = _resolve_history_for_user(phone, limit=500)
     txn = {"user_id": phone, "amount": 500, "merchant_name": "9158763151", "note": "", "device_familiarity": 1.0, "location_familiarity": 1.0, "balance_before": 10000, "hour_of_day": 12}
     user_profile = _build_user_risk_profile(phone, history)
     result = _build_fraud_result(txn, history, user_profile, 30)
@@ -1421,7 +1421,7 @@ def analyze(req: AnalyzeRequest, request: Request):
     user_profile_dict = req.user_profile.model_dump() if hasattr(req.user_profile, 'model_dump') else req.user_profile.dict()
     if not txn_dict.get("user_id") and phone:
         txn_dict["user_id"] = phone
-    history = _resolve_history_for_user(phone, limit=50) if phone else []
+    history = _resolve_history_for_user(phone, limit=500) if phone else []
     # Call unified risk for final
     unified = _compute_unified_risk(phone or "unknown", txn_dict, history, user_profile_dict)
     # Legacy merge for backwards compat
@@ -1465,7 +1465,7 @@ def intel_analyze(req: AnalyzeRequest, request: Request):
     user_profile_dict = req.user_profile.model_dump() if hasattr(req.user_profile, 'model_dump') else req.user_profile.dict()
     if not txn_dict.get("user_id") and phone:
         txn_dict["user_id"] = phone
-    history = _resolve_history_for_user(phone, limit=50) if phone else []
+    history = _resolve_history_for_user(phone, limit=500) if phone else []
     beh = _build_behavior_result(txn_dict, history)
     fraud = _build_fraud_result(txn_dict, history, user_profile_dict, beh.get("behavior_score"), txn_dict.get("device_familiarity"), txn_dict.get("location_familiarity"))
     # Return without final
@@ -1509,7 +1509,11 @@ def risk_assess(req: RiskAssessRequest, request: Request):
     if req.user_profile:
         user_profile_dict = req.user_profile.model_dump() if hasattr(req.user_profile, 'model_dump') else req.user_profile.dict()
     else:
-        user_profile_dict = {"user_id": phone, "avg_amount": 1000, "daily_avg_spend": 3000}
+        user_profile_dict = {}
+    # The server-side account history is authoritative; do not trust a stale
+    # browser-provided baseline when the authenticated account has history.
+    if phone != "unknown" and history:
+        user_profile_dict = _build_user_risk_profile(phone, history)
     if not txn_dict.get("user_id") and phone:
         txn_dict["user_id"] = phone
     # Normalize merchant_name/ recipient
@@ -1517,7 +1521,7 @@ def risk_assess(req: RiskAssessRequest, request: Request):
         txn_dict["merchant_name"] = txn_dict["recipient"]
     if not txn_dict.get("recipient") and txn_dict.get("merchant_name"):
         txn_dict["recipient"] = txn_dict["merchant_name"]
-    history = _resolve_history_for_user(phone, limit=50) if phone != "unknown" else []
+    history = _resolve_history_for_user(phone, limit=500) if phone != "unknown" else []
     # Compute unified
     try:
         unified = _compute_unified_risk(phone, txn_dict, history, user_profile_dict)
@@ -2538,7 +2542,7 @@ def risk_simulate(req: SimulateRequest, request: Request, current: Dict[str, Any
 
     # Current baseline for comparison: use same phone with normal params
     curr_txn, curr_hist = _build_txn_for_risk(phone, "9158763151", 500, "", 1.0, 1.0, 12)
-    curr_hist = _resolve_history_for_user(phone, limit=50)
+    curr_hist = _resolve_history_for_user(phone, limit=500)
     # Use normal profile
     user_profile = _build_user_risk_profile(phone, history)
     try:

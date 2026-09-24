@@ -1849,7 +1849,7 @@ function Dashboard({user,balance,txs,setPage,updateUser}){
       )}
 
       {/* ── Balance Card ── */}
-      <div className="balance-highlight" style={{background:"#1B263B",borderRadius:8,padding:"28px 28px 24px",marginBottom:16,display:"flex",
+      <div className="balance-highlight" style={{background:"#FFF1E8",borderRadius:8,padding:"28px 28px 24px",marginBottom:16,display:"flex",
         justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:16,
         border:"none",position:"relative",overflow:"hidden"}}>
         <div style={{position:"absolute",top:-40,right:-40,width:180,height:180,borderRadius:"50%",background:"rgba(197,160,89,0.05)"}}/>
@@ -1870,7 +1870,7 @@ function Dashboard({user,balance,txs,setPage,updateUser}){
               {vis?Ic.eyeOff("#C5A059"):Ic.eye("#C5A059")}
             </button>
           </div>
-          <div style={{color:"rgba(255,255,255,.4)",fontSize:11,fontWeight:500,letterSpacing:"0.06em",textTransform:"uppercase"}}>Available Balance</div>
+          <div style={{color:"#667085",fontSize:11,fontWeight:600,letterSpacing:"0.06em",textTransform:"uppercase"}}>Available Balance</div>
         </div>
         <div style={{display:"flex",alignItems:"center",gap:6,background:"rgba(197,160,89,.1)",
           border:"1px solid rgba(197,160,89,.2)",borderRadius:4,padding:"6px 12px",position:"relative",zIndex:1}}>
@@ -2891,12 +2891,12 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
       {(stage==="form"||stage==="analyzing")&&(
         <Card style={{padding:24}}>
           <div className="send-balance-highlight" style={{display:"flex",alignItems:"center",justifyContent:"space-between",
-            padding:"14px 16px",background:`linear-gradient(135deg,#1B263B,#0F1E2E)`,
+            padding:"14px 16px",background:"#FFF7ED",
             borderRadius:6,marginBottom:22,boxShadow:"0 6px 18px rgba(0,120,255,.22)"}}>
             <div>
               <div style={{fontSize:11,color:"rgba(255,255,255,.7)",fontWeight:700,
-                textTransform:"uppercase",letterSpacing:.6,marginBottom:4}}>Available Balance</div>
-              <div style={{fontSize:22,fontWeight:800,color:"#fff"}}>₹{balance.toLocaleString("en-IN")}</div>
+                textTransform:"uppercase",letterSpacing:.6,marginBottom:4,color:"#9A3412"}}>Available Balance</div>
+              <div style={{fontSize:22,fontWeight:800,color:"#111827"}}>₹{balance.toLocaleString("en-IN")}</div>
             </div>
             {balance===0&&(
               <div style={{background:"rgba(255,100,100,.25)",padding:"5px 12px",borderRadius:8,
@@ -7340,7 +7340,7 @@ function App(){
             {page === "rbi"           && <RBIGuidelinesPage {...pp}/>}
           </div>
 
-          <button
+          <button className="nexus-launcher"
             onClick={() => setShowAssistant(true)}
             style={{position:"fixed",bottom:24,left:24,zIndex:100,
               width:54,height:54,borderRadius:6,background:"#1B263B",
