@@ -6976,13 +6976,11 @@ Use user's actual data above for personalized answers.`;
   const handleQuickReply = (text) => handleSend(text);
 
   return (
-    <Modal>
-      <div onClick={onClose} style={{position:"fixed",inset:0,
-        background:"rgba(10,25,70,.65)",backdropFilter:"blur(8px)",
-        display:"flex",alignItems:"center",justifyContent:"center",padding:"20px"}}>
-        <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:8,
-          width:"100%",maxWidth:450,maxHeight:"80vh",
-          display:"flex",flexDirection:"column",overflow:"hidden"}}>
+      <div style={{position:"fixed",bottom:100,right:28,zIndex:1000,
+        width:380,maxWidth:"calc(100vw - 32px)",height:540,maxHeight:"calc(100vh - 140px)",
+        background:"#fff",borderRadius:16,boxShadow:"0 12px 48px rgba(0,0,0,.28)",
+        border:"1px solid #e2e8f0",
+        display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
           <div style={{background:`linear-gradient(135deg,#1B263B,#0F1E2E)`,padding:"16px 20px",
             display:"flex",alignItems:"center",justifyContent:"space-between"}}>
@@ -7084,9 +7082,7 @@ Use user's actual data above for personalized answers.`;
             </button>
           </div>
 
-        </div>
       </div>
-    </Modal>
   );
 }
 
@@ -7233,7 +7229,7 @@ function App(){
       const hdr=getAuthHeader();
       if(hdr.Authorization){
         fetch(`${API}/balance`,{headers: hdr}).then(r=>r.json()).then(j=>{ if(j.balance!=null) setBalance(j.balance); localStorage.setItem("iron_balance", JSON.stringify(j.balance!=null? j.balance : u.balance)); }).catch(()=>{ setBalance(u.balance); try{ localStorage.setItem("iron_balance", JSON.stringify(u.balance)); }catch{} });
-        fetch(`${API}/transactions?limit=50`,{headers: hdr}).then(r=>r.json()).then(j=>{ if(j.transactions) setTxs(j.transactions.map(x=>({id:x.transaction_id, to:x.recipient_name||x.recipient, toNum:x.recipient, amt:x.amount, date:x.timestamp.slice(0,10), time:x.timestamp.slice(11,16), risk:x.risk_score, status:x.status==="SUCCESS"?"success":x.status==="HIGH_RISK"?"high_risk":x.status.toLowerCase(), type:"debit", note:x.note, isNew:false, risk_tag:x.risk_tier?.toLowerCase()||"normal", otp_used:x.verification_method==="OTP"}))); }).catch(()=>setTxs(SEED_TXS));
+        fetch(`${API}/transactions?limit=100`,{headers: hdr}).then(r=>r.json()).then(j=>{ if(j.transactions) setTxs(j.transactions.map(x=>({id:x.transaction_id, to:x.recipient_name||x.recipient, toNum:x.recipient, amt:x.amount, date:x.timestamp.slice(0,10), time:x.timestamp.slice(11,16), risk:x.risk_score, status:x.status==="SUCCESS"?"success":x.status==="HIGH_RISK"?"high_risk":x.status.toLowerCase(), type:"debit", note:x.note, isNew:false, risk_tag:x.risk_tier?.toLowerCase()||"normal", otp_used:x.verification_method==="OTP"}))); }).catch(()=>setTxs(SEED_TXS));
       } else {
         // Fallback to local if no token – clear stale local 0 and use u.balance
         try{ localStorage.removeItem("iron_balance"); localStorage.removeItem("iron_txs"); }catch{}
