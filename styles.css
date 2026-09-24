@@ -157,6 +157,39 @@ body{font-family:'Inter',sans-serif;background:#FDFCFB;overflow-x:hidden;}
   .sec-grid{grid-template-columns:1fr!important;}
   .balance-amt{font-size:28px!important;}
 }
+
+/* Final cascade guard for legacy inline dashboard surfaces. */
+html,body,#root,#root>div,#main-content{
+  background-color:#F7F8FA!important;
+  background-image:none!important;
+  color:#111827!important;
+}
+#main-content [style*="background: rgb(21, 24, 25)"],
+#main-content [style*="background: rgb(29, 32, 33)"],
+#main-content [style*="background: rgb(255, 255, 255)"],
+#main-content [style*="background:#fff"],
+#main-content [style*="background: #fff"],
+#main-content [style*="background: rgb(253, 252, 251)"]{
+  background:#FFFFFF!important;
+  color:#111827!important;
+  border-color:#E5E7EB!important;
+  box-shadow:var(--shadow-sm)!important;
+}
+#main-content [style*="background: rgba(255,255,255,.045)"],
+#main-content [style*="background: rgba(255, 255, 255, 0.045)"],
+#main-content [style*="background: rgba(27,38,59,.05)"]{
+  background:#F9FAFB!important;
+}
+#main-content [style*="color: rgb(242, 242, 240)"],
+#main-content [style*="color: rgb(253, 252, 251)"],
+#main-content [style*="color:#FDFCFB"],
+#main-content [style*="color:#F2F2F0"]{
+  color:#111827!important;
+}
+#main-content [style*="color: rgba(255,255,255"],
+#main-content [style*="color:rgba(255,255,255"]{
+  color:#667085!important;
+}
 @media(min-width:769px) and (max-width:1100px){
   .stats-4{grid-template-columns:1fr 1fr!important;}
   .stats-3{grid-template-columns:1fr 1fr!important;}
