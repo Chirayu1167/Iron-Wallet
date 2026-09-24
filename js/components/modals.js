@@ -35,14 +35,14 @@ function OTPModal({mobile,onSuccess,onCancel}){
   async function submit(code){
     // Admin user - skip OTP server call, accept constant OTP 000000
     if (mobile === "1234567890" && code === "000000") {
-      onSuccess();
+      onSuccess(code);
       return;
     }
     setLoad(true);
     try{
       const res=await fetch(`${API}/verify-otp`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({mobile,otp:code})});
       const data=await res.json();
-      if(data.status==="SUCCESS"){onSuccess();}
+      if(data.status==="SUCCESS"){onSuccess(code);}
       else{
         setErrMsg(data.status==="OTP_EXPIRED"?"OTP expired. Resend.":"Invalid OTP.");
         setError(true);
@@ -66,14 +66,14 @@ function OTPModal({mobile,onSuccess,onCancel}){
 
   return(
     <Modal>
-      <div style={{position:"fixed",top:0,left:0,width:"100%",height:"100%",zIndex:9999,
-        overflowY:"auto",overscrollBehavior:"contain",
+      <div style={{
+        position:"fixed",top:0,left:0,width:"100%",height:"100%",zIndex:9999,
+        display:"flex",alignItems:"center",justifyContent:"center",
+        padding:"20px",boxSizing:"border-box",
         background:"rgba(10,25,70,.65)",backdropFilter:"blur(8px)",WebkitBackdropFilter:"blur(8px)"}}>
-        <div style={{minHeight:"100%",display:"flex",alignItems:"center",justifyContent:"center",
-          padding:"20px",boxSizing:"border-box"}}>
-          <div style={{background:"#fff",borderRadius:24,width:"100%",maxWidth:380,
-            boxShadow:"0 32px 80px rgba(0,0,0,.28)",animation:"scaleIn .28s cubic-bezier(.16,1,.3,1)",
-            overflow:"hidden",flexShrink:0}}>
+        <div style={{background:"#fff",borderRadius:24,width:"100%",maxWidth:380,
+          boxShadow:"0 32px 80px rgba(0,0,0,.28)",animation:"scaleIn .28s cubic-bezier(.16,1,.3,1)",
+          overflow:"hidden",flexShrink:0}}>
             <div style={{background:`linear-gradient(135deg,#0078FF,#0055cc)`,padding:"20px 24px 16px",textAlign:"center"}}>
               <div style={{width:50,height:50,borderRadius:"50%",background:"rgba(255,255,255,.2)",
                 display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 10px"}}>
@@ -193,13 +193,13 @@ function PINModal({userPin, onSuccess, onCancel, user}){
 
   return(
     <Modal>
-      <div style={{position:"fixed",top:0,left:0,width:"100%",height:"100%",zIndex:9999,
-        overflowY:"auto",overscrollBehavior:"contain",
+      <div style={{
+        position:"fixed",top:0,left:0,width:"100%",height:"100%",zIndex:9999,
+        display:"flex",alignItems:"center",justifyContent:"center",
+        padding:"20px",boxSizing:"border-box",
         background:"rgba(10,25,70,.65)",backdropFilter:"blur(8px)",WebkitBackdropFilter:"blur(8px)"}}>
-        <div style={{minHeight:"100%",display:"flex",alignItems:"center",justifyContent:"center",
-          padding:"20px",boxSizing:"border-box"}}>
-          <div style={{background:"#fff",borderRadius:24,width:"100%",maxWidth:320,flexShrink:0,
-            boxShadow:"0 30px 70px rgba(0,0,0,.26)",animation:"scaleIn .28s cubic-bezier(.16,1,.3,1)",overflow:"hidden"}}>
+        <div style={{background:"#fff",borderRadius:24,width:"100%",maxWidth:320,flexShrink:0,
+          boxShadow:"0 30px 70px rgba(0,0,0,.26)",animation:"scaleIn .28s cubic-bezier(.16,1,.3,1)",overflow:"hidden"}}>
             {pinFrozen ? (
               <>
                 <div style={{background:"linear-gradient(135deg,#dc2626,#991b1b)",padding:"20px 24px 16px",textAlign:"center"}}>

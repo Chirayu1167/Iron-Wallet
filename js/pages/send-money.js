@@ -664,11 +664,14 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
     //   (b) recipient is unknown to contacts AND amount is ≥ ₹2000
     const { inContacts, inHistory } = getRecipientInfo();
     const isUnknownContact = !inContacts && !inHistory;
+    // Removed OOB Modal trigger to streamline flow
+    /*
     const shouldShowOOB = riskData.score > 75 || (isUnknownContact && parsedAmt >= 2000);
     if (shouldShowOOB) {
       setShowOOBModal(true);
       return; // halt here — user must explicitly choose to proceed or cancel
     }
+    */
     // === End Out-of-Band Verification Feature ===
 
     // ===== NEW: Show smart delay if high-value transaction =====
@@ -680,24 +683,9 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
   }
 
   // === Out-of-Band Verification Feature: handlers for the OOB modal ===
-  function handleOOBProceed() {
-    // User chose to proceed despite the warning — close modal and continue normally
-    setShowOOBModal(false);
-    if (riskData.requiresDelay) {
-      setShowSmartDelay(true);
-    } else {
-      setStage("pin");
-    }
-  }
+  function handleOOBProceed() {}
 
-  function handleOOBCancel() {
-    // User chose to cancel — go back to the risk review screen
-    setShowOOBModal(false);
-    setStage("form");
-    setRecipient("");
-    setAmt("");
-    setNote("");
-  }
+  function handleOOBCancel() {}
   // === End Out-of-Band Verification Feature ===
 
   function handleSmartDelayConfirm(){
@@ -716,7 +704,8 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
     }
   }
 
-  function handleOTPSuccess() {
+  function handleOTPSuccess(otp) {
+    setRiskData(prev => ({ ...prev, otpValue: otp }));
     completePayment();
   }
 
