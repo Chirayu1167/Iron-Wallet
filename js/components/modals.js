@@ -552,14 +552,8 @@ function FraudRiskCard({score, recipient, recipientNum, amount, signals, onVerif
                 {title}
               </span>
             </div>
-            <p style={{fontSize:12,color:"#94a3b8"}}>AI Fraud Risk Score</p>
+            <p style={{fontSize:12,color:"#94a3b8"}}>Adaptive behavioral security review</p>
           </div>
-          <svg width="88"height="74"viewBox="0 0 104 80">
-            <path d={arc(sa,sa+Math.PI*1.5)} fill="none" stroke="#f1f5f9" strokeWidth="10" strokeLinecap="round"/>
-            {score>0&&<path d={arc(sa,sa+sw)} fill="none" stroke={m.dot} strokeWidth="10" strokeLinecap="round"/>}
-            <text x={cx} y={cy+4} textAnchor="middle" fontSize="20" fontWeight="800" fill={m.color} fontFamily="DM Sans">{score}</text>
-            <text x={cx} y={cy+18} textAnchor="middle" fontSize="9" fill="#94a3b8" fontFamily="DM Sans">/100</text>
-          </svg>
         </div>
         <div style={{background:"#f8faff",borderRadius:12,padding:"14px 16px",marginBottom:14}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
@@ -571,13 +565,12 @@ function FraudRiskCard({score, recipient, recipientNum, amount, signals, onVerif
             <span style={{fontSize:19,fontWeight:800,color:"#0f172a"}}>₹{Number(amount).toLocaleString("en-IN")}</span>
           </div>
         </div>
-        <div style={{marginBottom:14}}>
-          <div style={{height:6,background:"#f1f5f9",borderRadius:3,overflow:"hidden"}}>
-            <div style={{height:"100%",width:`${score}%`,background:`linear-gradient(90deg,#22c55e,${m.dot})`,
-              borderRadius:3,transition:"width .7s cubic-bezier(.4,0,.2,1)"}}/>
+        <div style={{marginBottom:14,padding:"10px 12px",background:"#f8faff",border:"1px solid #e2e8f0",borderRadius:8}}>
+          <div style={{fontSize:11,fontWeight:800,color:"#64748b",textTransform:"uppercase",letterSpacing:.7,marginBottom:4}}>
+            Review basis
           </div>
-          <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:"#cbd5e1",marginTop:3}}>
-            <span>🟢 Safe (0–60)</span><span>🟡 (61–80)</span><span>🟠 (81–94)</span><span>🔴 (95+)</span>
+          <div style={{fontSize:12,color:"#475569",lineHeight:1.45}}>
+            Iron compared this payment with your usual spending pattern, recipient familiarity, recent activity, and account context.
           </div>
         </div>
         {/* ===== Network Fraud Intelligence — recipient report count ===== */}
@@ -1153,13 +1146,6 @@ function SoftRiskPopup({ score, signals, amount, recipient, onProceed, onCancel 
               ₹{Number(amount).toLocaleString("en-IN")} to <strong>{recipient}</strong> — review before paying
             </div>
           </div>
-          <div style={{
-            background: "#fff", border: `1.5px solid ${palette.border}`,
-            borderRadius: 8, padding: "3px 8px", textAlign: "center", flexShrink: 0,
-          }}>
-            <div style={{ fontSize: 14, fontWeight: 900, color: palette.chip, lineHeight: 1 }}>{score}</div>
-            <div style={{ fontSize: 8, color: palette.subColor, fontWeight: 700, letterSpacing: ".04em" }}>RISK</div>
-          </div>
           <button onClick={() => setDismissed(true)} aria-label="Dismiss"
             style={{ background: "transparent", border: "none", cursor: "pointer",
               padding: 4, marginLeft: 2, color: palette.subColor, lineHeight: 0 }}>
@@ -1174,15 +1160,6 @@ function SoftRiskPopup({ score, signals, amount, recipient, onProceed, onCancel 
           border: `1px solid ${palette.border}`, marginBottom: 10,
         }}>
           {topSignal}
-        </div>
-
-        {/* Risk bar */}
-        <div style={{ height: 3, background: palette.barTrack, borderRadius: 2, marginBottom: 12, overflow: "hidden" }}>
-          <div style={{
-            height: "100%", width: `${score}%`,
-            background: `linear-gradient(90deg, ${palette.barFrom}, ${palette.barTo})`,
-            borderRadius: 2, transition: "width .5s ease",
-          }}/>
         </div>
 
         {/* Action buttons */}
@@ -1606,15 +1583,6 @@ function CoolingPeriodModal({ score, signals, recipient, amount, onComplete, onC
           React.createElement("div", { style: { fontSize: 16, fontWeight: 900, color: "#dc2626" } },
             "\u20B9" + Number(amount).toLocaleString("en-IN")
           ),
-        ),
-        React.createElement("div", {
-          style: {
-            background: "#dc2626", borderRadius: 8,
-            padding: "4px 10px", textAlign: "center",
-          }
-        },
-          React.createElement("div", { style: { fontSize: 18, fontWeight: 900, color: "#fff", lineHeight: 1 } }, score),
-          React.createElement("div", { style: { fontSize: 9, color: "rgba(255,255,255,.8)" } }, "RISK"),
         ),
       ),
 

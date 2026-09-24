@@ -9,6 +9,7 @@ import json
 import time
 import uuid
 import os
+import hashlib
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
@@ -144,6 +145,18 @@ def init_db():
         timestamp TEXT NOT NULL,
         transaction_id TEXT,
         meta_json TEXT
+    );""")
+    # Tamper-evident security history. This stores event metadata only.
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS security_ledger (
+        sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+        event_id TEXT UNIQUE NOT NULL,
+        phone TEXT NOT NULL,
+        event_type TEXT NOT NULL,
+        timestamp TEXT NOT NULL,
+        previous_hash TEXT NOT NULL,
+        current_hash TEXT NOT NULL,
+        metadata_json TEXT NOT NULL DEFAULT '{}'
     );""")
     conn.commit()
     conn.close()
@@ -596,6 +609,15 @@ def create_security_event(phone: str, event_type: str, severity: str, title: str
                 (event_id, phone, user_id, event_type, severity, title, description, now, transaction_id, json.dumps(safe_meta)))
     conn.commit()
     conn.close()
+    try:
+        ledger_type = "OTP_VERIFIED" if event_type == "OTP_VERIFIED" else "SECURITY_ALERT"
+        ledger_meta = {"security_event_type": event_type, "severity": severity}
+        if transaction_id:
+            ledger_meta["transaction_id"] = transaction_id
+        append_security_ledger_event(phone, ledger_type, ledger_meta)
+    except Exception:
+        # Security event persistence remains available even if the ledger is unavailable.
+        pass
     return {"event_id": event_id, "type": event_type, "severity": severity, "title": title, "description": description, "timestamp": now, "transaction_id": transaction_id}
 
 def get_security_events(phone: str, limit: int = 50, offset: int = 0) -> List[Dict[str, Any]]:
@@ -625,6 +647,136 @@ def get_security_events_count(phone: str) -> int:
 
 def get_recent_security_events_summary(phone: str, limit: int = 5) -> List[Dict[str,Any]]:
     return get_security_events(phone, limit=limit, offset=0)
+
+# ── Tamper-evident security ledger ──────────────────────────────────────────
+
+_ALLOWED_LEDGER_EVENT_TYPES = {
+    "RISK_ASSESSMENT",
+    "UNUSUAL_PAYMENT",
+    "PAYMENT_CANCELLED",
+    "PAYMENT_CONFIRMED",
+    "OTP_VERIFIED",
+    "SECURITY_ALERT",
+}
+_LEDGER_GENESIS = "0" * 64
+_SENSITIVE_KEYS = {"otp", "pin", "password", "secret", "token", "api_key", "credential", "phone", "recipient", "amount", "note"}
+
+def _ledger_metadata(metadata: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    safe = {}
+    for key, value in (metadata or {}).items():
+        if str(key).lower() in _SENSITIVE_KEYS:
+            continue
+        if isinstance(value, (str, int, float, bool)) or value is None:
+            safe[str(key)] = value
+    return safe
+
+def append_security_ledger_event(phone: str, event_type: str, metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    if event_type not in _ALLOWED_LEDGER_EVENT_TYPES:
+        raise ValueError("Unsupported security ledger event type")
+    now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    event_id = str(uuid.uuid4())
+    safe_metadata = _ledger_metadata(metadata)
+    conn = _conn()
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT current_hash FROM security_ledger WHERE phone=? ORDER BY sequence DESC LIMIT 1",
+            (phone,),
+        )
+        row = cur.fetchone()
+        previous_hash = row["current_hash"] if row else _LEDGER_GENESIS
+        canonical = json.dumps(
+            {
+                "event_id": event_id,
+                "event_type": event_type,
+                "timestamp": now,
+                "previous_hash": previous_hash,
+                "metadata": safe_metadata,
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        current_hash = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+        cur.execute(
+            """INSERT INTO security_ledger
+               (event_id, phone, event_type, timestamp, previous_hash, current_hash, metadata_json)
+               VALUES (?,?,?,?,?,?,?)""",
+            (event_id, phone, event_type, now, previous_hash, current_hash, json.dumps(safe_metadata, sort_keys=True)),
+        )
+        conn.commit()
+        sequence = cur.lastrowid
+    finally:
+        conn.close()
+    return {
+        "sequence": sequence,
+        "event_id": event_id,
+        "event_type": event_type,
+        "timestamp": now,
+        "previous_hash": previous_hash,
+        "current_hash": current_hash,
+        "metadata": safe_metadata,
+    }
+
+def get_security_ledger(phone: str, limit: int = 100) -> List[Dict[str, Any]]:
+    conn = _conn()
+    try:
+        rows = conn.execute(
+            "SELECT sequence,event_id,event_type,timestamp,previous_hash,current_hash,metadata_json "
+            "FROM security_ledger WHERE phone=? ORDER BY sequence DESC LIMIT ?",
+            (phone, limit),
+        ).fetchall()
+    finally:
+        conn.close()
+    result = []
+    for row in rows:
+        item = dict(row)
+        try:
+            item["metadata"] = json.loads(item.pop("metadata_json") or "{}")
+        except (TypeError, ValueError):
+            item["metadata"] = {}
+            item.pop("metadata_json", None)
+        result.append(item)
+    return result
+
+def verify_security_ledger(phone: str) -> Dict[str, Any]:
+    conn = _conn()
+    try:
+        rows = conn.execute(
+            "SELECT sequence,event_id,event_type,timestamp,previous_hash,current_hash,metadata_json "
+            "FROM security_ledger WHERE phone=? ORDER BY sequence ASC",
+            (phone,),
+        ).fetchall()
+    finally:
+        conn.close()
+    previous_hash = _LEDGER_GENESIS
+    for row in rows:
+        try:
+            metadata = json.loads(row["metadata_json"] or "{}")
+        except (TypeError, ValueError):
+            metadata = {}
+        expected = hashlib.sha256(
+            json.dumps(
+                {
+                    "event_id": row["event_id"],
+                    "event_type": row["event_type"],
+                    "timestamp": row["timestamp"],
+                    "previous_hash": row["previous_hash"],
+                    "metadata": metadata,
+                },
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+        if row["previous_hash"] != previous_hash or row["current_hash"] != expected:
+            return {
+                "intact": False,
+                "event_count": len(rows),
+                "broken_sequence": row["sequence"],
+                "broken_event_id": row["event_id"],
+                "message": f"Tampering detected in security event #{row['sequence']}.",
+            }
+        previous_hash = row["current_hash"]
+    return {"intact": True, "event_count": len(rows), "message": "Security history verified."}
 
 # ── seeding ───────────────────────────────────────────────────────────────────
 

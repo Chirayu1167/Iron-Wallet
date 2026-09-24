@@ -6,6 +6,8 @@ function SecurityCenter({ user, setPage }) {
   const [overview, setOverview] = useState(null);
   const [events, setEvents] = useState([]);
   const [sessions, setSessions] = useState([]);
+  const [ledger, setLedger] = useState({ event_count: 0, intact: true });
+  const [ledgerChecking, setLedgerChecking] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [eventsPage, setEventsPage] = useState(0);
@@ -17,24 +19,38 @@ function SecurityCenter({ user, setPage }) {
       const hdr = getAuthHeader();
       if (!hdr.Authorization) { setError("Please log in."); setLoading(false); return; }
       try {
-        const [ovRes, evRes, sessRes] = await Promise.all([
+        const [ovRes, evRes, sessRes, ledgerRes] = await Promise.all([
           fetch(`${API}/security/overview`, { headers: hdr }),
           fetch(`${API}/security/events?limit=${pageSize}&offset=${eventsPage*pageSize}`, { headers: hdr }),
-          fetch(`${API}/security/sessions`, { headers: hdr })
+          fetch(`${API}/security/sessions`, { headers: hdr }),
+          fetch(`${API}/security/ledger`, { headers: hdr })
         ]);
         if (!ovRes.ok) throw new Error("Failed to load overview");
         const ov = await ovRes.json();
         const ev = evRes.ok ? await evRes.json() : { events: [] };
         const sess = sessRes.ok ? await sessRes.json() : { sessions: [] };
+        const led = ledgerRes.ok ? await ledgerRes.json() : { event_count: 0, intact: true };
         setOverview(ov);
         setEvents(ev.events || []);
         setSessions(sess.sessions || []);
+        setLedger(led);
       } catch (e) {
         setError("We couldn't load this information. Please try again.");
       } finally { setLoading(false); }
     }
     load();
   }, [eventsPage]);
+
+  async function verifyLedger() {
+    setLedgerChecking(true);
+    try {
+      const res = await fetch(`${API}/security/ledger/verify`, { headers: getAuthHeader() });
+      if (!res.ok) throw new Error("Verification unavailable");
+      setLedger(await res.json());
+    } catch {
+      setLedger({ ...ledger, intact: false, message: "Security history could not be verified." });
+    } finally { setLedgerChecking(false); }
+  }
 
   async function revokeSession(suffix) {
     const hdr = getAuthHeader();
@@ -98,6 +114,23 @@ function SecurityCenter({ user, setPage }) {
   return (
     <div className="page-pad page-enter" style={{ padding:"24px 24px 32px", maxWidth:1100, margin:"0 auto" }}>
       <PageHeader title="Security Center" subtitle="A visibility and control layer — not another risk engine." onBack={()=>setPage && setPage("dashboard")} />
+
+      <div style={{ background:"#fff", border:"1px solid #E0E1DD", borderRadius:8, padding:16, marginBottom:16 }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:12 }}>
+          <div>
+            <h3 style={{ fontSize:14, fontWeight:800, color:"#1B263B", margin:0 }}>Security Integrity</h3>
+            <div style={{ fontSize:13, color:ledger.intact?"#166534":"#991b1b", fontWeight:700, marginTop:7 }}>
+              {ledger.intact ? "✓ Security history verified" : "⚠ Security history could not be verified"}
+            </div>
+            <div style={{ fontSize:12, color:"#64748b", marginTop:4 }}>
+              {ledger.intact ? `${ledger.event_count || 0} security events • No tampering detected` : (ledger.message || "Review the security history.")}
+            </div>
+          </div>
+          <button onClick={verifyLedger} disabled={ledgerChecking} style={{ padding:"8px 12px", border:"1px solid #E0E1DD", borderRadius:6, background:"#fff", color:"#1B263B", fontSize:12, fontWeight:700, cursor:ledgerChecking?"wait":"pointer" }}>
+            {ledgerChecking ? "Verifying…" : "Verify Security History"}
+          </button>
+        </div>
+      </div>
 
       {/* Security Status */}
       <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))", gap:12, marginBottom:16 }}>

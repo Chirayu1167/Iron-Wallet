@@ -161,3 +161,205 @@ body{font-family:'Inter',sans-serif;background:#FDFCFB;overflow-x:hidden;}
   .stats-4{grid-template-columns:1fr 1fr!important;}
   .stats-3{grid-template-columns:1fr 1fr!important;}
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   IRON / SWISS SECURITY SYSTEM
+   These overrides intentionally sit at the shared CSS layer so the
+   existing React views keep their data flow and behavior unchanged.
+═══════════════════════════════════════════════════════════════════════ */
+:root{
+  --iron-bg:#0D0F10;
+  --iron-surface:#151819;
+  --iron-elevated:#1D2021;
+  --iron-border:#2A2D2E;
+  --iron-orange:#FF6B00;
+  --iron-orange-hi:#FF8A1F;
+  --iron-text:#F2F2F0;
+  --iron-muted:#9B9E9F;
+  --iron-safe:#35C759;
+  --iron-caution:#F5B82E;
+  --iron-risk:#FF453A;
+  --iron-info:#4DA3FF;
+}
+
+html{background:var(--iron-bg);}
+body{
+  background:var(--iron-bg)!important;
+  color:var(--iron-text)!important;
+  font-family:'IBM Plex Sans','Inter',sans-serif!important;
+  letter-spacing:.005em;
+}
+button,input,select,textarea{font-family:'IBM Plex Sans','Inter',sans-serif!important;}
+#root>div{
+  background:var(--iron-bg)!important;
+  color:var(--iron-text)!important;
+}
+#main-content{
+  background:
+    linear-gradient(90deg,rgba(255,107,0,.035) 1px,transparent 1px) 0 0/48px 48px,
+    var(--iron-bg)!important;
+}
+#main-content [style*="background: rgb(255, 255, 255)"],
+#main-content [style*="background: rgb(253, 252, 251)"]{
+  background:var(--iron-surface)!important;
+  border-color:var(--iron-border)!important;
+}
+#main-content [style*="background: rgb(27, 38, 59)"]{
+  background:var(--iron-elevated)!important;
+  border-color:var(--iron-border)!important;
+}
+#main-content [style*="background: rgba(27, 38, 59, 0.05)"]{
+  background:rgba(255,255,255,.045)!important;
+}
+#main-content [style*="background: rgba(197, 160, 89"]{
+  background:rgba(255,107,0,.1)!important;
+  border-color:rgba(255,107,0,.28)!important;
+}
+#main-content [style*="color: rgb(26, 28, 26)"],
+#main-content [style*="color: rgb(69, 71, 77)"],
+#main-content [style*="color: rgb(117, 119, 125)"],
+#main-content [style*="color: rgb(27, 38, 59)"]{
+  color:var(--iron-text)!important;
+}
+#main-content [style*="color: rgb(69, 71, 77)"],
+#main-content [style*="color: rgb(117, 119, 125)"]{
+  color:var(--iron-muted)!important;
+}
+#main-content [style*="border-color: rgb(224, 225, 221)"],
+#main-content [style*="border: 1px solid rgb(224, 225, 221)"]{
+  border-color:var(--iron-border)!important;
+}
+#modal-root{color:var(--iron-text);}
+
+/* Shared surfaces, panels, and dividers */
+.glass{
+  background:var(--iron-surface)!important;
+  border:1px solid var(--iron-border)!important;
+  border-radius:3px!important;
+  box-shadow:0 10px 30px rgba(0,0,0,.18)!important;
+}
+.glass:hover{border-color:#3a3e40!important;box-shadow:0 12px 34px rgba(0,0,0,.25)!important;}
+.page-enter{animation:fadeIn .22s ease both;}
+.page-pad{max-width:1440px!important;margin:0 auto!important;padding:32px clamp(18px,4vw,56px) 128px!important;}
+.font-serif{font-family:'Space Grotesk',sans-serif!important;}
+
+/* Headings and metadata */
+h1,h2,h3,h4{
+  color:var(--iron-text)!important;
+  font-family:'Space Grotesk','IBM Plex Sans',sans-serif!important;
+  letter-spacing:-.025em!important;
+}
+p,span,label,td,th{color:inherit;}
+[style*="text-transform: uppercase"],[style*="textTransform"]{
+  letter-spacing:.12em!important;
+}
+
+/* Controls */
+.btn-primary{
+  background:var(--iron-orange)!important;
+  color:#111!important;
+  border:1px solid var(--iron-orange)!important;
+  border-radius:2px!important;
+  box-shadow:none!important;
+  font-weight:700!important;
+  letter-spacing:.08em!important;
+}
+.btn-primary:hover:not(:disabled){
+  background:var(--iron-orange-hi)!important;
+  border-color:var(--iron-orange-hi)!important;
+  box-shadow:0 0 0 3px rgba(255,107,0,.14)!important;
+}
+button:not(.btn-primary):not(.dock-item){
+  transition:background .16s ease,border-color .16s ease,color .16s ease,transform .16s ease;
+}
+input,select,textarea{
+  background:var(--iron-elevated)!important;
+  color:var(--iron-text)!important;
+  border:1px solid var(--iron-border)!important;
+  border-radius:2px!important;
+  outline:none;
+}
+input::placeholder,textarea::placeholder{color:#6f7475!important;}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--iron-orange)!important;
+  box-shadow:0 0 0 2px rgba(255,107,0,.14)!important;
+}
+option{background:var(--iron-elevated);color:var(--iron-text);}
+
+/* Navigation: replace the floating glass dock with a restrained command bar */
+.dock-pill{
+  background:var(--iron-surface)!important;
+  border:1px solid var(--iron-border)!important;
+  border-radius:3px!important;
+  box-shadow:0 14px 34px rgba(0,0,0,.35)!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+.dock-item{color:var(--iron-muted)!important;border-radius:2px!important;}
+.dock-item:hover{transform:none!important;color:var(--iron-text)!important;}
+.dock-item.active{color:var(--iron-orange)!important;}
+.dock-item.active .dock-icon-wrap{
+  background:rgba(255,107,0,.12)!important;
+  box-shadow:inset 0 -2px 0 var(--iron-orange)!important;
+}
+.dock-item.logout:hover{color:var(--iron-risk)!important;}
+
+/* Reusable status language. Red remains reserved for high risk. */
+.risk-tag,.ins-chip{border-radius:2px!important;}
+.pt-toast{
+  background:var(--iron-elevated)!important;
+  border:1px solid var(--iron-border)!important;
+  border-top:2px solid var(--iron-orange)!important;
+  border-radius:2px!important;
+  color:var(--iron-text)!important;
+  box-shadow:0 12px 30px rgba(0,0,0,.38)!important;
+}
+.svc-card{
+  background:var(--iron-surface)!important;
+  border-color:var(--iron-border)!important;
+  border-radius:2px!important;
+  color:var(--iron-text)!important;
+}
+.svc-card:hover{background:var(--iron-elevated)!important;border-color:var(--iron-orange)!important;}
+.quick-reply-btn{
+  background:rgba(255,107,0,.08)!important;
+  border-color:rgba(255,107,0,.35)!important;
+  color:var(--iron-orange-hi)!important;
+  border-radius:2px!important;
+}
+.quick-reply-btn:hover{background:var(--iron-orange)!important;color:#111!important;}
+
+/* Tables, lists, and dense intelligence panels */
+table{border-collapse:collapse!important;color:var(--iron-text)!important;}
+th{
+  color:var(--iron-muted)!important;
+  background:var(--iron-elevated)!important;
+  border-bottom:1px solid var(--iron-border)!important;
+  font-family:'IBM Plex Mono',monospace!important;
+  font-size:10px!important;
+  letter-spacing:.1em!important;
+  text-transform:uppercase;
+}
+td{border-bottom:1px solid var(--iron-border)!important;}
+tr:hover td{background:rgba(255,255,255,.025)!important;}
+hr{border:0!important;border-top:1px solid var(--iron-border)!important;}
+
+/* Login and modal layers */
+#modal-root>div{
+  background:rgba(5,7,8,.86)!important;
+  backdrop-filter:blur(3px)!important;
+  -webkit-backdrop-filter:blur(3px)!important;
+}
+#modal-root .glass{background:var(--iron-surface)!important;}
+
+@media(max-width:768px){
+  #main-content{background:var(--iron-bg)!important;}
+  .page-pad{padding:22px 14px 112px!important;}
+  .dock-pill{left:8px!important;right:8px!important;bottom:8px!important;}
+  .dock-item{padding:5px 7px!important;}
+  .dock-item .dock-icon-wrap{width:32px!important;height:30px!important;}
+  table{display:block;overflow-x:auto;white-space:nowrap;}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*:before,*:after{animation-duration:.001ms!important;transition-duration:.001ms!important;}
+}

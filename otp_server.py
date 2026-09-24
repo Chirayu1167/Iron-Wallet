@@ -81,6 +81,9 @@ try:
     from risk_engine.engine import RiskEngine, get_risk_engine
     from risk_engine.thresholds import RISK_WEIGHTS, iron_tier, risk_level, RISK_ENGINE_VERSION, EXPLANATION_VERSION, RECIPIENT_INTELLIGENCE_VERSION, RISK_TIRESHOLDS
     from risk_engine.explanation import build_explanation
+    from risk_engine.attack import ATTACK_CLASSIFIER_VERSION
+    from risk_engine.account_takeover import ACCOUNT_TAKEOVER_VERSION
+    from risk_engine.scam_network import SCAM_NETWORK_VERSION
 except Exception as e:
     RiskEngine = None
     RISK_WEIGHTS = {"behavior":0.35,"fraud":0.40,"recipient":0.15,"context":0.10}
@@ -93,8 +96,11 @@ except Exception as e:
     RISK_ENGINE_VERSION="v1"
     EXPLANATION_VERSION="v1"
     RECIPIENT_INTELLIGENCE_VERSION="v1"
+    ATTACK_CLASSIFIER_VERSION="v1"
+    ACCOUNT_TAKEOVER_VERSION="v1"
+    SCAM_NETWORK_VERSION="v1"
     RISK_TIRESHOLDS={"SAFE":(0,69),"CAUTION":(70,84),"HIGH_RISK":(85,100)}
-    def build_explanation(*a,**kw): return {"summary":"Looks normal.","reasons":[],"confidence_explanation":"","breakdown":{},"tier_message":"","version":"v1","total_signals":0}
+    def build_explanation(*a,**kw): return {"summary":"Looks normal.","reasons":[],"confidence_explanation":"","breakdown":{},"tier_message":"","version":"v1","total_signals":0,"attack":{"attack_type":"NONE","attack_category":"NONE","attack_confidence":0.0,"signal_ids":[],"description":""},"attack_type":"NONE","attack_category":"NONE","attack_confidence":0.0,"account_takeover":{"account_threat_detected":False,"account_threat_confidence":0.0,"signal_ids":[],"explanation":""},"account_threat_detected":False,"account_threat_confidence":0.0,"account_threat_signal_ids":[],"scam_network":{"network_threat_detected":False,"network_confidence":0.0,"network_type":"NONE","signal_ids":[],"explanation":""},"network_threat_detected":False,"network_confidence":0.0,"network_type":"NONE","network_signal_ids":[]}
 
 try:
     from risk_engine.binary import is_fraudulent, classify_binary
@@ -521,6 +527,68 @@ def _build_context(phone: str, txn: Dict[str, Any], history: List[Dict[str, Any]
         conf = 0.75 if score>=50 else 0.65
     return {"score": int(score), "confidence": conf, "signals": signals, "device_familiarity": dev, "location_familiarity": loc, "device": {"familiarity": dev}, "location": {"familiarity": loc}, "velocity": {"cnt_5m": cnt_5m if 'cnt_5m' in locals() else 0}}
 
+def _build_network_context(phone: str, txn: Dict[str, Any], recip_profile: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Phase 18: build scam-network context from EXISTING data only.
+    Reuses recipient profile (report_count, transaction_count, reasons),
+    transaction recipient/handle, and scam-registry distinct reporters.
+    No new infrastructure, no new score.
+    """
+    recipient_str = str(txn.get("merchant_name") or txn.get("recipient") or "")
+    try:
+        report_count = int(recip_profile.get("report_count", 0) or 0)
+    except Exception:
+        report_count = 0
+    try:
+        user_tx_count = int(recip_profile.get("transaction_count", 0) or 0)
+    except Exception:
+        user_tx_count = 0
+    reasons: List[str] = []
+    try:
+        ev = recip_profile.get("evidence", {}) or {}
+        reasons = list(ev.get("reasons", []) or recip_profile.get("reasons", []) or [])
+    except Exception:
+        reasons = []
+    # Distinct cross-user reporters (guarded; cached in scam_registry).
+    reporter_count = report_count
+    try:
+        norm = recipient_str.strip()
+        try:
+            import scam_registry as _sr
+            if hasattr(_sr, "_normalize_recipient"):
+                norm = _sr._normalize_recipient(recipient_str)
+            loader = getattr(_sr, "_load", None)
+            if loader is not None and norm:
+                data = loader() or {}
+                entry = data.get(norm)
+                if entry:
+                    reps = {str(r.get("reporter", "")).strip() for r in (entry.get("reports") or []) if str(r.get("reporter", "")).strip()}
+                    if reps:
+                        reporter_count = len(reps)
+                    else:
+                        reporter_count = int(entry.get("report_count", report_count) or 0)
+                else:
+                    reporter_count = 0 if report_count == 0 else report_count
+        except Exception:
+            pass
+    except Exception:
+        pass
+    handle = ""
+    try:
+        if "@" in recipient_str:
+            handle = recipient_str.split("@", 1)[1].strip().lower()
+    except Exception:
+        handle = ""
+    return {
+        "recipient": recipient_str,
+        "report_count": int(report_count),
+        "reporter_count": int(reporter_count),
+        "reasons": reasons,
+        "user_tx_count": int(user_tx_count),
+        "familiarity": str(recip_profile.get("familiarity", "")),
+        "handle": handle,
+    }
+
 def _compute_unified_risk(phone: str, txn: Dict[str, Any], history: List[Dict[str, Any]], user_profile: Dict[str, Any]) -> Dict[str, Any]:
     """
     One authoritative RiskEngine calculation. Returns engine result + components + explanation.
@@ -558,30 +626,96 @@ def _compute_unified_risk(phone: str, txn: Dict[str, Any], history: List[Dict[st
             "binary_fraud": tier in ("CAUTION","HIGH_RISK"),
             "fraud_label": "FRAUDULENT" if tier in ("CAUTION","HIGH_RISK") else "LEGITIMATE",
             "is_fraudulent": tier in ("CAUTION","HIGH_RISK"),
+            "attack_type": "NONE",
+            "attack_category": "NONE",
+            "attack_confidence": 0.0,
+            "attack_detail": {"attack_type": "NONE", "attack_category": "NONE", "attack_confidence": 0.0, "signal_ids": [], "description": "", "version": ATTACK_CLASSIFIER_VERSION},
+            "account_threat_detected": False,
+            "account_threat_confidence": 0.0,
+            "account_threat_signal_ids": [],
+            "account_takeover_detail": {"account_threat_detected": False, "account_threat_confidence": 0.0, "signal_ids": [], "explanation": "", "dimensions": {}, "dimension_count": 0, "version": ACCOUNT_TAKEOVER_VERSION},
+            "network_threat_detected": False,
+            "network_confidence": 0.0,
+            "network_type": "NONE",
+            "network_signal_ids": [],
+            "network_detail": {"network_threat_detected": False, "network_confidence": 0.0, "network_type": "NONE", "signal_ids": [], "explanation": "", "evidence": {}, "description": "", "version": SCAM_NETWORK_VERSION},
         }
+        # Phase 16 fallback: classify over combined signals (reuses same classifier, still no new detection)
+        try:
+            from risk_engine.attack import classify_attack as _classify_fallback
+            _atk = _classify_fallback(result["signals"])
+            result["attack_type"] = _atk.get("attack_type", "NONE")
+            result["attack_category"] = _atk.get("attack_category", "NONE")
+            result["attack_confidence"] = _atk.get("attack_confidence", 0.0)
+            result["attack_detail"] = _atk
+        except Exception:
+            pass
+        # Phase 17 fallback: takeover over combined signals (same reuse, advisory)
+        try:
+            from risk_engine.account_takeover import detect_account_takeover as _takeover_fallback
+            _ato = _takeover_fallback(result["signals"])
+            result["account_threat_detected"] = bool(_ato.get("account_threat_detected", False))
+            result["account_threat_confidence"] = float(_ato.get("account_threat_confidence", 0.0))
+            result["account_threat_signal_ids"] = list(_ato.get("signal_ids", []))
+            result["account_takeover_detail"] = _ato
+        except Exception:
+            pass
+        # Phase 18 fallback: network over existing data only (advisory, no score)
+        try:
+            from risk_engine.scam_network import detect_scam_network as _net_fallback
+            _nctx = _build_network_context(phone, txn, recip_profile)
+            _nctx["attack_type"] = result.get("attack_type", "NONE")
+            _net = _net_fallback(result["signals"], recip_profile, result.get("attack_detail", {}), txn, _nctx)
+            result["network_threat_detected"] = bool(_net.get("network_threat_detected", False))
+            result["network_confidence"] = float(_net.get("network_confidence", 0.0))
+            result["network_type"] = str(_net.get("network_type", "NONE"))
+            result["network_signal_ids"] = list(_net.get("signal_ids", []))
+            result["network_detail"] = _net
+        except Exception:
+            pass
     else:
         # Use engine, which handles evidence-aware, dedup, binary via risk_engine/binary
+        _net_ctx = _build_network_context(phone, txn, recip_profile)
         result = _risk_engine.assess(
             behavior=beh_comp,
             fraud_intelligence=fraud_comp,
             recipient=recip_comp,
             context=ctx_comp,
             transaction=txn,
+            network_context=_net_ctx,
         )
         # Ensure components mapping for response
         if "components" not in result:
             result["components"] = {"behavior": beh_comp["score"], "fraud_intelligence": fraud_comp["score"], "recipient": recip_comp["score"], "context": ctx_comp["score"]}
 
-    # Build explanation
+    # Build explanation (Phase 16: include detected attack + supporting evidence)
+    # Phase 17: include account-takeover combination + explanation (advisory only)
+    # Phase 18: include scam-network/campaign + evidence (advisory only, no score)
     try:
-        explanation = build_explanation(result["score"], result["tier"], result["signals"], result["components"], result["confidence"], {"cold_start": beh.get("cold_start",False), "history_count": beh.get("history_count",0)})
+        explanation = build_explanation(result["score"], result["tier"], result["signals"], result["components"], result["confidence"], {"cold_start": beh.get("cold_start",False), "history_count": beh.get("history_count",0)}, result.get("attack_detail"), result.get("account_takeover_detail"), result.get("network_detail"))
     except Exception as e:
         log.warning("Explanation build failed: %s", e)
-        explanation = {"summary": "Risk assessed.", "reasons":[], "confidence_explanation":"","breakdown": result.get("components",{}), "tier_message": result["tier"], "version": EXPLANATION_VERSION, "total_signals": len(result.get("signals",[]))}
+        explanation = {"summary": "Risk assessed.", "reasons":[], "confidence_explanation":"","breakdown": result.get("components",{}), "tier_message": result["tier"], "version": EXPLANATION_VERSION, "total_signals": len(result.get("signals",[])), "attack": result.get("attack_detail", {}), "attack_type": result.get("attack_type","NONE"), "attack_category": result.get("attack_category","NONE"), "attack_confidence": result.get("attack_confidence",0.0), "account_takeover": result.get("account_takeover_detail", {}), "account_threat_detected": result.get("account_threat_detected", False), "account_threat_confidence": result.get("account_threat_confidence", 0.0), "account_threat_signal_ids": result.get("account_threat_signal_ids", []), "scam_network": result.get("network_detail", {}), "network_threat_detected": result.get("network_threat_detected", False), "network_confidence": result.get("network_confidence", 0.0), "network_type": result.get("network_type", "NONE"), "network_signal_ids": result.get("network_signal_ids", [])}
 
     # Attach extra for persistence / API
     result["explanation"] = explanation.get("summary","")
     result["explanation_detail"] = explanation
+    # Phase 16: mirror attack at top level for API convenience (single source: RiskEngine)
+    result["attack_type"] = explanation.get("attack_type", result.get("attack_type", "NONE"))
+    result["attack_category"] = explanation.get("attack_category", result.get("attack_category", "NONE"))
+    result["attack_confidence"] = explanation.get("attack_confidence", result.get("attack_confidence", 0.0))
+    result["attack_detail"] = explanation.get("attack", result.get("attack_detail", {}))
+    # Phase 17: mirror account-takeover at top level (single source: RiskEngine)
+    result["account_threat_detected"] = explanation.get("account_threat_detected", result.get("account_threat_detected", False))
+    result["account_threat_confidence"] = explanation.get("account_threat_confidence", result.get("account_threat_confidence", 0.0))
+    result["account_threat_signal_ids"] = explanation.get("account_threat_signal_ids", result.get("account_threat_signal_ids", []))
+    result["account_takeover_detail"] = explanation.get("account_takeover", result.get("account_takeover_detail", {}))
+    # Phase 18: mirror network at top level (single source: RiskEngine)
+    result["network_threat_detected"] = explanation.get("network_threat_detected", result.get("network_threat_detected", False))
+    result["network_confidence"] = explanation.get("network_confidence", result.get("network_confidence", 0.0))
+    result["network_type"] = explanation.get("network_type", result.get("network_type", "NONE"))
+    result["network_signal_ids"] = explanation.get("network_signal_ids", result.get("network_signal_ids", []))
+    result["network_detail"] = explanation.get("scam_network", result.get("network_detail", {}))
     result["stage1"] = beh
     result["stage2"] = fraud
     result["recipient_intelligence"] = recip_profile
@@ -790,6 +924,11 @@ class TransactionConfirmIn(BaseModel):
             raise ValueError("otp must be 6 digits")
         return str(v)
 
+class SecurityLedgerEventIn(BaseModel):
+    event_type: str = Field(..., min_length=3, max_length=40)
+    transaction_id: Optional[str] = Field(default=None, max_length=80)
+    reason: Optional[str] = Field(default=None, max_length=120)
+
 class ReportRecipientIn(BaseModel):
     recipient: str
     reporter:  Optional[str] = ""
@@ -839,6 +978,9 @@ class SimulateRequest(BaseModel):
     device_familiarity: Optional[float] = None
     location_familiarity: Optional[float] = None
     hour_of_day: Optional[int] = None
+    # Phase 19 — named attack scenario preset (deterministic, reuses detection).
+    # Explicit fields override the preset when both are provided.
+    scenario: Optional[str] = Field(default=None, max_length=40)
     class Config:
         extra = "allow"
     @field_validator('recipient')
@@ -849,6 +991,36 @@ class SimulateRequest(BaseModel):
         if not _validate_recipient_format(v):
             raise ValueError("recipient must be 10-digit phone or valid UPI ID")
         return v.strip() if isinstance(v, str) else v
+    @field_validator('scenario')
+    @classmethod
+    def validate_scenario_opt(cls, v):
+        if v is None or (isinstance(v, str) and not v.strip()):
+            return None
+        allowed = {"normal_payment", "unusual_payment", "fake_kyc", "otp_harvesting",
+                   "remote_access", "account_takeover", "investment_loan", "scam_campaign"}
+        vv = str(v).strip().lower()
+        if vv not in allowed:
+            raise ValueError(f"scenario must be one of {sorted(allowed)}")
+        return vv
+
+# Phase 19 — deterministic scenario presets (reuse existing detection paths only).
+# Each preset maps to plain SimulateRequest-equivalent inputs; no new logic.
+SIMULATOR_SCENARIOS: Dict[str, Dict[str, Any]] = {
+    "normal_payment": {"recipient": "9988776655", "amount": 500.0, "device_changed": False,
+                       "location_changed": False, "hour_of_day": 14,
+                       "note": "Regular household payment"},
+    "unusual_payment": {"recipient": "9999990001", "amount": 70000.0, "device_changed": True,
+                        "location_changed": True, "hour_of_day": 3,
+                        "note": "Urgent payment review"},
+    "fake_kyc": {"note": "your account will be blocked complete kyc update immediately"},
+    "otp_harvesting": {"note": "share otp verification code pin required urgently"},
+    "remote_access": {"note": "please install anydesk screen share apk for verification"},
+    "account_takeover": {"recipient": "9999990001", "device_changed": True,
+                         "location_changed": True, "hour_of_day": 3, "amount": 5000.0},
+    "investment_loan": {"note": "invest crypto double profit guaranteed return"},
+    "scam_campaign": {"recipient": "prize@refund",
+                      "note": "congratulations you won prize claim cashback reward"},
+}
 
 class AssistantRequest(BaseModel):
     message: str = Field(..., min_length=1, max_length=2000)
@@ -880,6 +1052,9 @@ def health():
         "risk_engine_version": RISK_ENGINE_VERSION,
         "explanation_version": EXPLANATION_VERSION,
         "recipient_version":   RECIPIENT_INTELLIGENCE_VERSION,
+        "attack_classifier_version": ATTACK_CLASSIFIER_VERSION,
+        "account_takeover_version": ACCOUNT_TAKEOVER_VERSION,
+        "network_version": SCAM_NETWORK_VERSION,
         "models": {
             "isolation_forest": "isolation_forest.joblib",
             "fraud_intelligence": "fraud_engine/ (20 rules)",
@@ -1251,8 +1426,24 @@ def risk_assess(req: RiskAssessRequest, request: Request):
         "fraud_label": unified.get("fraud_label", "LEGITIMATE" if unified["tier"]=="SAFE" else "FRAUDULENT"),
         "is_fraudulent": unified.get("is_fraudulent", unified["tier"] in ("CAUTION","HIGH_RISK")),
         "binary_fraud": unified.get("binary_fraud", unified["tier"] in ("CAUTION","HIGH_RISK")),
+        "attack_type": unified.get("attack_type", "NONE"),
+        "attack_category": unified.get("attack_category", "NONE"),
+        "attack_confidence": unified.get("attack_confidence", 0.0),
+        "attack_detail": unified.get("attack_detail", {}),
+        "account_threat_detected": unified.get("account_threat_detected", False),
+        "account_threat_confidence": unified.get("account_threat_confidence", 0.0),
+        "account_threat_signal_ids": unified.get("account_threat_signal_ids", []),
+        "account_takeover_detail": unified.get("account_takeover_detail", {}),
+        "network_threat_detected": unified.get("network_threat_detected", False),
+        "network_confidence": unified.get("network_confidence", 0.0),
+        "network_type": unified.get("network_type", "NONE"),
+        "network_signal_ids": unified.get("network_signal_ids", []),
+        "network_detail": unified.get("network_detail", {}),
         "final": {"score": unified["score"], "tier": unified["tier"]},
         "risk_engine_version": RISK_ENGINE_VERSION,
+        "attack_classifier_version": ATTACK_CLASSIFIER_VERSION,
+        "account_takeover_version": ACCOUNT_TAKEOVER_VERSION,
+        "network_version": SCAM_NETWORK_VERSION,
     })
 
 @app.get("/risk/weights")
@@ -1265,8 +1456,12 @@ def risk_weights():
             "risk_engine": RISK_ENGINE_VERSION,
             "explanation": EXPLANATION_VERSION,
             "recipient": RECIPIENT_INTELLIGENCE_VERSION,
+            "attack_classifier": ATTACK_CLASSIFIER_VERSION,
+            "account_takeover": ACCOUNT_TAKEOVER_VERSION,
+            "network": SCAM_NETWORK_VERSION,
             "model": "iforest-v1",
         },
+        "attack_types": ["FAKE_KYC_SUSPENSION", "IMPERSONATION", "FAKE_REFUND_REWARD", "INVESTMENT_LOAN_SCAM", "REMOTE_ACCESS", "OTP_HARVESTING", "PAYMENT_ANOMALY", "ACCOUNT_THREAT", "NONE"],
         "note": "IRON never blocks — HIGH_RISK requires OTP but still proceeds"
     }
 
@@ -1376,6 +1571,18 @@ def transactions_prepare(data: TransactionPrepareIn, request: Request, current: 
         raise HTTPException(status_code=500, detail="Transaction creation failed")
     # Create risk event
     try:
+        iron_store.append_security_ledger_event(phone, "RISK_ASSESSMENT", {
+            "tier": tier,
+            "requires_otp": requires_otp,
+        })
+        if tier in ("CAUTION", "HIGH_RISK"):
+            iron_store.append_security_ledger_event(phone, "UNUSUAL_PAYMENT", {
+                "tier": tier,
+                "signal_count": len(signals),
+            })
+    except Exception as e:
+        log.warning("Security ledger prepare event failed: %s", e)
+    try:
         iron_store.create_risk_event(
             phone=phone,
             transaction_id=tx_id,
@@ -1436,7 +1643,29 @@ def transactions_prepare(data: TransactionPrepareIn, request: Request, current: 
             "fraud_label": unified.get("fraud_label","LEGITIMATE" if tier=="SAFE" else "FRAUDULENT"),
             "is_fraudulent": unified.get("is_fraudulent", tier in ("CAUTION","HIGH_RISK")),
             "binary_fraud": unified.get("binary_fraud", tier in ("CAUTION","HIGH_RISK")),
+            "attack_type": unified.get("attack_type", "NONE"),
+            "attack_category": unified.get("attack_category", "NONE"),
+            "attack_confidence": unified.get("attack_confidence", 0.0),
+            "attack_detail": unified.get("attack_detail", {}),
+            "account_threat_detected": unified.get("account_threat_detected", False),
+            "account_threat_confidence": unified.get("account_threat_confidence", 0.0),
+            "account_threat_signal_ids": unified.get("account_threat_signal_ids", []),
+            "account_takeover_detail": unified.get("account_takeover_detail", {}),
+            "network_threat_detected": unified.get("network_threat_detected", False),
+            "network_confidence": unified.get("network_confidence", 0.0),
+            "network_type": unified.get("network_type", "NONE"),
+            "network_signal_ids": unified.get("network_signal_ids", []),
+            "network_detail": unified.get("network_detail", {}),
         },
+        "attack_type": unified.get("attack_type", "NONE"),
+        "attack_category": unified.get("attack_category", "NONE"),
+        "attack_confidence": unified.get("attack_confidence", 0.0),
+        "account_threat_detected": unified.get("account_threat_detected", False),
+        "account_threat_confidence": unified.get("account_threat_confidence", 0.0),
+        "account_threat_signal_ids": unified.get("account_threat_signal_ids", []),
+        "network_threat_detected": unified.get("network_threat_detected", False),
+        "network_confidence": unified.get("network_confidence", 0.0),
+        "network_type": unified.get("network_type", "NONE"),
         "verification_required": requires_otp,
         "requires_otp": requires_otp,
         "expires_at": expires_at,
@@ -1576,6 +1805,10 @@ def transactions_confirm(data: TransactionConfirmIn, request: Request, current: 
             iron_store.create_security_event(phone, "HIGH_RISK_PAYMENT_VERIFIED", "HIGH", "High-risk payment verified", f"Payment of Rs.{float(tx_up['amount']):.0f} verified", tx_up["transaction_id"], {"tier": tx_up.get("risk_tier")})
         else:
             iron_store.create_security_event(phone, "VERIFICATION_COMPLETED", "INFO", "Payment verified", "Payment completed", tx_up["transaction_id"], {})
+        iron_store.append_security_ledger_event(phone, "PAYMENT_CONFIRMED", {
+            "transaction_id": tx_up["transaction_id"],
+            "tier": tx_up.get("risk_tier", "SAFE"),
+        })
     except Exception as e:
         log.warning("Post-confirm events failed: %s", e)
     # Live events
@@ -1714,6 +1947,38 @@ def security_events(limit: int = Query(10, ge=1, le=50), offset: int = Query(0, 
             e["id"] = e["event_id"]
     return JSONResponse(content={"events": events, "count": len(events), "total": total, "limit": limit, "offset": offset})
 
+@app.get("/security/ledger")
+def security_ledger(limit: int = Query(100, ge=1, le=500), current: Dict[str, Any] = Depends(get_current_user)):
+    entries = iron_store.get_security_ledger(current["phone"], limit=limit)
+    verification = iron_store.verify_security_ledger(current["phone"])
+    return JSONResponse(content={
+        "entries": entries,
+        "event_count": verification["event_count"],
+        "intact": verification["intact"],
+    })
+
+@app.get("/security/ledger/verify")
+def security_ledger_verify(current: Dict[str, Any] = Depends(get_current_user)):
+    return JSONResponse(content=iron_store.verify_security_ledger(current["phone"]))
+
+@app.post("/security/ledger/events")
+def security_ledger_event(data: SecurityLedgerEventIn, current: Dict[str, Any] = Depends(get_current_user)):
+    metadata = {}
+    if data.transaction_id:
+        tx = iron_store.get_transaction(data.transaction_id)
+        if not tx:
+            raise HTTPException(status_code=404, detail="Transaction not found")
+        if tx["phone"] != current["phone"]:
+            raise HTTPException(status_code=403, detail="Wrong user transaction")
+        metadata["transaction_id"] = data.transaction_id
+    if data.reason:
+        metadata["reason"] = data.reason
+    try:
+        entry = iron_store.append_security_ledger_event(current["phone"], data.event_type, metadata)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+    return JSONResponse(content=entry)
+
 @app.get("/security/sessions")
 def security_sessions(current: Dict[str, Any] = Depends(get_current_user)):
     sessions = iron_store.get_sessions_for_user(current["phone"], limit=20)
@@ -1772,17 +2037,18 @@ def security_logout_suffix(suffix: str, current: Dict[str, Any] = Depends(get_cu
     except: pass
     return JSONResponse(content={"revoked": True, "suffix": suffix})
 
-@app.get("/security/overview")
-def security_overview(current: Dict[str, Any] = Depends(get_current_user)):
-    phone = current["phone"]
-    # Gather data bounded
+def _security_posture(phone: str) -> Dict[str, Any]:
+    """
+    Shared posture computation for Security Center + SOC (Phase 20).
+    Same inputs/thresholds as the original /security/overview logic.
+    Read-only; no scoring, no mutation.
+    """
     sessions = iron_store.get_sessions_for_user(phone, limit=20)
     risk_events = iron_store.get_risk_events(phone, limit=20)
     sec_events = iron_store.get_security_events(phone, limit=20)
     ver_events = iron_store.get_verification_events(phone, limit=20)
     recent_high_risk = sum(1 for ev in risk_events if ev.get("tier")=="HIGH_RISK")
     failed_otp = sum(1 for ev in ver_events if ev.get("result")=="FAILED" or ev.get("method") in ("OTP_FAILED","OTP_EXPIRED"))
-    # Also count failed via security? Use ver_events
     if recent_high_risk >=2 or failed_otp >=2 or len(sessions) >3:
         account_security = "Review recommended"
     elif recent_high_risk==1 or len(sessions)==2:
@@ -1795,21 +2061,30 @@ def security_overview(current: Dict[str, Any] = Depends(get_current_user)):
         recent_activity = "Elevated"
     else:
         recent_activity = "High"
-    active_sessions = len(sessions)
-    recent_risk_alerts = sum(1 for e in sec_events if e.get("type") in ("RISK_ESCALATED","HIGH_RISK_PAYMENT_VERIFIED","UNUSUAL_ACTIVITY"))
     recent_events = sec_events[:5]
     for e in recent_events:
         if "event_id" in e and "id" not in e:
             e["id"] = e["event_id"]
-    return JSONResponse(content={
+    return {
         "account_security": account_security,
         "recent_activity": recent_activity,
-        "active_sessions": active_sessions,
-        "recent_risk_alerts": recent_risk_alerts,
+        "active_sessions": len(sessions),
+        "recent_risk_alerts": sum(1 for e in sec_events if e.get("type") in ("RISK_ESCALATED","HIGH_RISK_PAYMENT_VERIFIED","UNUSUAL_ACTIVITY")),
         "recent_events": recent_events,
-        "protection": {"sessions": active_sessions, "alerts": recent_risk_alerts},
+    }
+
+@app.get("/security/overview")
+def security_overview(current: Dict[str, Any] = Depends(get_current_user)):
+    posture = _security_posture(current["phone"])
+    return JSONResponse(content={
+        "account_security": posture["account_security"],
+        "recent_activity": posture["recent_activity"],
+        "active_sessions": posture["active_sessions"],
+        "recent_risk_alerts": posture["recent_risk_alerts"],
+        "recent_events": posture["recent_events"],
+        "protection": {"sessions": posture["active_sessions"], "alerts": posture["recent_risk_alerts"]},
         "versions": {"risk_engine": RISK_ENGINE_VERSION, "explanation": EXPLANATION_VERSION, "recipient": RECIPIENT_INTELLIGENCE_VERSION},
-        "phone": phone,
+        "phone": current["phone"],
     })
 
 @app.post("/security/change-pin")
@@ -1825,6 +2100,189 @@ def security_change_pin(data: ChangePinIn, current: Dict[str, Any] = Depends(get
     except Exception as e:
         log.warning("PIN event failed: %s", e)
     return JSONResponse(content={"changed": True, "message": "PIN changed successfully"})
+
+# ── Security Operations Center (Phase 20) ─────────────────────────────────────
+# Read-only aggregation of existing data. No new detection, no scoring,
+# no mutation. RiskEngine remains the single source of truth.
+
+def _soc_latest_snapshot(phone: str) -> Dict[str, Any]:
+    """
+    Intel snapshot for the user's most recent transaction, recomputed via the
+    authoritative RiskEngine path (_get_risk_for_transaction, same as the
+    investigator uses) plus the deterministic investigator fallback.
+    Returns {} when the user has no transactions.
+    """
+    txs = iron_store.get_transactions_for_user(phone, limit=1)
+    if not txs:
+        return {}
+    tx = txs[0]
+    try:
+        risk_data = _get_risk_for_transaction(phone, tx)
+    except Exception as e:
+        log.warning("SOC snapshot risk recompute failed: %s", e)
+        return {}
+    transaction_input = {
+        "transaction_id": tx.get("transaction_id", ""),
+        "amount": float(tx.get("amount", 0) or 0),
+        "recipient": tx.get("recipient", ""),
+        "recipient_name": tx.get("recipient_name", ""),
+        "timestamp": tx.get("timestamp", ""),
+        "status": tx.get("status", ""),
+        "risk_score": tx.get("risk_score", 0),
+        "risk_tier": tx.get("risk_tier", "SAFE"),
+        "note": tx.get("note", ""),
+    }
+    try:
+        from ai_investigator.investigator import _fallback_investigation
+        investigation = _fallback_investigation(
+            transaction=transaction_input,
+            risk=risk_data,
+            behavior=risk_data.get("behavior", {}),
+            fraud_intelligence=risk_data.get("fraud_intelligence", {}),
+            recipient_intelligence=risk_data.get("recipient_intelligence", {}),
+            context=risk_data.get("context", {}),
+            explanation=risk_data.get("explanation_detail", {}),
+            attack=risk_data.get("attack_detail", {}),
+            account_takeover=risk_data.get("account_takeover_detail", {}),
+            scam_network=risk_data.get("network_detail", {}),
+        )
+    except Exception as e:
+        log.warning("SOC snapshot investigation failed: %s", e)
+        investigation = {}
+    sigs = risk_data.get("signals", []) or []
+    return {
+        "transaction": transaction_input,
+        "score": risk_data.get("score", 0),
+        "tier": risk_data.get("tier", "SAFE"),
+        "confidence": risk_data.get("confidence", 0.5),
+        "requires_otp": bool(risk_data.get("requires_otp", False)),
+        "signals": sigs,
+        "signal_ids": [s.get("id") for s in sigs if isinstance(s, dict) and s.get("id")],
+        "explanation": risk_data.get("explanation", ""),
+        "explanation_detail": risk_data.get("explanation_detail", {}),
+        "attack_type": risk_data.get("attack_type", "NONE"),
+        "attack_category": risk_data.get("attack_category", "NONE"),
+        "attack_confidence": risk_data.get("attack_confidence", 0.0),
+        "attack_detail": risk_data.get("attack_detail", {}),
+        "account_threat_detected": bool(risk_data.get("account_threat_detected", False)),
+        "account_threat_confidence": risk_data.get("account_threat_confidence", 0.0),
+        "account_threat_signal_ids": risk_data.get("account_threat_signal_ids", []),
+        "account_takeover_detail": risk_data.get("account_takeover_detail", {}),
+        "network_threat_detected": bool(risk_data.get("network_threat_detected", False)),
+        "network_confidence": risk_data.get("network_confidence", 0.0),
+        "network_type": risk_data.get("network_type", "NONE"),
+        "network_signal_ids": risk_data.get("network_signal_ids", []),
+        "network_detail": risk_data.get("network_detail", {}),
+        "investigation": investigation,
+    }
+
+@app.get("/soc/overview")
+def soc_overview(limit: int = Query(10, ge=1, le=50), current: Dict[str, Any] = Depends(get_current_user)):
+    """
+    Security Operations Center overview — unified read-only view over existing
+    intelligence. All data is REAL backend data (is_simulated: false);
+    simulator results are never persisted and never appear here.
+    IRON never blocks a payment.
+    """
+    err = _check_generic_limit(_report_attempts, f"soc:{current['phone']}", 30, 60)
+    if err:
+        return JSONResponse(status_code=429, content={"error": err})
+    phone = current["phone"]
+    posture = _security_posture(phone)
+    # Recent security events (with id alias, as in /security/events)
+    sec_events = iron_store.get_security_events(phone, limit=limit, offset=0)
+    for e in sec_events:
+        if "event_id" in e and "id" not in e:
+            e["id"] = e["event_id"]
+    # Recent risk events with parsed signal ids + linked transaction enrichment
+    risk_events = iron_store.get_risk_events(phone, limit=limit)
+    tx_by_id: Dict[str, Dict[str, Any]] = {}
+    try:
+        for t in iron_store.get_transactions_for_user(phone, limit=limit):
+            tx_by_id[t.get("transaction_id", "")] = t
+    except Exception:
+        pass
+    risk_activity = []
+    for ev in risk_events:
+        try:
+            sigs = json.loads(ev.get("signals_json", "[]") or "[]")
+            if not isinstance(sigs, list):
+                sigs = []
+        except Exception:
+            sigs = []
+        tx = tx_by_id.get(ev.get("transaction_id", ""), {})
+        risk_activity.append({
+            "event_id": ev.get("event_id"),
+            "transaction_id": ev.get("transaction_id"),
+            "timestamp": ev.get("timestamp"),
+            "risk_score": ev.get("risk_score"),
+            "tier": ev.get("tier"),
+            "confidence": ev.get("confidence"),
+            "signal_ids": [s for s in sigs if isinstance(s, str)],
+            "verification_required": ev.get("verification_required"),
+            "verification_result": ev.get("verification_result"),
+            "outcome": ev.get("outcome"),
+            "transaction": ({
+                "recipient": tx.get("recipient", ""),
+                "recipient_name": tx.get("recipient_name", ""),
+                "amount": tx.get("amount", 0),
+                "status": tx.get("status", ""),
+                "timestamp": tx.get("timestamp", ""),
+            } if tx else {}),
+        })
+    # Recent transaction activity (tiers only — no new scoring)
+    activity = []
+    tier_counts = {"SAFE": 0, "CAUTION": 0, "HIGH_RISK": 0}
+    try:
+        for t in iron_store.get_transactions_for_user(phone, limit=limit):
+            tier = t.get("risk_tier", "SAFE")
+            if tier in tier_counts:
+                tier_counts[tier] += 1
+            activity.append({
+                "transaction_id": t.get("transaction_id"),
+                "recipient": t.get("recipient", ""),
+                "recipient_name": t.get("recipient_name", ""),
+                "amount": t.get("amount", 0),
+                "risk_score": t.get("risk_score", 0),
+                "risk_tier": tier,
+                "status": t.get("status", ""),
+                "timestamp": t.get("timestamp", ""),
+            })
+    except Exception:
+        pass
+    # Recent suspicious recipients (existing scam-registry data, top by reports)
+    suspicious_recipients = []
+    try:
+        for f in scam_registry.get_all_flagged(1)[:5]:
+            suspicious_recipients.append({
+                "recipient": f.get("recipient", ""),
+                "report_count": f.get("report_count", 0),
+                "tier": f.get("tier", "clean"),
+                "reasons": (f.get("reasons", []) or [])[:5],
+            })
+    except Exception:
+        pass
+    snapshot = _soc_latest_snapshot(phone)
+    return JSONResponse(content={
+        "is_simulated": False,
+        "source": "live",
+        "phone": phone,
+        "status": {
+            "account_security": posture["account_security"],
+            "recent_activity": posture["recent_activity"],
+            "active_sessions": posture["active_sessions"],
+            "recent_risk_alerts": posture["recent_risk_alerts"],
+        },
+        "recent_events": posture["recent_events"],
+        "security_events": sec_events,
+        "risk_activity": risk_activity,
+        "activity": activity,
+        "tier_counts": tier_counts,
+        "intel": snapshot,
+        "suspicious_recipients": suspicious_recipients,
+        "versions": get_version_info(),
+        "note": "REAL backend data — simulator results are never stored here. IRON never blocks a payment.",
+    })
 
 # ── AI Investigator (Phase 9) ─────────────────────────────────────────────────
 
@@ -1861,6 +2319,9 @@ async def risk_investigate(req: InvestigateRequest, request: Request, current: D
             "context": {},
             "behavior": {},
             "fraud_intelligence": {},
+            "attack_detail": {"attack_type": "NONE", "signal_ids": []},
+            "account_takeover_detail": {"account_threat_detected": False, "signal_ids": []},
+            "network_detail": {"network_threat_detected": False, "signal_ids": []},
         }
     # Prepare inputs for investigator
     transaction_input = {
@@ -1874,7 +2335,8 @@ async def risk_investigate(req: InvestigateRequest, request: Request, current: D
         "risk_tier": tx.get("risk_tier","SAFE"),
         "note": tx.get("note",""),
     }
-    # Call investigator (async)
+    # Call investigator (async). Phase 19: pass attack/takeover/network
+    # intel as evidence — RiskEngine remains source of truth for risk/tier/OTP.
     try:
         result = await ai_investigate(
             transaction=transaction_input,
@@ -1884,6 +2346,9 @@ async def risk_investigate(req: InvestigateRequest, request: Request, current: D
             recipient_intelligence=risk_data.get("recipient_intelligence",{}),
             context=risk_data.get("context",{}),
             explanation=risk_data.get("explanation_detail",{}),
+            attack=risk_data.get("attack_detail", {}),
+            account_takeover=risk_data.get("account_takeover_detail", {}),
+            scam_network=risk_data.get("network_detail", {}),
         )
     except Exception as e:
         log.warning("Investigator failed, fallback: %s", e)
@@ -1897,6 +2362,9 @@ async def risk_investigate(req: InvestigateRequest, request: Request, current: D
             recipient_intelligence=risk_data.get("recipient_intelligence",{}),
             context=risk_data.get("context",{}),
             explanation=risk_data.get("explanation_detail",{}),
+            attack=risk_data.get("attack_detail", {}),
+            account_takeover=risk_data.get("account_takeover_detail", {}),
+            scam_network=risk_data.get("network_detail", {}),
         )
     # Ensure recommended_action not block
     rec = result.get("recommended_action","")
@@ -1913,20 +2381,40 @@ def risk_simulate(req: SimulateRequest, request: Request, current: Dict[str, Any
     if err:
         return JSONResponse(status_code=429, content={"error": err, "message": err})
     phone = current["phone"]
-    # Validate at least one field
-    if req.amount is None and req.recipient is None and not req.device_changed and not req.location_changed and not req.note:
+    # Phase 19 — named scenario presets (explicit fields override the preset).
+    scenario = (req.scenario or "").strip().lower() or None
+    preset: Dict[str, Any] = dict(SIMULATOR_SCENARIOS.get(scenario, {})) if scenario else {}
+    _explicit = req.model_dump() if hasattr(req, 'model_dump') else req.dict()
+    def _pick(name: str, default: Any = None) -> Any:
+        v = _explicit.get(name)
+        if name in ("device_changed", "location_changed"):
+            # booleans: explicit True wins; otherwise preset
+            if v:
+                return True
+            return bool(preset.get(name, False))
+        if v is not None and v != "":
+            return v
+        return preset.get(name, default)
+    # Validate at least one field (scenario counts as parameters)
+    if scenario is None and req.amount is None and req.recipient is None and not req.device_changed and not req.location_changed and not req.note:
         raise HTTPException(status_code=422, detail="No simulation parameters provided")
     # Build simulated txn
     # Determine simulated values vs current baseline
     # For current, use a normal transaction: amount 500, recipient 9158763151, note "", device 1.0 etc
     # But to have meaningful diff, we will compute current from history baseline (normal)
     # Simulated uses provided values
-    sim_amount = float(req.amount) if req.amount is not None else 500
-    sim_recipient = req.recipient.strip() if req.recipient else "9158763151"
-    sim_note = req.note or ""
-    sim_device = 0.2 if req.device_changed else (req.device_familiarity if req.device_familiarity is not None else 1.0)
-    sim_location = 0.2 if req.location_changed else (req.location_familiarity if req.location_familiarity is not None else 1.0)
-    sim_hour = req.hour_of_day if req.hour_of_day is not None else 12
+    _amt = _pick("amount", None)
+    _rec = _pick("recipient", None)
+    _note = _pick("note", "")
+    sim_amount = float(_amt) if _amt is not None else 500
+    sim_recipient = str(_rec).strip() if _rec else "9158763151"
+    sim_note = str(_note or "")
+    _dev_changed = bool(_pick("device_changed", False))
+    _loc_changed = bool(_pick("location_changed", False))
+    sim_device = 0.2 if _dev_changed else (req.device_familiarity if req.device_familiarity is not None else float(preset.get("device_familiarity", 1.0)))
+    sim_location = 0.2 if _loc_changed else (req.location_familiarity if req.location_familiarity is not None else float(preset.get("location_familiarity", 1.0)))
+    _hour = _pick("hour_of_day", None)
+    sim_hour = int(_hour) if _hour is not None else 12
 
     # Current baseline for comparison: use same phone with normal params
     curr_txn, curr_hist = _build_txn_for_risk(phone, "9158763151", 500, "", 1.0, 1.0, 12)
@@ -1956,27 +2444,46 @@ def risk_simulate(req: SimulateRequest, request: Request, current: Dict[str, Any
         log.error("Simulate risk failed: %s", e, exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
-    # Build changes
+    # Build changes (effective simulated values vs baseline)
     changes = []
-    if req.amount is not None and req.amount != 500:
-        changes.append({"field":"amount","before":500,"after": float(req.amount), "impact":"increased_risk" if sim_risk["score"]>curr_risk["score"] else "decreased_risk"})
-    if req.recipient is not None and req.recipient != "9158763151":
-        changes.append({"field":"recipient","before":"9158763151","after": req.recipient, "impact":"increased_risk" if sim_risk["score"]>curr_risk["score"] else "changed"})
-    if req.device_changed:
+    if scenario:
+        changes.append({"field":"scenario","before":"none","after": scenario, "impact":"simulated"})
+    if sim_amount != 500:
+        changes.append({"field":"amount","before":500,"after": float(sim_amount), "impact":"increased_risk" if sim_risk["score"]>curr_risk["score"] else "decreased_risk"})
+    if sim_recipient != "9158763151":
+        changes.append({"field":"recipient","before":"9158763151","after": sim_recipient, "impact":"increased_risk" if sim_risk["score"]>curr_risk["score"] else "changed"})
+    if _dev_changed:
         changes.append({"field":"device","before":"familiar","after":"unfamiliar","impact":"increased_risk"})
-    if req.location_changed:
+    if _loc_changed:
         changes.append({"field":"location","before":"familiar","after":"unfamiliar","impact":"increased_risk"})
-    if req.note:
-        changes.append({"field":"note","before":"","after": req.note, "impact":"increased_risk" if "urgent" in req.note.lower() or "otp" in req.note.lower() else "changed"})
+    if sim_note:
+        changes.append({"field":"note","before":"","after": sim_note, "impact":"increased_risk" if "urgent" in sim_note.lower() or "otp" in sim_note.lower() else "changed"})
+    if sim_hour != 12:
+        changes.append({"field":"hour_of_day","before":12,"after": int(sim_hour), "impact":"increased_risk" if sim_risk["score"]>curr_risk["score"] else "changed"})
 
     # Verify no mutation occurred: just for safety, ensure balances unchanged
     # (we didn't call any iron_store write)
 
     return JSONResponse(content={
         "simulation": True,
-        "current": {"risk": {"score": curr_risk["score"], "tier": curr_risk["tier"], "confidence": curr_risk["confidence"]}, "amount": 500, "recipient": "9158763151"},
-        "simulated": {"risk": {"score": sim_risk["score"], "tier": sim_risk["tier"], "confidence": sim_risk["confidence"]}, "amount": sim_amount, "recipient": sim_recipient},
-        "risk": {"score": sim_risk["score"], "tier": sim_risk["tier"], "confidence": sim_risk["confidence"], "signals": sim_risk["signals"], "requires_otp": sim_risk["requires_otp"], "components": sim_risk["components"], "fraud_label": sim_risk.get("fraud_label"), "is_fraudulent": sim_risk.get("is_fraudulent")},
+        "scenario": scenario,
+        "scenario_applied": bool(scenario),
+        "current": {"risk": {"score": curr_risk["score"], "tier": curr_risk["tier"], "confidence": curr_risk["confidence"], "attack_type": curr_risk.get("attack_type","NONE"), "attack_category": curr_risk.get("attack_category","NONE"), "attack_confidence": curr_risk.get("attack_confidence",0.0), "account_threat_detected": curr_risk.get("account_threat_detected", False), "account_threat_confidence": curr_risk.get("account_threat_confidence", 0.0), "network_threat_detected": curr_risk.get("network_threat_detected", False), "network_confidence": curr_risk.get("network_confidence", 0.0), "network_type": curr_risk.get("network_type", "NONE")}, "amount": 500, "recipient": "9158763151"},
+        "simulated": {"risk": {"score": sim_risk["score"], "tier": sim_risk["tier"], "confidence": sim_risk["confidence"], "attack_type": sim_risk.get("attack_type","NONE"), "attack_category": sim_risk.get("attack_category","NONE"), "attack_confidence": sim_risk.get("attack_confidence",0.0), "account_threat_detected": sim_risk.get("account_threat_detected", False), "account_threat_confidence": sim_risk.get("account_threat_confidence", 0.0), "network_threat_detected": sim_risk.get("network_threat_detected", False), "network_confidence": sim_risk.get("network_confidence", 0.0), "network_type": sim_risk.get("network_type", "NONE")}, "amount": sim_amount, "recipient": sim_recipient},
+        "risk": {"score": sim_risk["score"], "tier": sim_risk["tier"], "confidence": sim_risk["confidence"], "signals": sim_risk["signals"], "requires_otp": sim_risk["requires_otp"], "components": sim_risk["components"], "fraud_label": sim_risk.get("fraud_label"), "is_fraudulent": sim_risk.get("is_fraudulent"), "attack_type": sim_risk.get("attack_type","NONE"), "attack_category": sim_risk.get("attack_category","NONE"), "attack_confidence": sim_risk.get("attack_confidence",0.0), "attack_detail": sim_risk.get("attack_detail",{}), "account_threat_detected": sim_risk.get("account_threat_detected", False), "account_threat_confidence": sim_risk.get("account_threat_confidence", 0.0), "account_threat_signal_ids": sim_risk.get("account_threat_signal_ids", []), "account_takeover_detail": sim_risk.get("account_takeover_detail", {}), "network_threat_detected": sim_risk.get("network_threat_detected", False), "network_confidence": sim_risk.get("network_confidence", 0.0), "network_type": sim_risk.get("network_type", "NONE"), "network_signal_ids": sim_risk.get("network_signal_ids", []), "network_detail": sim_risk.get("network_detail", {})},
+        "attack_type": sim_risk.get("attack_type","NONE"),
+        "attack_category": sim_risk.get("attack_category","NONE"),
+        "attack_confidence": sim_risk.get("attack_confidence",0.0),
+        "attack_detail": sim_risk.get("attack_detail",{}),
+        "account_threat_detected": sim_risk.get("account_threat_detected", False),
+        "account_threat_confidence": sim_risk.get("account_threat_confidence", 0.0),
+        "account_threat_signal_ids": sim_risk.get("account_threat_signal_ids", []),
+        "account_takeover_detail": sim_risk.get("account_takeover_detail", {}),
+        "network_threat_detected": sim_risk.get("network_threat_detected", False),
+        "network_confidence": sim_risk.get("network_confidence", 0.0),
+        "network_type": sim_risk.get("network_type", "NONE"),
+        "network_signal_ids": sim_risk.get("network_signal_ids", []),
+        "network_detail": sim_risk.get("network_detail", {}),
         "changes": changes,
         "explanation": sim_risk.get("explanation_detail",{}),
         "components": sim_risk.get("components",{}),
@@ -2203,6 +2710,9 @@ def get_version_info():
         "risk_engine": RISK_ENGINE_VERSION,
         "explanation": EXPLANATION_VERSION,
         "recipient": RECIPIENT_INTELLIGENCE_VERSION,
+        "attack_classifier": ATTACK_CLASSIFIER_VERSION,
+        "account_takeover": ACCOUNT_TAKEOVER_VERSION,
+        "network": SCAM_NETWORK_VERSION,
         "model": "iforest-v1",
     }
 
@@ -2259,7 +2769,7 @@ AI Investigator
   POST /risk/investigate         Bearer 10/min {transaction_id} -> uses investigator.py, fallback if no GEMINI_API_KEY/timeout/malformed, never invents, evidence_ids subset, recommended_action never block
 
 Simulator
-  POST /risk/simulate            Bearer 20/min {amount,recipient,device_changed,location_changed,note} -> reuses RiskEngine, no mutation (_live but not persisted), returns simulation:true, current vs simulated, changes, note
+  POST /risk/simulate            Bearer 20/min {amount,recipient,device_changed,location_changed,note,scenario} -> reuses RiskEngine, no mutation (_live but not persisted), returns simulation:true, scenario, current vs simulated, changes, note
 
 Live
   WebSocket /ws?token=            -> iron_store.get_session, _ws_connections[phone], _publish_live_event, _ALLOWED_LIVE_EVENTS without payment_blocked, guard suppress, connected/pong, phone query ignored
@@ -2643,5 +3153,3 @@ Line padding: The following lines ensure file length ~2500 for spec compliance.
 # Padding — 299
 # Padding — 300
 # End padding — total now ~2514 lines
-
-

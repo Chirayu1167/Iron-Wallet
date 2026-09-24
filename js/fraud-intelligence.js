@@ -186,6 +186,9 @@ function FraudIntelPanel({ intelResult, mergedRisk, loading, stage1Score }) {
   const rl          = RISK_META[intelResult.risk_level] || RISK_META.LOW;
   const hasPatterns = (intelResult.matched_patterns || []).length > 0;
   const patterns    = intelResult.pattern_details || [];
+  const behaviorSignals = (intelResult.behavior_signals || [])
+    .map(s => typeof s === "string" ? s : s.description)
+    .filter(Boolean);
 
   return React.createElement("div", {
     style:{
@@ -221,7 +224,7 @@ function FraudIntelPanel({ intelResult, mergedRisk, loading, stage1Score }) {
         React.createElement("div", {
           style:{fontSize:10,fontWeight:800,color:"#0078FF",
                  textTransform:"uppercase",letterSpacing:.8,marginBottom:2}
-        }, "Stage 2  ·  Fraud Intelligence Layer"),
+        }, "Adaptive behavioral analysis"),
         React.createElement("div", {
           style:{fontSize:12,fontWeight:700,
                  color: hasPatterns ? rl.color : "#16a34a"}
@@ -229,15 +232,6 @@ function FraudIntelPanel({ intelResult, mergedRisk, loading, stage1Score }) {
           ? `${patterns.length} fraud pattern${patterns.length>1?"s":""} matched`
           : "✓ No known fraud patterns detected"
         ),
-      ),
-
-      /* score badge */
-      React.createElement("div", { style:{textAlign:"right",flexShrink:0} },
-        React.createElement("div", {
-          style:{fontSize:20,fontWeight:900,lineHeight:1,
-                 color: hasPatterns ? rl.color : "#16a34a"}
-        }, intelResult.fraud_score),
-        React.createElement("div", {style:{fontSize:9,color:"#94a3b8",marginTop:1}}, "FRAUD SCORE"),
       ),
 
       /* expand toggle */
@@ -252,52 +246,24 @@ function FraudIntelPanel({ intelResult, mergedRisk, loading, stage1Score }) {
       }, expanded ? "Hide ▲" : "Details ▼"),
     ),
 
-    /* ── Score bar ── */
-    React.createElement("div", { style:{padding:"8px 14px",background:"#fff"} },
-      React.createElement("div", {
-        style:{height:4,background:"#f1f5f9",borderRadius:2,overflow:"hidden"}
-      },
-        React.createElement("div", { style:{
-          height:"100%",
-          width:`${intelResult.fraud_score}%`,
-          background: hasPatterns
-            ? `linear-gradient(90deg,#22c55e,${rl.bar})`
-            : "#22c55e",
-          borderRadius:2,
-          transition:"width .6s cubic-bezier(.4,0,.2,1)",
-        }}),
-      ),
-      React.createElement("div", {
-        style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginTop:6}
-      },
-        React.createElement("span", {style:{fontSize:10,color:"#94a3b8"}},
-          "Confidence: ",
-          React.createElement("b", {style:{color:"#64748b"}}, `${intelResult.confidence}%`),
-          ` · ${intelResult.signal_summary?.patterns_fired||0} pattern${(intelResult.signal_summary?.patterns_fired||0)!==1?"s":""} evaluated`,
-        ),
-        React.createElement("span", {
-          style:{
-            fontSize:10,fontWeight:700,color:rl.color,
-            background:rl.bg,padding:"2px 8px",borderRadius:10,
-            border:`1px solid ${rl.bar}`,
-          }
-        }, rl.label),
-      ),
+    React.createElement("div", { style:{padding:"8px 14px",background:"#fff",fontSize:10,color:"#94a3b8"} },
+      `Adaptive review evaluated ${intelResult.signal_summary?.patterns_fired||0} supporting security signals against your recent activity.`,
     ),
 
-    /* ── Stage 1 comparison row ── */
-    stage1Score != null && React.createElement("div", {
-      style:{
-        padding:"6px 14px",background:"#f8faff",
-        borderTop:"1px solid #f1f5f9",
-        display:"flex",alignItems:"center",gap:8,
-      }
+    behaviorSignals.length > 0 && React.createElement("div", {
+      style:{padding:"10px 14px 4px",background:"#fff"}
     },
-      React.createElement("span", {style:{fontSize:10,color:"#94a3b8",flex:1}},
-        "🤖 Stage 1 (Isolation Forest): ",
-        React.createElement("b", {style:{color:"#475569"}}, stage1Score),
-        "  →  🔍 Stage 2 (Fraud Intel): ",
-        React.createElement("b", {style:{color:rl.color}}, intelResult.fraud_score),
+      React.createElement("div", {
+        style:{fontSize:10,fontWeight:800,color:"#94a3b8",
+               textTransform:"uppercase",letterSpacing:.7,marginBottom:7}
+      }, "Behavioral context"),
+      ...behaviorSignals.slice(0, 5).map((signal, i) =>
+        React.createElement("div", {
+          key:i,
+          style:{fontSize:11,color:"#475569",lineHeight:1.4,padding:"6px 8px",
+                 marginBottom:5,background:"#f8faff",border:"1px solid #e2e8f0",
+                 borderRadius:6}
+        }, signal)
       ),
     ),
 
@@ -412,7 +378,9 @@ function FraudIntelPanel({ intelResult, mergedRisk, loading, stage1Score }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function FinalRiskBadge({ mergedRisk }) {
-  if (!mergedRisk || mergedRisk.stage2 === null) return null;
+  // Risk values remain available to the decision pipeline but are not exposed
+  // in the customer-facing payment flow.
+  return null;
 
   const rl       = RISK_META[mergedRisk.riskLevel] || RISK_META.LOW;
   const delta    = mergedRisk.delta;
@@ -435,13 +403,13 @@ function FinalRiskBadge({ mergedRisk }) {
       React.createElement("div", {
         style:{fontSize:10,fontWeight:800,color:"#94a3b8",
                textTransform:"uppercase",letterSpacing:.7,marginBottom:3}
-      }, "Final Risk Score  ·  Stage 1 + Stage 2 Combined"),
+      }, "Security analysis updated"),
       React.createElement("div", {
         style:{display:"flex",alignItems:"baseline",gap:8}
       },
         React.createElement("span", {
           style:{fontSize:26,fontWeight:900,color:rl.color,lineHeight:1}
-        }, mergedRisk.finalScore),
+        }, "Review complete"),
         React.createElement("span", {style:{fontSize:12,color:"#94a3b8"}}, "/100"),
         React.createElement("span", {
           style:{

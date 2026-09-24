@@ -388,7 +388,10 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
     try {
       const combined = await callAnalyze(txPayload, profilePayload);
       if (combined?.stage1 && combined?.stage2) {
-        intelResult   = combined.stage2;
+        intelResult   = {
+          ...combined.stage2,
+          behavior_signals: combined.stage1.signals || [],
+        };
         mergedResult  = {
           finalScore: combined.final.score,
           stage1: combined.stage1.behavior_score,
@@ -400,6 +403,15 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
     } catch(_) {
       intelResult  = await callFraudIntelligence(jsBehaviorScore, txPayload, profilePayload);
       mergedResult = mergeFinalRisk(jsBehaviorScore, intelResult);
+    }
+    const behavioralSignals = (intelResult?.behavior_signals || [])
+      .map(s => typeof s === "string" ? s : s.description)
+      .filter(Boolean);
+    if (behavioralSignals.length) {
+      setRiskData(prev => ({
+        ...prev,
+        signals: [...new Set([...(prev.signals || []), ...behavioralSignals])],
+      }));
     }
     setFraudIntelData(intelResult); setMergedRisk(mergedResult); setFraudIntelLoading(false);
   }
@@ -566,6 +578,13 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
         setStage("pin");
       } else if (totalRisk < RISK_SCREEN) {
         setStage("popup");
+        // Enrich even moderate warnings with the server-side history-aware
+        // behavioral review; the user sees reasons, not internal scores.
+        _runFraudIntelligence(totalRisk, user, parsedAmt, targetNum || recipient, {
+          urgency_score:          urgencyResult.urgencyScore || 0,
+          recipient_report_count: getRecipientRisk(targetNum || recipient),
+          is_off_network:         !((targetNum || recipient) in USERS),
+        });
       } else {
         setStage("risk");
         _runFraudIntelligence(totalRisk, user, parsedAmt, targetNum || recipient, {
@@ -726,10 +745,68 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
     setReportModal(null);
   }
 
-  function completePayment(){
+  async function cancelPayment() {
+    const transactionId = riskData.transaction_id || riskData.preparedId;
+    if (transactionId) {
+      try {
+        await fetch(`${API}/security/ledger/events`, {
+          method: "POST",
+          headers: {...getAuthHeader(), "Content-Type": "application/json"},
+          body: JSON.stringify({event_type: "PAYMENT_CANCELLED", transaction_id: transactionId, reason: "user_cancelled"})
+        });
+      } catch (e) {
+        console.warn("[IRON] cancellation ledger event failed:", e);
+      }
+    }
+    setRiskData({score:0, signals:[], action:"allow"});
+    setStage("form");
+  }
+
+  async function completePayment(){
     const a = parsedAmt;
     const { date, time } = nowStamp();
     const { targetNum, name } = getRecipientInfo();
+    // A completed payment must come from the backend prepare/confirm flow.
+    // Local state is only a projection after the backend confirms success.
+    if (!riskData.transaction_id && !riskData.preparedId) {
+      setBalErr("Payment preparation has expired. Please assess the payment again.");
+      setStage("form");
+      return;
+    }
+    try {
+      const hdr = getAuthHeader();
+      const res = await fetch(`${API}/transactions/confirm`, {
+        method: "POST",
+        headers: {...hdr, "Content-Type": "application/json"},
+        body: JSON.stringify({transaction_id: riskData.transaction_id || riskData.preparedId, otp: riskData.otpValue || null})
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok && !data.duplicate) throw new Error(data.error || data.detail || "Transaction confirmation failed.");
+      if (data.balance != null) updateBalance(() => Number(data.balance));
+      const confirmedTx = {
+        id: data.transaction_id || riskData.transaction_id || riskData.preparedId,
+        to: name || recipient,
+        toNum: targetNum || recipient,
+        amt: a,
+        date: new Date().toISOString().slice(0, 10),
+        time: new Date().toISOString().slice(11, 16),
+        risk: data.risk_score ?? riskData.score,
+        status: data.status === "HIGH_RISK" ? "high_risk" : "success",
+        type: "debit",
+        note: note || "Payment",
+        isNew: true,
+        risk_tag: (data.risk_tier || riskData.tier || "normal").toLowerCase(),
+        otp_used: !!riskData.otpValue
+      };
+      addTx(confirmedTx);
+      setLastTx(confirmedTx);
+      setStage("success");
+      return;
+    } catch (e) {
+      setBalErr(e.message || "Transaction confirmation failed.");
+      setStage("form");
+      return;
+    }
     
     const otpUsed = riskData.tier === 'otp' || riskData.tier === 'high_risk';
     const status = riskData.tier === 'high_risk' ? 'verified' : 'success';
@@ -982,7 +1059,7 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
           amount={parsedAmt}
           recipient={getRecipientInfo().name || recipient}
           onProceed={() => setStage("pin")}
-          onCancel={() => setStage("form")}
+          onCancel={cancelPayment}
         />
       )}
 
@@ -1156,7 +1233,7 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
                   borderRadius:3,transition:"width .1s"}}/>
               </div>
               <div style={{display:"flex",gap:7,marginTop:12,flexWrap:"wrap"}}>
-                {["Rule Engine","Behaviour","ML Scorer","Keyword Scan","Decision"].map((s,i)=>(
+                {["History baseline","Spending pattern","Recipient context","Security signals","Decision"].map((s,i)=>(
                   <span key={s} style={{padding:"4px 10px",
                     background:prog>(i+1)*20?"#dbeafe":"#f8faff",
                     border:`1px solid ${prog>(i+1)*20?"#93c5fd":"#e2e8f0"}`,borderRadius:16,
@@ -1253,10 +1330,6 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
               loading={fraudIntelLoading}
               stage1Score={mergedRisk?.stage1 ?? riskData.score}
             />
-          )}
-          {/* ── Final merged risk badge (shown after Stage 2 loads) ───── */}
-          {mergedRisk && mergedRisk.stage2 !== null && (
-            <FinalRiskBadge mergedRisk={mergedRisk} />
           )}
         </>
       )}

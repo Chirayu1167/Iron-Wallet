@@ -250,16 +250,34 @@ class IFScorer:
         # Amount deviation
         z = features.get("amount_zscore", 0)
         vs_avg = features.get("amount_vs_user_avg", 1)
+        baseline = diagnostics.get("amount_baseline", {}) if isinstance(diagnostics, dict) else {}
+        baseline_avg = float(baseline.get("mean") or 0)
+        baseline_p95 = float(baseline.get("p95") or 0)
         if abs(z) >= 3.0:
             signals.append({
                 "feature": "amount_deviation",
-                "description": f"Amount is significantly above the user's normal range (z-score {z:.1f}, {vs_avg:.1f}× avg)",
+                "description": (
+                    f"Amount is far outside this user's usual spending pattern "
+                    f"({vs_avg:.1f}× their average"
+                    f"{f', above their typical upper range of ₹{baseline_p95:,.0f}' if baseline_p95 else ''})"
+                ),
                 "severity": "high"
             })
         elif abs(z) >= 2.0:
             signals.append({
                 "feature": "amount_deviation",
-                "description": f"Amount is above normal (z-score {z:.1f})",
+                "description": (
+                    f"Amount is unusual for this user's spending pattern "
+                    f"({vs_avg:.1f}× their average"
+                    f"{f', usual average ₹{baseline_avg:,.0f}' if baseline_avg else ''})"
+                ),
+                "severity": "medium"
+            })
+        percentile = features.get("amount_percentile", 0)
+        if percentile >= 0.95 and abs(z) < 2.0:
+            signals.append({
+                "feature": "amount_percentile",
+                "description": "Amount is in the highest range of this user's recent payment history",
                 "severity": "medium"
             })
         # Recipient novelty
@@ -298,6 +316,16 @@ class IFScorer:
                 "description": f"High daily velocity: {int(v24h)} transactions in 24h",
                 "severity": "medium"
             })
+        daily_total = features.get("amount_velocity_24h", 0)
+        if baseline_avg and daily_total >= baseline_avg * 5 and v24h >= 3:
+            signals.append({
+                "feature": "spend_burst_24h",
+                "description": (
+                    f"Today's payment activity is unusually concentrated "
+                    f"({v24h:.0f} payments totaling ₹{daily_total:,.0f})"
+                ),
+                "severity": "medium"
+            })
         # Time anomaly
         if features.get("is_night_txn", 0) == 1:
             signals.append({
@@ -309,6 +337,13 @@ class IFScorer:
             signals.append({
                 "feature": "rare_merchant",
                 "description": "Merchant/category rarely used by this user",
+                "severity": "low"
+            })
+        hour_freq = features.get("hour_activity_score", 0)
+        if history_count >= 5 and hour_freq <= 0.05 and not features.get("is_night_txn", 0):
+            signals.append({
+                "feature": "unusual_hour",
+                "description": "Payment time is outside the user's usual active hours",
                 "severity": "low"
             })
         # Balance impact

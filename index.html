@@ -7,8 +7,7 @@
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="shortcut icon" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -34,6 +33,7 @@
 <script type="text/babel" src="js/protection-center.js?v=1"></script>
 <script type="text/babel" src="js/security-center.js?v=1"></script>
 <script type="text/babel" src="js/risk-components.js?v=1"></script>
+<script type="text/babel" src="js/soc.js?v=1"></script>
 
 <script type="text/babel">
 // ═══ js/components/ui.js ═══
@@ -1140,17 +1140,12 @@ function FraudRiskCard({score, recipient, recipientNum, amount, signals, onVerif
     return`M ${f.x} ${f.y} A ${R} ${R} 0 ${lg} 1 ${t.x} ${t.y}`;
   }
 
-  // 90+ score → button becomes "Verify with OTP"
-  // Below 90 → "Pay with PIN →"  (OTP is still triggered internally for otp/high_risk tier)
-  const useOTPButton = score >= 90;
-
-  // Determine the correct title based on tier (Phase 14: SAFE/CAUTION/HIGH_RISK consistent)
-  let title = '';
-  if (tier === 'SAFE' || tier === 'safe' || tier === 'normal') title = '🟢 Looks normal — SAFE';
-  else if (tier === 'CAUTION' || tier === 'caution' || tier === 'info') title = '🟡 Review this payment — CAUTION';
-  else if (tier === 'HIGH_RISK' || tier === 'high_risk' || tier === 'otp') title = '🔴 High-risk payment — HIGH_RISK';
-  else if (tier === 'otp') title = '🟠 Suspicious Payment Detected';
-  else title = `Risk: ${tier}`;
+  // Risk is guidance, not permission. Verification remains a separate
+  // security step and the user always gets a continue option.
+  const isNormal = tier === 'SAFE' || tier === 'safe' || tier === 'normal';
+  const title = isNormal
+    ? '🟢 Payment looks consistent with your usual activity'
+    : '🟠 This payment looks unusual for you';
 
   return(
     <Card style={{padding:0,overflow:"hidden",border:`1.5px solid ${m.border}`}}>
@@ -1164,14 +1159,8 @@ function FraudRiskCard({score, recipient, recipientNum, amount, signals, onVerif
                 {title}
               </span>
             </div>
-            <p style={{fontSize:12,color:"#75777D"}}>AI Fraud Risk Score</p>
+            <p style={{fontSize:12,color:"#75777D"}}>{isNormal ? "This payment matches your usual activity." : "Please check the details before continuing."}</p>
           </div>
-          <svg width="88"height="74"viewBox="0 0 104 80">
-            <path d={arc(sa,sa+Math.PI*1.5)} fill="none" stroke="#f1f5f9" strokeWidth="10" strokeLinecap="round"/>
-            {score>0&&<path d={arc(sa,sa+sw)} fill="none" stroke={m.dot} strokeWidth="10" strokeLinecap="round"/>}
-            <text x={cx} y={cy+4} textAnchor="middle" fontSize="20" fontWeight="800" fill={m.color} fontFamily="DM Sans">{score}</text>
-            <text x={cx} y={cy+18} textAnchor="middle" fontSize="9" fill="#94a3b8" fontFamily="DM Sans">/100</text>
-          </svg>
         </div>
         <div style={{background:"#FAFAF8",borderRadius:6,padding:"14px 16px",marginBottom:14}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
@@ -1183,13 +1172,12 @@ function FraudRiskCard({score, recipient, recipientNum, amount, signals, onVerif
             <span style={{fontSize:19,fontWeight:800,color:"#1A1C1A"}}>₹{Number(amount).toLocaleString("en-IN")}</span>
           </div>
         </div>
-        <div style={{marginBottom:14}}>
-          <div style={{height:6,background:"#FDFCFB",borderRadius:3,overflow:"hidden"}}>
-            <div style={{height:"100%",width:`${score}%`,background:`linear-gradient(90deg,#22c55e,${m.dot})`,
-              borderRadius:3,transition:"width .7s cubic-bezier(.4,0,.2,1)"}}/>
+        <div style={{marginBottom:14,padding:"10px 12px",background:"#FAFAF8",border:"1px solid #E0E1DD",borderRadius:6}}>
+          <div style={{fontSize:11,fontWeight:800,color:"#75777D",textTransform:"uppercase",letterSpacing:.7,marginBottom:4}}>
+            Review basis
           </div>
-          <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:"#64748b",marginTop:3}}>
-            <span>🟢 SAFE (0–69)</span><span>🟡 CAUTION (70–84)</span><span>🔴 HIGH_RISK (85–100)</span>
+          <div style={{fontSize:12,color:"#45474D",lineHeight:1.45}}>
+            Iron compared this payment with your usual spending pattern, recipient familiarity, recent activity, and account context.
           </div>
         </div>
         {/* ===== Network Fraud Intelligence — recipient report count ===== */}
@@ -1215,7 +1203,8 @@ function FraudRiskCard({score, recipient, recipientNum, amount, signals, onVerif
         )}
 
         {/* ===== ENGINE INSIGHTS + WHY IS THIS RISKY — clean 3-layer separation ===== */}
-        {(()=>{
+        <div style={{display:"none"}}>
+        {(()=> {
           // Build explanation from getRiskExplanation (if user context available via recipientNum)
           // We also incorporate the existing signals[] for full engine detail
           // LAYER 1 — Engine Insights: full technical sentences from the fraud engine
@@ -1287,45 +1276,6 @@ function FraudRiskCard({score, recipient, recipientNum, amount, signals, onVerif
 
           return (
             <>
-              {/* 10-SECOND COUNTDOWN TIMER — shown when risk score >= 85 */}
-              {score >= 85 && (
-                <div style={{
-                  padding:"12px 16px",
-                  background:"linear-gradient(135deg, #fff7ed 0%, #fef3c7 100%)",
-                  border:"2px solid #f97316",
-                  borderRadius:6,
-                  marginBottom:16,
-                  display:"flex",
-                  alignItems:"center",
-                  justifyContent:"space-between",
-                  gap:12,
-                  animation:"slideInL .3s ease both"
-                }}>
-                  <div style={{display:"flex",alignItems:"center",gap:10}}>
-                    <span style={{fontSize:22}}>⏱️</span>
-                    <div>
-                      <p style={{fontSize:13,fontWeight:800,color:"#9a3412",margin:0,lineHeight:1.3}}>
-                        High Risk — 10 Second Review Required
-                      </p>
-                      <p style={{fontSize:11,color:"#92400e",margin:"3px 0 0",fontWeight:500}}>
-                        Please review all details carefully before proceeding
-                      </p>
-                    </div>
-                  </div>
-                  <div style={{
-                    width:48,height:48,borderRadius:"50%",
-                    background:"#fff",
-                    border:"3px solid #f97316",
-                    display:"flex",alignItems:"center",justifyContent:"center",
-                    fontSize:22,fontWeight:900,color:"#f97316",
-                    boxShadow:"0 2px 8px rgba(249,115,22,.3)",
-                    flexShrink:0
-                  }}>
-                    {countdown}
-                  </div>
-                </div>
-              )}
-
               {/* SECTION 1: Engine Insights — full technical sentences */}
               {engineInsights.length > 0 && (
                 <div style={{marginBottom:14}}>
@@ -1421,24 +1371,6 @@ function FraudRiskCard({score, recipient, recipientNum, amount, signals, onVerif
                     </div>
                   ))}
 
-                  {/* 💡 Test-Payment Suggestion for very high risk (score >= 90) */}
-                  {score >= 90 && (
-                    <div style={{marginTop:12,padding:"10px 12px",background:"#f0f9ff",
-                      border:"1.5px solid #38bdf8",borderRadius:4,
-                      display:"flex",alignItems:"flex-start",gap:10,
-                      animation:"slideInL .25s ease both"}}>
-                      <span style={{fontSize:18,flexShrink:0}}>💡</span>
-                      <div>
-                        <p style={{fontSize:13,fontWeight:700,color:"#0369a1",marginBottom:3,lineHeight:1.4}}>
-                          Try confirming with a ₹1 test payment first
-                        </p>
-                        <p style={{fontSize:11,color:"#075985",fontWeight:500,lineHeight:1.4,margin:0}}>
-                          For high-risk payments, sending a small ₹1 amount helps verify the recipient's UPI ID is active and owned by the correct person — before committing the full amount.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
                   {/* SECTION 3: Tag chips — 1-2 word labels only */}
                   {dedupeTags.length > 0 && (
                     <div style={{display:"flex",flexWrap:"wrap",gap:5,marginTop:10}}>
@@ -1459,31 +1391,23 @@ function FraudRiskCard({score, recipient, recipientNum, amount, signals, onVerif
             </>
           );
         })()}
+        </div>
 
 
         {/* ===== 90+ WARNING: Extra caution text above button ===== */}
-        {score >= 90 && (
-          <div style={{marginBottom:12,padding:"10px 14px",background:"#fff9f9",
-            border:"2px solid #dc2626",borderRadius:4,textAlign:"center"}}>
-            <p style={{fontSize:14,fontWeight:800,color:"#ba1a1a",margin:0}}>
-              ⚠️ BE EXTRA CAREFUL: This transaction has multiple high-risk signals.
-            </p>
-          </div>
-        )}
-
         <div style={{display:"flex",gap:10}}>
           <button onClick={onVerify} className="btn-primary"
             style={{flex:1,padding:"12px",background:`linear-gradient(135deg,#1B263B,#0F1E2E)`,border:"none",
               borderRadius:6,color:"#fff",fontWeight:700,fontSize:14,cursor:"pointer",
               fontFamily:"'Inter',sans-serif",boxShadow:"0 4px 14px rgba(0,120,255,.28)"}}>
-            {useOTPButton ? "Verify with OTP →" : "Pay with PIN →"}
+            Continue Payment →
           </button>
-          <button onClick={onReport}
+          <button onClick={onCancel}
             style={{padding:"12px 18px",background:"#fff9f9",border:"1px solid rgba(186,26,26,0.2)",borderRadius:6,
               color:"#ba1a1a",cursor:"pointer",fontSize:14,fontFamily:"'Inter',sans-serif",fontWeight:600,transition:"all .15s"}}
             onMouseEnter={e=>e.target.style.background="#fee2e2"}
             onMouseLeave={e=>e.target.style.background="#fef2f2"}>
-            {Ic.flag("#dc2626")} Report
+            Cancel Payment
           </button>
         </div>
       </div>
@@ -2203,6 +2127,7 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
   }); // [{toNum, amt, ts}]
   useEffect(()=>{ try{ localStorage.setItem("iron_recentTx", JSON.stringify(recentTxTimestamps.slice(-50))); }catch{} }, [recentTxTimestamps]);
   const[showDupWarning, setShowDupWarning] = useState(false);
+  const bypassDuplicateRef = useRef(false);
 
   // ===== NEW: Record biometric interactions on mount and interactions =====
   useEffect(() => { recordInteraction(user.number, 'page_load'); }, [user.number]);
@@ -2257,6 +2182,9 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
   // ===== FEATURE: Duplicate Payment Warning handlers — now live ML wired ====
   async function handleDupWarningProceed() {
     setShowDupWarning(false);
+    bypassDuplicateRef.current = true;
+    return analyzeRisk();
+    setShowDupWarning(false);
     const { targetNum } = getRecipientInfo();
     setRecentTxTimestamps(prev => [...prev, { toNum: targetNum || recipient, amt: parsedAmt, ts: Date.now() }]);
     const { targetNum: tn } = getRecipientInfo();
@@ -2265,6 +2193,55 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
     const t = setInterval(() => setProg(p => { if(p>=92){ clearInterval(t); return 92; } return p + 7; }), 80);
     setTimeout(async () => {
       clearInterval(t); setProg(100);
+      // RiskEngine is the only risk authority. Local heuristics are not
+      // allowed to decide whether this payment is normal or unusual.
+      try {
+        const hdr = getAuthHeader();
+        if (!hdr.Authorization) throw new Error("Authentication is required to prepare a payment.");
+        const geo = typeof getTxGeoDeviceMeta === "function" ? getTxGeoDeviceMeta() : {};
+        const prepRes = await fetch(`${API}/transactions/prepare`, {
+          method: "POST",
+          headers: {...hdr, "Content-Type": "application/json"},
+          body: JSON.stringify({
+            recipient: tn || recipient,
+            amount: parsedAmt,
+            note: note || "",
+            device_familiarity: geo.isNewDevice ? 0 : 1,
+            location_familiarity: typeof GeoDeviceBaseline !== "undefined" && GeoDeviceBaseline.location_enabled ? 1 : 1,
+            hour_of_day: new Date().getHours()
+          })
+        });
+        const prepData = await prepRes.json().catch(() => ({}));
+        if (!prepRes.ok || !prepData.transaction_id || !prepData.risk) {
+          throw new Error(prepData.error || prepData.detail || "Payment risk assessment failed.");
+        }
+        const risk = prepData.risk;
+        const backendTier = risk.tier === "HIGH_RISK" ? "high_risk" : risk.tier === "CAUTION" ? "caution" : "normal";
+        const signals = (risk.signals || []).map(s => typeof s === "string" ? s : (s.description || s.id || String(s)));
+        setRiskData({
+          score: risk.score,
+          signals,
+          action: "continue",
+          tier: backendTier,
+          risk: risk.score,
+          transaction_id: prepData.transaction_id,
+          preparedId: prepData.transaction_id,
+          authoritative: true,
+          requires_otp: !!risk.requires_otp,
+          backendRisk: risk,
+          explanation: risk.explanation || "",
+          explanation_detail: risk.explanation_detail || null,
+          components: risk.components || null
+        });
+        setStage(risk.tier === "SAFE" ? "pin" : "risk");
+        return;
+      } catch (e) {
+        console.error("[IRON] authoritative payment preparation failed:", e);
+        setBalErr(e.message || "Unable to assess this payment.");
+        setStage("form");
+        return;
+      }
+
       const ruleResult = calculateRisk(user, parsedAmt, tn || recipient);
       if (ruleResult.action === 'cooldown') {
         const cd = applyCooldown(user, ruleResult.signals[0]);
@@ -2338,10 +2315,11 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
     const FOUR_MINS = 4 * 60 * 1000;
     const now = Date.now();
     const recentDuplicate = recentTxTimestamps.some(tx => tx.toNum === (targetNum || recipient) && tx.amt === parsedAmt && (now - tx.ts) < FOUR_MINS);
-    if (recentDuplicate) {
+    if (recentDuplicate && !bypassDuplicateRef.current) {
       setShowDupWarning(true); // show warning modal, don't proceed
       return;
     }
+    bypassDuplicateRef.current = false;
 
     setStage("analyzing");
     setProg(0);
@@ -2352,6 +2330,55 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
     }), 80);
     setTimeout(async () => {
       clearInterval(t); setProg(100);
+      // RiskEngine is the only risk authority. Local heuristics are not
+      // allowed to decide whether this payment is normal or unusual.
+      try {
+        const hdr = getAuthHeader();
+        if (!hdr.Authorization) throw new Error("Authentication is required to prepare a payment.");
+        const geo = typeof getTxGeoDeviceMeta === "function" ? getTxGeoDeviceMeta() : {};
+        const prepRes = await fetch(`${API}/transactions/prepare`, {
+          method: "POST",
+          headers: {...hdr, "Content-Type": "application/json"},
+          body: JSON.stringify({
+            recipient: targetNum || recipient,
+            amount: parsedAmt,
+            note: note || "",
+            device_familiarity: geo.isNewDevice ? 0 : 1,
+            location_familiarity: 1,
+            hour_of_day: new Date().getHours()
+          })
+        });
+        const prepData = await prepRes.json().catch(() => ({}));
+        if (!prepRes.ok || !prepData.transaction_id || !prepData.risk) {
+          throw new Error(prepData.error || prepData.detail || "Payment risk assessment failed.");
+        }
+        const risk = prepData.risk;
+        const tier = risk.tier === "HIGH_RISK" ? "high_risk" : risk.tier === "CAUTION" ? "caution" : "normal";
+        const signals = (risk.signals || []).map(s => typeof s === "string" ? s : (s.description || s.id || String(s)));
+        setRiskData({
+          score: risk.score,
+          signals,
+          action: "continue",
+          tier,
+          risk: risk.score,
+          transaction_id: prepData.transaction_id,
+          preparedId: prepData.transaction_id,
+          authoritative: true,
+          requires_otp: !!risk.requires_otp,
+          backendRisk: risk,
+          explanation: risk.explanation || "",
+          explanation_detail: risk.explanation_detail || null,
+          components: risk.components || null
+        });
+        setStage(risk.tier === "SAFE" ? "pin" : "risk");
+        return;
+      } catch (e) {
+        console.error("[IRON] authoritative payment preparation failed:", e);
+        setBalErr(e.message || "Unable to assess this payment.");
+        setStage("form");
+        return;
+      }
+
       const ruleResult = calculateRisk(user, parsedAmt, targetNum || recipient);
       console.log("[IronWallet] analysis done, ruleResult=", ruleResult);
       if (ruleResult.action === 'cooldown') {
@@ -2491,7 +2518,7 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
             console.log("[IRON] prepare authoritative", prepData);
           }
         }
-      }catch(e){ console.warn("prepare failed, fallback to local", e); }
+      }catch(e){ console.warn("prepare failed", e); }
       setRiskData({
         score: totalRisk,
         signals: allSignals,
@@ -2621,10 +2648,8 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
   function handlePINSuccess() {
     // Admin accounts skip OTP — go straight to payment after PIN
     if (user && user.isAdmin) { completePayment(); return; }
-    // OTP only required when risk score is 70+ (or the tier is already otp/high_risk).
-    // Removed the broad smartOTP path (high value / new recipient / biometric / flagged recipient)
-    // so low-risk payments don't get an extra OTP step.
-    const requiresOTP = riskData.tier === 'high_risk' || riskData.tier === 'caution' && riskData.score>=85 || riskData.score >= 85; // Phase 1E: HIGH_RISK requires OTP
+    // The backend's prepared risk decision is authoritative for OTP.
+    const requiresOTP = !!riskData.requires_otp || riskData.tier === 'high_risk';
     if (requiresOTP) {
       setStage("otp");
     } else {
@@ -2665,22 +2690,32 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
     setReportModal(null);
   }
 
+  async function cancelPayment() {
+    const transactionId = riskData.transaction_id || riskData.preparedId;
+    if (transactionId) {
+      try {
+        await fetch(`${API}/security/ledger/events`, {
+          method: "POST",
+          headers: {...getAuthHeader(), "Content-Type": "application/json"},
+          body: JSON.stringify({event_type: "PAYMENT_CANCELLED", transaction_id: transactionId, reason: "user_cancelled"})
+        });
+      } catch (e) {
+        console.warn("[IRON] cancellation ledger event failed:", e);
+      }
+    }
+    setRiskData({score:0, signals:[], action:"allow"});
+    setStage("form");
+  }
+
   async function completePayment(){
     const a = parsedAmt;
     const { targetNum, name } = getRecipientInfo();
-    // Phase 2G: authoritative backend — prepare was already done in analyzeRisk, now confirm
-    // If we have a prepared transaction_id from prepare step, use it; else fallback to legacy
+    // Phase 2G: authoritative backend — prepare was already done in analyzeRisk, now confirm.
+    // A missing preparation is an error, never permission to create a local payment.
     const preparedId = riskData.transaction_id || riskData.preparedId;
     if (!preparedId) {
-      // Fallback legacy path (should not happen after Phase 2) — keep for offline demo
-      const { date, time } = nowStamp();
-      const _gdMeta = getTxGeoDeviceMeta();
-      const _locationDisplay = MockLocation.active ? MockLocation.label : (_gdMeta.location || null);
-      const otpUsed = riskData.tier === 'high_risk' || riskData.tier === 'HIGH_RISK';
-      const status = riskData.tier === 'high_risk' ? 'high_risk' : 'success';
-      const tx = { id: Date.now(), to: name || recipient, toNum: targetNum || recipient, upi: recipientType === 'upi' ? recipient : (USERS[targetNum]?.upi || ''), amt: a, date, time, risk: riskData.score, status, type: "debit", note: note || "Payment", isNew: true, risk_tag: riskData.tier, otp_used: otpUsed, location: _locationDisplay, device: _gdMeta.device, new_device: _gdMeta.isNewDevice };
-      addTx(tx); updateBalance(b => b - a);
-      setLastTx(tx); setStage("success");
+      setBalErr("Payment preparation has expired. Please assess the payment again.");
+      setStage("form");
       return;
     }
     // Authenticated confirm
@@ -3038,7 +3073,7 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
                   borderRadius:3,transition:"width .1s"}}/>
               </div>
               <div style={{display:"flex",gap:7,marginTop:12,flexWrap:"wrap"}}>
-                {["Rule Engine","Behaviour","ML Scorer","Keyword Scan","Decision"].map((s,i)=>(
+                {["History baseline","Spending pattern","Recipient context","Security signals","Decision"].map((s,i)=>( 
                   <span key={s} style={{padding:"4px 10px",
                     background:prog>(i+1)*20?"#dbeafe":"#f8faff",
                     border:`1px solid ${prog>(i+1)*20?"rgba(27,38,59,0.35)":"#e2e8f0"}`,borderRadius:8,
@@ -3084,35 +3119,25 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
             amount={parsedAmt}
             signals={riskData.signals}
             onVerify={handleVerify}
-            onCancel={() => setStage("form")}
+            onCancel={cancelPayment}
             onReport={handleReport}
             tier={riskData.tier}
             kwMatched={riskData.kwMatched || []}
             urgencyHits={riskData.urgencyHits || []}
             urgencyScore={riskData.urgencyScore || 0}
           />
-          {/* Phase 14: Backend-authoritative explanation & breakdown (renders backend state, no frontend calculation) */}
-          {riskData.backendRisk && (
-            <div style={{marginTop:12, display:"flex", flexDirection:"column", gap:10}}>
-              <div style={{padding:"12px 14px", background: riskData.backendRisk.tier==="HIGH_RISK"?"#fef2f2": riskData.backendRisk.tier==="CAUTION"?"#fffbeb":"#f0fdf4", border:`1px solid ${riskData.backendRisk.tier==="HIGH_RISK"?"#fca5a5":riskData.backendRisk.tier==="CAUTION"?"#fcd34d":"#86efac"}`, borderRadius:8}}>
-                <div style={{fontSize:11, fontWeight:800, color:"#1B263B", textTransform:"uppercase", letterSpacing:.5, marginBottom:6}}>Backend Risk Explanation</div>
-                <div style={{fontSize:13, color:"#334155", lineHeight:1.5}}>{riskData.backendRisk.explanation || riskData.backendRisk.explanation_detail?.summary || "No significant fraud signals detected."}</div>
-                {riskData.backendRisk.explanation_detail?.reasons && riskData.backendRisk.explanation_detail.reasons.length>0 && (
-                  <ul style={{marginTop:8, paddingLeft:18}}>
-                    {riskData.backendRisk.explanation_detail.reasons.slice(0,3).map((r,i)=>(
-                      <li key={i} style={{fontSize:12, color:"#475569", marginBottom:4}}><b>{r.title}</b>: {r.description}</li>
-                    ))}
-                  </ul>
-                )}
-                <div style={{fontSize:11, color:"#64748b", marginTop:6}}>Score {riskData.backendRisk.score}/100 • {riskData.backendRisk.tier} • Confidence {(riskData.backendRisk.confidence*100).toFixed(0)}% • Requires OTP: {riskData.backendRisk.requires_otp?"Yes":"No"} • You can still proceed</div>
-              </div>
-              {riskData.backendRisk.components && (
-                <RiskBreakdown components={riskData.backendRisk.components} />
-              )}
-              <div style={{fontSize:11, color:"#94a3b8", fontStyle:"italic", textAlign:"center"}}>IRON protects you by detecting suspicious activity and helping you verify it.</div>
+          {riskData.explanation_detail?.reasons?.length > 0 && (
+            <div style={{marginTop:12, padding:"12px 14px", background:"#fff7ed", border:"1px solid #fdba74", borderRadius:6}}>
+              <div style={{fontSize:11, fontWeight:800, color:"#92400e", textTransform:"uppercase", letterSpacing:.7, marginBottom:7}}>Please check the details</div>
+              {riskData.explanation_detail.reasons.slice(0,3).map((reason,i) => (
+                <div key={i} style={{fontSize:13, color:"#7c2d12", lineHeight:1.45, marginBottom:i<2?5:0}}>
+                  • {reason.description || reason.title}
+                </div>
+              ))}
             </div>
           )}
-          {/* Phase 9: Investigate with AI */}
+          <div style={{display:"none"}}>
+          {/* Advanced investigation tools belong in the SOC, not the payment flow. */}
           <div style={{display:"flex", gap:8, marginTop:12, marginBottom:8}}>
             <button
               onClick={() => setShowAIInvestigator(v => !v)}
@@ -3147,6 +3172,7 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
               ))}
             </div>
           )}
+          </div>
         </>
       )}
       {stage==="popup" && (
@@ -3171,7 +3197,7 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
                   Risk Warning
                 </h3>
                 <p style={{margin:0, fontSize:12, color:'rgba(255,255,255,0.7)'}}>
-                  Transaction risk score: <b style={{color:GOLD}}>{riskData.score}/100</b>
+                  Please review the payment details and security context before proceeding.
                 </p>
               </div>
             </div>
