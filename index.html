@@ -1163,7 +1163,7 @@ function FraudRiskCard({score, recipient, recipientNum, amount, signals, onVerif
     const amount = Number(evidence.amount);
     const percent = Number(evidence.percent || evidence.balance_drain_pct);
     if (id.includes("recipient") && (id.includes("new") || id.includes("unfamiliar")) ||
-        /not previously paid|not appeared in.*history|not seen in.*contact/i.test(text)) {
+        /not previously paid|never sent money|not appeared in.*history|not seen in.*contact/i.test(text)) {
       if (!recipientReasonAdded) {
         addReason("You have not paid this recipient before.");
         recipientReasonAdded = true;
@@ -3172,16 +3172,6 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
             urgencyHits={riskData.urgencyHits || []}
             urgencyScore={riskData.urgencyScore || 0}
           />
-          {riskData.explanation_detail?.reasons?.length > 0 && (
-            <div style={{marginTop:12, padding:"12px 14px", background:"#fff7ed", border:"1px solid #fdba74", borderRadius:6}}>
-              <div style={{fontSize:11, fontWeight:800, color:"#92400e", textTransform:"uppercase", letterSpacing:.7, marginBottom:7}}>Please check the details</div>
-              {riskData.explanation_detail.reasons.slice(0,3).map((reason,i) => (
-                <div key={i} style={{fontSize:13, color:"#7c2d12", lineHeight:1.45, marginBottom:i<2?5:0}}>
-                  • {reason.description || reason.title}
-                </div>
-              ))}
-            </div>
-          )}
           <div style={{display:"none"}}>
           {/* Advanced investigation tools belong in the SOC, not the payment flow. */}
           <div style={{display:"flex", gap:8, marginTop:12, marginBottom:8}}>
