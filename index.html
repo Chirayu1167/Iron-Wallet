@@ -1149,17 +1149,51 @@ function FraudRiskCard({score, recipient, recipientNum, amount, signals, onVerif
   const title = isNormal
     ? '🟢 Payment looks consistent with your usual activity'
     : '🟠 This payment looks unusual for you';
-  const simpleReasons = [];
+  const reasonList = [];
+  const addReason = reason => {
+    const value = String(reason || "").replace(/\s+/g, " ").trim();
+    if (value && !reasonList.includes(value)) reasonList.push(value);
+  };
   (signals || []).forEach(raw => {
-    const text = String(typeof raw === "string" ? raw : (raw.description || raw.id || "")).toLowerCase();
-    if (text.includes("new recipient") || text.includes("not seen in your contacts")) simpleReasons.push("New recipient");
-    else if (text.includes("amount") || text.includes("drain") || text.includes("spend")) simpleReasons.push("Amount higher than usual");
-    else if (text.includes("device")) simpleReasons.push("Unfamiliar device");
-    else if (text.includes("location") || text.includes("travel") || text.includes("far outside")) simpleReasons.push("Unusual location");
-    else if (text.includes("hour") || text.includes("night") || text.includes("time")) simpleReasons.push("Unusual timing");
-    else if (text.includes("behavior") || text.includes("pattern") || text.includes("velocity")) simpleReasons.push("Unusual payment behavior");
+    const signal = raw && typeof raw === "object" ? raw : {id:"", description:String(raw || "")};
+    const id = String(signal.id || "").toLowerCase();
+    const text = String(signal.description || signal.user_message || "").trim();
+    const evidence = signal.evidence || {};
+    const amount = Number(evidence.amount);
+    const percent = Number(evidence.percent || evidence.balance_drain_pct);
+    if (id.includes("recipient") && (id.includes("new") || id.includes("unfamiliar")) ||
+        /not previously paid|not appeared in.*history|not seen in.*contact/i.test(text)) {
+      addReason("You have not paid this recipient before.");
+    } else if (id.includes("recipient") && id.includes("report") || /reported|scam report/i.test(text)) {
+      addReason(text || "This recipient has been reported by other users.");
+    } else if (id.includes("balance") && (percent > 0 || /drain|balance/i.test(text))) {
+      addReason(percent > 0
+        ? `This payment would use about ${Math.round(percent > 1 ? percent : percent * 100)}% of your available balance.`
+        : text);
+    } else if (id.includes("amount") || id.includes("spike") || id.includes("behaviour") || id.includes("behavior") ||
+               /unusually high|typical amount|usual spending|amount.*normal/i.test(text)) {
+      addReason(text || (amount > 0
+        ? `₹${amount.toLocaleString("en-IN")} is outside your usual payment pattern.`
+        : "The amount differs from your usual payment pattern."));
+    } else if (id.includes("device") || /device/i.test(text)) {
+      addReason("This payment is coming from a device you do not usually use.");
+    } else if (id.includes("location") || /location|travel/i.test(text)) {
+      addReason("This payment is coming from an unusual location.");
+    } else if (id.includes("velocity") || /transactions? in \d+|short period|rapid/i.test(text)) {
+      addReason(text || "Several payments were attempted in a short period.");
+    } else if (id.includes("tim") || /hour|night|timing/i.test(text)) {
+      addReason(text || "This payment is being attempted at an unusual time.");
+    } else if (id.includes("urgency") || /urgent|immediately|emergency|hurry/i.test(text)) {
+      addReason(text || "The payment request uses urgency language.");
+    } else if (id === "round_amount_large" || /round.number/i.test(text)) {
+      addReason(text || "The round-number amount matches patterns seen in scam requests.");
+    } else if (text) {
+      // Preserve an evidence-backed explanation even when a new backend signal
+      // has not yet received a dedicated consumer wording.
+      addReason(text);
+    }
   });
-  const displayReasons = [...new Set(simpleReasons)].slice(0, 4);
+  const displayReasons = reasonList.slice(0, 5);
 
   return(
     <Card style={{padding:0,overflow:"hidden",border:`1.5px solid ${m.border}`}}>
@@ -2231,7 +2265,9 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
         }
         const risk = prepData.risk;
         const backendTier = risk.tier === "HIGH_RISK" ? "high_risk" : risk.tier === "CAUTION" ? "caution" : "normal";
-        const signals = (risk.signals || []).map(s => typeof s === "string" ? s : (s.description || s.id || String(s)));
+        // Keep the structured backend signals so the review card can explain
+        // the actual evidence instead of reducing every case to fixed labels.
+        const signals = risk.signals || [];
         setRiskData({
           score: risk.score,
           signals,
