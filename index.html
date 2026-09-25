@@ -1176,7 +1176,7 @@ function FraudRiskCard({score, recipient, recipientNum, amount, signals, onVerif
         : text);
     } else if (id !== "round_amount_large" &&
                (id.includes("amount") || id.includes("spike") || id.includes("behaviour") || id.includes("behavior") ||
-               /unusually high|typical amount|usual spending|amount.*normal/i.test(text)) {
+               /unusually high|typical amount|usual spending|amount.*normal/i.test(text))) {
       const signalAverage = Number(evidence.avg_amount || evidence.mean || avgAmount || 0);
       const baselineText = signalAverage
         ? ` Your average payment is ₹${Math.round(signalAverage).toLocaleString("en-IN")}${historyCount ? ` across ${historyCount} payments` : ""}.`
