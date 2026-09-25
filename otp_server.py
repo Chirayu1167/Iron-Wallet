@@ -716,6 +716,31 @@ def _compute_unified_risk(phone: str, txn: Dict[str, Any], history: List[Dict[st
     beh = _build_behavior_result(txn, history)
     # Fraud
     fraud = _build_fraud_result(txn, history, user_profile, beh.get("behavior_score"), txn.get("device_familiarity"), txn.get("location_familiarity"))
+    # Keep amount explanations tied to this account's completed-payment
+    # baseline rather than relying on generic round-number rules.
+    try:
+        personal_avg = float(user_profile.get("avg_amount", 0) or 0)
+        current_amount = float(txn.get("amount", 0) or 0)
+        if personal_avg > 0 and current_amount > max(1000, personal_avg * 1.5):
+            fraud.setdefault("signals", []).append({
+                "id": "user_amount_above_average",
+                "category": "ACCOUNT_BEHAVIOUR",
+                "severity": "MEDIUM",
+                "score": 8,
+                "evidence": {
+                    "amount": current_amount,
+                    "avg_amount": round(personal_avg, 2),
+                    "history_count": int(user_profile.get("history_count", len(history))),
+                    "multiplier": round(current_amount / personal_avg, 2),
+                },
+                "description": (
+                    f"₹{current_amount:.0f} is {current_amount / personal_avg:.1f}× "
+                    f"your average payment of ₹{personal_avg:.0f}"
+                ),
+                "source": "user_history_baseline",
+            })
+    except (TypeError, ValueError, ZeroDivisionError):
+        log.warning("Unable to build personal amount signal for %s", phone)
     # Recipient
     recipient_str = txn.get("merchant_name") or txn.get("recipient") or ""
     recip_profile = _build_recipient_profile(phone, recipient_str, txn.get("amount"))
