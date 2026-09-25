@@ -53,7 +53,10 @@ def _dedup_signals(signals: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         "device": {"unfamiliar_device", "NEW_DEVICE", "unfamiliar_device_ctx"},
         "location": {"unfamiliar_location", "LOCATION_ANOMALY", "unfamiliar_location_ctx"},
         "recipient_report": {"recipient_reported", "REPORTED_RECIPIENT", "recipient_high_report_count", "HIGH_RISK_RECIPIENT", "recipient_high_reports", "REPORTED_RECIPIENT_HIGH"},
-        # Note: recipient_new / familiar / frequent are distinct (personal vs global) — do NOT group with report
+        # These IDs are emitted by different layers for the same personal
+        # recipient-novelty fact. Keep one strongest signal, not four copies.
+        "recipient_novelty": {"NEW_RECIPIENT", "recipient_new", "unfamiliar_recipient", "recipient_novelty", "new_recipient"},
+        # Recipient familiarity and reports remain separate evidence.
         # scam language types are distinct — keep separate
     }
     id_to_group: Dict[str, str] = {}

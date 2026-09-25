@@ -1210,6 +1210,14 @@ function FraudRiskCard({score, recipient, recipientNum, amount, signals, onVerif
     }
   });
   const displayReasons = reasonList.slice(0, 5);
+  const averageLabel = Number(avgAmount) > 0
+    ? `₹${Math.round(avgAmount).toLocaleString("en-IN")}${historyCount ? ` across ${historyCount} payments` : ""}`
+    : "";
+  const amountContext = averageLabel
+    ? Number(amount) > Number(avgAmount) * 1.5
+      ? `₹${Number(amount).toLocaleString("en-IN")} is above your average payment of ${averageLabel}.`
+      : `₹${Number(amount).toLocaleString("en-IN")} is within your usual range; your average payment is ${averageLabel}.`
+    : "";
 
   return(
     <Card style={{padding:0,overflow:"hidden",border:`1.5px solid ${m.border}`}}>
@@ -1242,6 +1250,7 @@ function FraudRiskCard({score, recipient, recipientNum, amount, signals, onVerif
           </div>
           <div style={{fontSize:12,color:"#45474D",lineHeight:1.45}}>
             Iron compared this payment with your usual spending pattern, recipient familiarity, recent activity, and account context.
+            {amountContext && <div style={{marginTop:6,fontWeight:600}}>{amountContext}</div>}
           </div>
         </div>
         {!isNormal && displayReasons.length > 0 && (
