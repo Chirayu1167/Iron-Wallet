@@ -35,7 +35,7 @@
 
 Most wallets either block blindly or warn with a vague score. IronWallet combines:
 
-1. **Behavioural anomaly detection** (Isolation Forest) — personalized to *your* history.
+1. **Behavioural anomaly detection** (Isolation Forest) — personalized to the authenticated user's history, including spending, timing, velocity, device, location, and recipient patterns.
 2. **Deterministic fraud intelligence** — 20 rule patterns across 8 categories, plus 5-category deterministic engine, keyword / social-engineering, device / location, velocity checks.
 3. **Recipient reputation** — personal familiarity (`NEW / FAMILIAR / FREQUENT`) + network-wide report count (`scam_registry.py`).
 4. **Unified RiskEngine** — evidence-aware, deduplicated, explainable. One authoritative score on backend and frontend.
@@ -66,11 +66,11 @@ No `payment_blocked` live event is ever emitted.
 - Deterministic engine `fraud_engine/intelligence.py` — 5 categories (recipient, transaction patterns, scam language, network/device, account behaviour) + legacy 20-rule / 8-category matcher (`fraud_rules.py`), keyword / social-engineering detector (`fraud_engine/keyword_detector.py` — urgency, OTP-request, impersonation, account-threat, reward, investment, loan, remote-access + suspicious UPI handles), device / location, velocity bursts (3+/5m, 6+/1h, switching).
 
 **Risk Engine (Phases 6–8)**
-- Unified `risk_engine/engine.py` weights `behavior 0.35 / fraud 0.40 / recipient 0.15 / context 0.10` (`risk_engine/thresholds.py`), evidence-aware weighting, signal deduplication, boost / dampen caps, `iron_tier` / `risk_level`, `build_explanation` — summary, top-5 reasons, tier message, confidence explanation.
+- Unified `risk_engine/engine.py` weights `behavior 0.35 / fraud 0.40 / recipient 0.15 / context 0.10` (`risk_engine/thresholds.py`), evidence-aware weighting, signal deduplication, boost / dampen caps, `iron_tier` / `risk_level`, `build_explanation` — summary, top-5 evidence-backed reasons, tier message, confidence explanation. Amount context is derived per account from completed payment history; generic global spending defaults are not used when account history is available.
 - Recipient intelligence `risk_engine/recipient.py` — familiarity, report count, recency, amount anomaly. Binary classifier `risk_engine/binary.py` — `classify_binary` / `is_fraudulent` → `LEGITIMATE` vs `FRAUDULENT`.
 
 **AI Investigator (Phase 9)**
-- Grounded investigator `ai_investigator/` (`investigator.py`, `prompts.py`, `models.py`, `ai-investigator-v1`) — Gemini `gemini-2.5-flash` with strict JSON grounding + templated fallback, never invents scores. `POST /risk/investigate`. Assistant proxy `POST /assistant` (server-side Gemini key, never in browser).
+- Grounded investigator `ai_investigator/` (`investigator.py`, `prompts.py`, `models.py`, `ai-investigator-v1`) — Gemini with strict JSON grounding + templated fallback, never invents scores. `POST /risk/investigate`. Assistant proxy `POST /assistant` uses server-side Gemini `gemini-2.0-flash`; the key never reaches the browser. Gemini explains evidence but does not make authorization decisions.
 
 **Simulator & Live Protection (Phases 10–11)**
 - Isolated simulation reusing RiskEngine (`POST /risk/simulate`, no DB mutation, current-vs-simulated diff), live WebSocket events (`/ws?token=`, `_ws_connections`, `_ALLOWED_LIVE_EVENTS`, never emits `payment_blocked`).
@@ -130,7 +130,7 @@ Frontend display layers `js/constants.js:10` — `RISK_SILENT 39 / RISK_POPUP 40
 | OTP | Twilio `>=9.0.0` (optional, graceful console fallback) |
 | Frontend | React + ReactDOM (vendored) + Babel `7.26.4` in-browser, single `index.html` SPA, no bundler |
 | Realtime | WebSocket `/ws?token=` (`_ws_connections`, `_publish_live_event`, `_ALLOWED_LIVE_EVENTS`) + socket.io fallback |
-| AI | `httpx` + Gemini `gemini-2.5-flash` server-side only (`POST /assistant`, `POST /risk/investigate`) |
+| AI | `httpx` + server-side Gemini (`gemini-2.0-flash` for `POST /assistant`; grounded investigator for `POST /risk/investigate`) |
 | Deploy | Railway / Heroku (`Procfile`, `nixpacks_backend.toml` — `python312`) |
 
 ## Project Structure
@@ -260,7 +260,7 @@ Base: `""` (relative, same origin serves static + API). Auth header: `Authorizat
 | `GET` | `/scam-db/check/{recipient}` | Network reputation for one recipient |
 | `GET` | `/scam-db/flagged?min_count=` | All flagged recipients, sorted by count |
 | `GET` | `/scam-db/stats` | `total_flagged_recipients, total_reports, high_risk_count` |
-| `POST` | `/assistant` | Gemini proxy (`gemini-2.5-flash`), IP rate-limited, `503` if no key |
+| `POST` | `/assistant` | Server-side Gemini `gemini-2.0-flash` proxy, IP rate-limited, `503` if no key |
 | `GET` | `/` · `GET /{path}` | Static allowlist only, else SPA fallback |
 
 ### Authenticated (`Depends(get_current_user)`)
@@ -319,7 +319,7 @@ Pages: `LoginPage` → `Dashboard` → `SendMoneyPage` (`transactions/prepare|co
 
 Key behavior: admin login verifies via backend to get token/balance; risk signals normalized for `string` vs `{description,id}` shapes; `SendMoneyPage` prefers backend risk over local estimate.
 
-Styling: `styles.css` — navy (`#1B263B`) + gold (`#C5A059`) theme, risk-tier colors (`safe / caution / warning / blocked`), cards / modals / banners / animations.
+Styling: `styles.css` — light Swiss-fintech system (`#F7F8FA` background, white cards, `#111827` text, `#FF6B00` primary orange), risk-tier colors, cards / modals / banners / responsive layouts.
 
 ## Security Model
 
