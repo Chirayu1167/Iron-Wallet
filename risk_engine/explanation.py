@@ -43,6 +43,7 @@ TITLE_MAP: Dict[str, str] = {
     "recipient_recently_reported": "Recently reported recipient",
     "recipient_old_report": "Previously reported recipient",
     "recipient_amount_anomaly": "Unusual amount for this recipient",
+    "user_amount_above_average": "Above your usual payment pattern",
     "urgency_language": "Urgency in message",
     "otp_request_language": "OTP request detected",
     "impersonation_language": "Impersonation language",

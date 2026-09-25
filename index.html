@@ -1114,7 +1114,7 @@ function OutOfBandVerificationModal({ recipientName, recipientNum, inContacts, o
 // === End Out-of-Band Verification Feature ===
 
 /* ═══ FRAUD RISK CARD with PIN+OTP for suspicious ═══ */
-function FraudRiskCard({score, recipient, recipientNum, amount, signals, onVerify, onCancel, onReport, tier, avgAmount=0, historyCount=0, kwMatched=[], urgencyHits=[], urgencyScore=0}){
+function FraudRiskCard({score, recipient, recipientNum, amount, signals, onVerify, onCancel, onReport, tier, avgAmount=0, historyCount=0, spendingProfile=null, kwMatched=[], urgencyHits=[], urgencyScore=0}){
   const [countdown, setCountdown] = useState(15);
   const [timerActive, setTimerActive] = useState(false);
 
@@ -1187,13 +1187,13 @@ function FraudRiskCard({score, recipient, recipientNum, amount, signals, onVerif
           ? `₹${amount.toLocaleString("en-IN")} compared with your average payment of ₹${Math.round(signalAverage).toLocaleString("en-IN")}.`
           : "The amount differs from your usual payment pattern."));
     } else if (id.includes("device") || /device/i.test(text)) {
-      addReason("This payment is coming from a device you do not usually use.");
+      addReason(text || "This payment is coming from a device not previously associated with your account.");
     } else if (id.includes("location") || /location|travel/i.test(text)) {
-      addReason("This payment is coming from an unusual location.");
+      addReason(text || "This payment origin differs from your usual location pattern.");
     } else if (id.includes("velocity") || /transactions? in \d+|short period|rapid/i.test(text)) {
       addReason(text || "Several payments were attempted in a short period.");
     } else if (id.includes("tim") || /hour|night|timing/i.test(text)) {
-      addReason(text || "This payment is being attempted at an unusual time.");
+      addReason(text || "This payment is being attempted outside your usual active hours.");
     } else if (id.includes("urgency") || /urgent|immediately|emergency|hurry/i.test(text)) {
       addReason(text || "The payment request uses urgency language.");
     } else if (id === "round_amount_large" || /round.number/i.test(text)) {
@@ -1217,6 +1217,9 @@ function FraudRiskCard({score, recipient, recipientNum, amount, signals, onVerif
     ? Number(amount) > Number(avgAmount) * 1.5
       ? `₹${Number(amount).toLocaleString("en-IN")} is above your average payment of ${averageLabel}.`
       : `₹${Number(amount).toLocaleString("en-IN")} is within your usual range; your average payment is ${averageLabel}.`
+    : "";
+  const usualRange = spendingProfile && spendingProfile.p25 != null && spendingProfile.p75 != null
+    ? `₹${Math.round(spendingProfile.p25).toLocaleString("en-IN")}–₹${Math.round(spendingProfile.p75).toLocaleString("en-IN")}`
     : "";
 
   return(
@@ -1251,6 +1254,7 @@ function FraudRiskCard({score, recipient, recipientNum, amount, signals, onVerif
           <div style={{fontSize:12,color:"#45474D",lineHeight:1.45}}>
             Iron compared this payment with your usual spending pattern, recipient familiarity, recent activity, and account context.
             {amountContext && <div style={{marginTop:6,fontWeight:600}}>{amountContext}</div>}
+            {usualRange && <div style={{marginTop:4,fontSize:11,color:"#667085"}}>Most of your payments are between {usualRange}; median payment ₹{Math.round(spendingProfile.median).toLocaleString("en-IN")}.</div>}
           </div>
         </div>
         {!isNormal && displayReasons.length > 0 && (
@@ -3171,8 +3175,24 @@ function SendMoneyPage({user,balance,addTx,updateBalance,setPage,updateUser}){
             recipientNum={getRecipientInfo().targetNum || recipient}
             amount={parsedAmt}
             signals={riskData.signals}
-            avgAmount={typeof calculateAvgTransaction === "function" ? calculateAvgTransaction(user) : 0}
+            avgAmount={(() => {
+              const values = (user.transactions || [])
+                .filter(t => Number(t.amt) > 0 && !["pending","cancelled","failed","blocked"].includes(String(t.status || "").toLowerCase()))
+                .map(t => Number(t.amt)).sort((a,b) => a-b);
+              if (!values.length) return 0;
+              const trim = values.length >= 10 ? Math.floor(values.length * .1) : 0;
+              const base = trim ? values.slice(trim, values.length - trim) : values;
+              return base.reduce((sum, value) => sum + value, 0) / base.length;
+            })()}
             historyCount={user.transactions?.length || 0}
+            spendingProfile={(() => {
+              const values = (user.transactions || [])
+                .filter(t => Number(t.amt) > 0 && !["pending","cancelled","failed","blocked"].includes(String(t.status || "").toLowerCase()))
+                .map(t => Number(t.amt)).sort((a,b) => a-b);
+              if (!values.length) return null;
+              const at = p => values[Math.min(values.length - 1, Math.floor((values.length - 1) * p))];
+              return {p25:at(.25), median:at(.5), p75:at(.75)};
+            })()}
             onVerify={handleVerify}
             onCancel={cancelPayment}
             onReport={handleReport}
